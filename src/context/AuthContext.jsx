@@ -28,10 +28,11 @@ export const AuthProvider = ({ children }) => {
     // Gọi API Đăng nhập thật
     const login = async (username, password) => {
         try {
-            const response = await authApi.post('/login', { username, password });
+            const response = await api.post('/auth/login', { username, password });
             setCurrentUser(response.data); // Backend trả về thông tin User
             return { success: true };
         } catch (error) {
+            console.error("Login Error:", error); // Thêm log để debug
             return { success: false, message: error.response?.data?.message || 'Sai tài khoản hoặc mật khẩu!' };
         }
     };
@@ -39,9 +40,10 @@ export const AuthProvider = ({ children }) => {
     // Gọi API Đăng ký thật
     const register = async (name, username, password, role) => {
         try {
-            await authApi.post('/register', { name, username, password, role });
+            await api.post('/auth/register', { name, username, password, role });
             return { success: true };
         } catch (error) {
+            console.error("Register Error:", error); // Thêm log để debug
             return { success: false, message: error.response?.data?.message || 'Tên đăng nhập đã tồn tại!' };
         }
     };
@@ -52,10 +54,11 @@ export const AuthProvider = ({ children }) => {
 
     const updateProfile = async (updatedData) => {
         try {
-            const response = await authApi.put(`/update/${currentUser.id}`, updatedData);
+            const response = await api.put(`/auth/update/${currentUser.id}`, updatedData);
             setCurrentUser(response.data);
             return { success: true };
         } catch (error) {
+            console.error("Update Profile Error:", error); // Thêm log để debug
             return { success: false, message: 'Lỗi cập nhật hồ sơ!' };
         }
     };
