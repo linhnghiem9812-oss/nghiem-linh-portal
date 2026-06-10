@@ -38,7 +38,8 @@ export const DataProvider = ({ children }) => {
         try {
             const res = await api.post('/classes', newClass);
             setClasses(prev => [res.data, ...prev]);
-        } catch (e) { alert('Lỗi tạo lớp!'); }
+            return { success: true };
+        } catch (e) { alert('Lỗi tạo lớp!'); return { success: false }; }
     };
 
     const addCustomer = async (newCustomer) => {
