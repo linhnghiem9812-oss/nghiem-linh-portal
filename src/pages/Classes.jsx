@@ -8,7 +8,7 @@ const api = axios.create({
 });
 
 function Classes() {
-    const { classes, addClass } = useData();
+    const { classes, addClass, teachers } = useData();
     const { currentUser, currentRole } = useAuth();
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -19,8 +19,8 @@ function Classes() {
     const [classStudents, setClassStudents] = useState([]);
 
     const [formClass, setFormClass] = useState({
-        name: '', teacher: 'Đoàn Đăng Khoa', ta: '', padletUrl: '', classType: 'Lớp Nhóm',
-        level: 'HSK 1', sessionFee: '', startDate: '', totalSessions: 19, scheduleTime: ''
+        name: '', teacher: '', ta: '', padletUrl: '', classType: '',
+        level: '', sessionFee: '', startDate: '', totalSessions: 0, scheduleTime: ''
     });
 
     // Tải danh sách học viên động từ DB khi chọn một lớp cụ thể
@@ -59,7 +59,7 @@ function Classes() {
 
         addClass(newClassObj);
         alert(`Hệ thống: Khởi tạo thành công lớp học ${formClass.name}!`);
-        setFormClass({ name: '', teacher: 'Đoàn Đăng Khoa', ta: '', padletUrl: '', classType: 'Lớp Nhóm', level: 'HSK 1', sessionFee: '', startDate: '', totalSessions: 19, scheduleTime: '' });
+        setFormClass({ name: '', teacher: '', ta: '', padletUrl: '', classType: '', level: '', sessionFee: '', startDate: '', totalSessions: 0, scheduleTime: '' });
     };
 
     let displayClasses = classes || [];
@@ -209,8 +209,20 @@ function Classes() {
                             <div>
                                 <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>GIÁO VIÊN PHỤ TRÁCH</label>
                                 <select className="form-control" value={formClass.teacher} onChange={(e) => setFormClass({ ...formClass, teacher: e.target.value })}>
-                                    <option value="Đoàn Đăng Khoa">👨‍🏫 Đoàn Đăng Khoa</option>
-                                    <option value="Nguyễn Đức Trung">👨‍🏫 Nguyễn Đức Trung</option>
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>GIÁO VIÊN PHỤ TRÁCH (*)</label>
+                                        <select className="form-control" value={formClass.teacher} onChange={(e) => setFormClass({ ...formClass, teacher: e.target.value })}>
+                                            <option value="" disabled>-- Chọn Giáo viên --</option>
+
+                                            {/* Vòng lặp in ra danh sách giáo viên từ Database */}
+                                            {teachers && teachers.map((teacher) => (
+                                                <option key={teacher.id} value={teacher.name}>
+                                                    👨‍🏫 {teacher.name}
+                                                </option>
+                                            ))}
+
+                                        </select>
+                                    </div>
                                 </select>
                             </div>
                             <div>
