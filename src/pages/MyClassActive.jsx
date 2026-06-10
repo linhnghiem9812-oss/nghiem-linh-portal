@@ -3,7 +3,9 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 
-const api = axios.create({ baseURL: 'http://localhost:8081/api' });
+const api = axios.create({
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
+});
 
 function MyClassActive() {
     const { currentUser, currentRole } = useAuth();

@@ -4,7 +4,9 @@ import axios from 'axios';
 const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
-    const api = axios.create({ baseURL: 'http://localhost:8081/api' });
+    const api = axios.create({
+        baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
+    });
 
     // CÁC STATE LƯU TRỮ DỮ LIỆU TỪ BACKEND
     const [classes, setClasses] = useState([]);

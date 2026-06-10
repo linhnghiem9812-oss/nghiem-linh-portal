@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import axios from 'axios';
 
-const api = axios.create({ baseURL: 'http://localhost:8081/api' });
+const api = axios.create({
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
+});
 
 function CourseSyllabus() {
     const { addCourse } = useData();

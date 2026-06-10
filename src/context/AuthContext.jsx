@@ -5,7 +5,9 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     // API kết nối đến Backend xác thực
-    const authApi = axios.create({ baseURL: 'http://localhost:8081/api/auth' });
+    const api = axios.create({
+        baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
+    });
 
     // Chỉ lưu phiên người dùng hiện tại, KHÔNG lưu danh sách user ảo nữa
     const [currentUser, setCurrentUser] = useState(() => {
