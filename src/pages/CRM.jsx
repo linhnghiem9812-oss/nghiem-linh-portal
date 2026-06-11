@@ -17,7 +17,6 @@ function CRM() {
     const today = new Date();
     const defaultDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
 
-    // Đã xóa email, thêm saleInCharge, receiveDate, totalSessions
     const [formData, setFormData] = useState({
         fbName: '', name: '', phone: '', dob: '', language: 'Tiếng Trung',
         customerType: 'Mới', source: 'Facebook', course: '', level: '',
@@ -61,7 +60,7 @@ function CRM() {
             fbName: formData.fbName,
             name: formData.name,
             phone: formData.phone,
-            dob: formatToStandardDate(formData.dob), // Định dạng lại Ngày sinh
+            dob: formatToStandardDate(formData.dob),
             language: formData.language,
             customerType: formData.customerType,
             source: formData.source,
@@ -71,14 +70,14 @@ function CRM() {
             potential: formData.potential,
             status: formData.status,
             fee: formData.fee ? parseInt(formData.fee) : 0,
-            totalSessions: formData.totalSessions, // Đẩy thêm Số buổi
+            totalSessions: formData.totalSessions,
             lastContact: formData.lastContact,
             notes: formData.notes,
             nextAction: formData.nextAction,
             assignClass: formData.assignClass,
             country: formData.country,
-            receiveDate: formatToStandardDate(formData.receiveDate), // Định dạng lại Ngày nhận
-            saleInCharge: formData.saleInCharge // Đẩy thêm Tên Sale
+            receiveDate: formatToStandardDate(formData.receiveDate),
+            saleInCharge: formData.saleInCharge
         };
 
         try {
@@ -87,7 +86,6 @@ function CRM() {
             if (addCustomer) addCustomer(res.data);
             alert('Thêm khách hàng thành công!');
 
-            // Reset form
             setFormData({ fbName: '', name: '', phone: '', dob: '', language: 'Tiếng Trung', customerType: 'Mới', source: 'Facebook', course: '', level: '', potential: 'Trung bình', status: 'Mới', fee: '', totalSessions: '', lastContact: '', notes: '', nextAction: '', assignClass: '', groupType: 'Lớp Nhóm', country: 'Việt Nam', receiveDate: defaultDate, saleInCharge: '' });
         } catch (err) {
             alert('Lỗi khi đẩy khách hàng lên database. Vui lòng kiểm tra lại!');
@@ -111,6 +109,7 @@ function CRM() {
                 await api.delete(`/customers/${id}`);
                 setLocalCustomers(prev => prev.filter(c => c.id !== id));
                 setSelectedCustomer(null);
+                alert('Đã xóa hồ sơ khách hàng thành công!');
             } catch (e) {
                 alert('Lỗi xóa khách hàng.');
             }
@@ -125,19 +124,18 @@ function CRM() {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', position: 'relative' }}>
+            
+            {/* PHẦN 1: TIẾP NHẬN KHÁCH HÀNG */}
             <div className="card" style={{ padding: '24px' }}>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '20px', color: '#1e3a8a' }}>
                     <i className="fa-solid fa-user-plus" style={{ marginRight: '8px' }}></i> Tiếp nhận Khách hàng
                 </h3>
                 <form onSubmit={handleFormSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-
-                    {/* CỘT 1 */}
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>TÊN FB</label><input type="text" name="fbName" className="form-control" value={formData.fbName} onChange={handleInputChange} placeholder="Nhập tên FB..." /></div>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGÀY NHẬN</label><input type="text" name="receiveDate" className="form-control" value={formData.receiveDate} onChange={handleInputChange} placeholder="VD: 11/06/2026" /></div>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGƯỜI SALE TIẾP NHẬN</label><input type="text" name="saleInCharge" className="form-control" value={formData.saleInCharge} onChange={handleInputChange} placeholder="Tên Sale..." /></div>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary)' }}>SĐT (Zalo) (*)</label><input type="text" name="phone" className="form-control" value={formData.phone} onChange={handleInputChange} required style={{ borderColor: 'var(--primary)' }} /></div>
 
-                    {/* CỘT 2 */}
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGÀY SINH (Tự nhập)</label><input type="text" name="dob" className="form-control" value={formData.dob} onChange={handleInputChange} placeholder="VD: 15/08/1998" /></div>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>HỌ TÊN</label><input type="text" name="name" className="form-control" value={formData.name} onChange={handleInputChange} placeholder="Không bắt buộc" /></div>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>QUỐC GIA</label><input type="text" name="country" className="form-control" value={formData.country} onChange={handleInputChange} placeholder="Ví dụ: Việt Nam" /></div>
@@ -148,7 +146,6 @@ function CRM() {
                         </select>
                     </div>
 
-                    {/* CỘT 3 */}
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>KHÓA HỌC</label><input type="text" name="course" className="form-control" value={formData.course} onChange={handleInputChange} placeholder="Tự nhập tên khóa học..." /></div>
                     <div>
                         <label style={{ fontSize: '0.75rem', fontWeight: '700' }}>LOẠI KHÁCH</label>
@@ -160,7 +157,6 @@ function CRM() {
                     </div>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>TRÌNH ĐỘ</label><input type="text" name="level" className="form-control" value={formData.level} onChange={handleInputChange} /></div>
 
-                    {/* CỘT 4 */}
                     <div>
                         <label style={{ fontSize: '0.75rem', fontWeight: '700' }}>TIỀM NĂNG</label>
                         <select name="potential" className="form-control" value={formData.potential} onChange={handleInputChange}><option value="Cao">Cao</option><option value="Trung bình">Trung bình</option><option value="Thấp">Thấp</option></select>
@@ -175,7 +171,6 @@ function CRM() {
                     </div>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>LIÊN HỆ CUỐI</label><input type="date" name="lastContact" className="form-control" value={formData.lastContact} onChange={handleInputChange} /></div>
 
-                    {/* CÁC HÀNG CUỐI (SPAN) */}
                     <div style={{ gridColumn: 'span 2' }}><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>GHI CHÚ</label><input type="text" name="notes" className="form-control" value={formData.notes} onChange={handleInputChange} /></div>
                     <div style={{ gridColumn: 'span 2' }}><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>VIỆC TIẾP THEO</label><input type="text" name="nextAction" className="form-control" value={formData.nextAction} onChange={handleInputChange} /></div>
 
@@ -198,34 +193,103 @@ function CRM() {
                 </form>
             </div>
 
+            {/* PHẦN 2: DANH SÁCH KHÁCH HÀNG (ĐÃ BỔ SUNG TOÀN BỘ CÁC CỘT) */}
             <div className="card" style={{ padding: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                     <h3 style={{ fontSize: '1.15rem', fontWeight: '800' }}><i className="fa-solid fa-list" style={{ marginRight: '8px' }}></i> Danh sách Khách hàng</h3>
                     <input type="text" className="form-control" placeholder="🔍 Lọc theo tên FB, SĐT..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '300px' }} />
                 </div>
 
-                <div className="modal-table-container">
-                    <table className="modal-table">
+                {/* Container hỗ trợ scroll ngang khi bảng rộng quá màn hình */}
+                <div className="modal-table-container" style={{ overflowX: 'auto', maxWidth: '100%' }}>
+                    <table className="modal-table" style={{ width: '100%', borderCollapse: 'collapse', whiteSpace: 'nowrap' }}>
                         <thead>
-                            <tr style={{ backgroundColor: 'var(--bg-app)', textAlign: 'left' }}>
-                                <th style={{ padding: '12px' }}>STT</th><th style={{ padding: '12px' }}>NGÀY NHẬN</th>
-                                <th style={{ padding: '12px' }}>KHÁCH HÀNG</th><th style={{ padding: '12px' }}>SALE NHẬN</th><th style={{ padding: '12px' }}>KHÓA HỌC</th>
-                                <th style={{ padding: '12px' }}>TIỀM NĂNG</th><th style={{ padding: '12px' }}>TRẠNG THÁI</th>
+                            <tr style={{ backgroundColor: 'var(--bg-app)', textAlign: 'left', fontSize: '0.75rem' }}>
+                                <th style={{ padding: '12px' }}>STT</th>
+                                <th style={{ padding: '12px' }}>TÊN FB</th>
+                                <th style={{ padding: '12px' }}>NGÀY NHẬN</th>
+                                <th style={{ padding: '12px' }}>SALE NHẬN</th>
+                                <th style={{ padding: '12px' }}>SĐT (ZALO)</th>
+                                <th style={{ padding: '12px' }}>NGÀY SINH</th>
+                                <th style={{ padding: '12px' }}>HỌ TÊN</th>
+                                <th style={{ padding: '12px' }}>QUỐC GIA</th>
+                                <th style={{ padding: '12px' }}>NGÔN NGỮ</th>
+                                <th style={{ padding: '12px' }}>KHÓA HỌC</th>
+                                <th style={{ padding: '12px' }}>LOẠI KHÁCH</th>
+                                <th style={{ padding: '12px' }}>NGUỒN</th>
+                                <th style={{ padding: '12px' }}>TRÌNH ĐỘ</th>
+                                <th style={{ padding: '12px' }}>TIỀM NĂNG</th>
+                                <th style={{ padding: '12px' }}>TRẠNG THÁI</th>
+                                <th style={{ padding: '12px' }}>HOC PHÍ</th>
+                                <th style={{ padding: '12px' }}>SỐ BUỔI</th>
+                                <th style={{ padding: '12px' }}>LIÊN HỆ CUỐI</th>
+                                <th style={{ padding: '12px' }}>GHI CHÚ</th>
+                                <th style={{ padding: '12px' }}>VIỆC TIẾP THEO</th>
+                                <th style={{ padding: '12px' }}>XẾP LỚP</th>
+                                <th style={{ padding: '12px' }}>LOẠI LỚP</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody style={{ fontSize: '0.85rem' }}>
                             {filteredCustomers.map((c, index) => (
-                                <tr key={c.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                <tr key={c.id || index} style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'white' }}>
                                     <td style={{ padding: '14px 12px', fontWeight: '700' }}>{index + 1}</td>
-                                    <td style={{ padding: '14px 12px', color: 'var(--text-muted)' }}>{c.receiveDate || c.date || 'Chưa nhập'}</td>
-                                    <td style={{ padding: '14px 12px', cursor: 'pointer' }} onClick={() => { setSelectedCustomer({ ...c }); setIsEditing(false); }}>
-                                        <strong style={{ display: 'block', color: 'var(--primary)', textDecoration: 'underline' }}>{c.name || c.fbName || 'Khách chưa có tên'}</strong>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>📞 {c.phone}</span>
+                                    
+                                    {/* Cột Tên FB có gạch chân để click mở Modal xem chi tiết/sửa/xóa */}
+                                    <td style={{ padding: '14px 12px' }}>
+                                        <span 
+                                            style={{ color: 'var(--primary)', textDecoration: 'underline', fontWeight: '700', cursor: 'pointer' }}
+                                            onClick={() => { setSelectedCustomer({ ...c }); setIsEditing(false); }}
+                                        >
+                                            {c.fbName || '---'}
+                                        </span>
                                     </td>
-                                    <td style={{ padding: '14px 12px' }}>{c.saleInCharge || 'Chưa có'}</td>
-                                    <td style={{ padding: '14px 12px' }}>{c.course}</td>
-                                    <td style={{ padding: '14px 12px' }}><span style={{ color: c.potential === 'Cao' ? 'var(--success)' : 'var(--warning-text)', fontWeight: '700' }}>{c.potential}</span></td>
-                                    <td style={{ padding: '14px 12px' }}><span className="badge-studying">{c.status}</span></td>
+                                    
+                                    <td style={{ padding: '14px 12px', color: 'var(--text-muted)' }}>{c.receiveDate || '---'}</td>
+                                    <td style={{ padding: '14px 12px', fontWeight: '600' }}>{c.saleInCharge || '---'}</td>
+                                    <td style={{ padding: '14px 12px' }}>{c.phone || '---'}</td>
+                                    <td style={{ padding: '14px 12px' }}>{c.dob || '---'}</td>
+                                    <td style={{ padding: '14px 12px', fontWeight: '600' }}>{c.name || '---'}</td>
+                                    <td style={{ padding: '14px 12px' }}>{c.country || '---'}</td>
+                                    <td style={{ padding: '14px 12px' }}>{c.language || '---'}</td>
+                                    <td style={{ padding: '14px 12px' }}>{c.course || '---'}</td>
+                                    <td style={{ padding: '14px 12px' }}>{c.customerType || '---'}</td>
+                                    <td style={{ padding: '14px 12px' }}>{c.source || '---'}</td>
+                                    <td style={{ padding: '14px 12px' }}>{c.level || '---'}</td>
+                                    
+                                    <td style={{ padding: '14px 12px' }}>
+                                        <span style={{ 
+                                            color: c.potential === 'Cao' ? '#166534' : c.potential === 'Thấp' ? '#b91c1c' : '#b45309', 
+                                            fontWeight: '700',
+                                            backgroundColor: c.potential === 'Cao' ? '#dcfce7' : c.potential === 'Thấp' ? '#fee2e2' : '#fef3c7',
+                                            padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem'
+                                        }}>
+                                            {c.potential || 'Trung bình'}
+                                        </span>
+                                    </td>
+                                    
+                                    <td style={{ padding: '14px 12px' }}>
+                                        <span className="badge-studying" style={{
+                                            backgroundColor: c.status === 'Đã ĐK' ? '#dcfce7' : c.status === 'Đang tư vấn' ? '#e0e7ff' : '#f1f5f9',
+                                            color: c.status === 'Đã ĐK' ? '#166534' : c.status === 'Đang tư vấn' ? '#3730a3' : '#475569',
+                                            fontWeight: '800', padding: '4px 10px', borderRadius: '50px', fontSize: '0.75rem'
+                                        }}>
+                                            {c.status || 'Mới'}
+                                        </span>
+                                    </td>
+                                    
+                                    <td style={{ padding: '14px 12px', fontWeight: '700', color: 'var(--primary)' }}>
+                                        {c.fee ? `${Number(c.fee).toLocaleString('vi-VN')} đ` : '0 đ'}
+                                    </td>
+                                    
+                                    <td style={{ padding: '14px 12px', textAlign: 'center', fontWeight: '700' }}>{c.totalSessions || '---'}</td>
+                                    <td style={{ padding: '14px 12px' }}>{c.lastContact || '---'}</td>
+                                    
+                                    {/* Giới hạn độ rộng cột ghi chú dài để tránh vỡ khung */}
+                                    <td style={{ padding: '14px 12px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={c.notes}>{c.notes || '---'}</td>
+                                    <td style={{ padding: '14px 12px', maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={c.nextAction}>{c.nextAction || '---'}</td>
+                                    
+                                    <td style={{ padding: '14px 12px' }}>{c.assignClass || '---'}</td>
+                                    <td style={{ padding: '14px 12px' }}>{c.type || c.groupType || '---'}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -233,9 +297,10 @@ function CRM() {
                 </div>
             </div>
 
+            {/* MODAL XEM CHI TIẾT & SỬA / XÓA HỒ SƠ */}
             {selectedCustomer && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <div className="card" style={{ width: '600px', backgroundColor: 'white', padding: '24px', borderRadius: '12px' }}>
+                    <div className="card" style={{ width: '650px', backgroundColor: 'white', padding: '24px', borderRadius: '12px', maxHeight: '90vh', overflowY: 'auto' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
                             <h3 style={{ fontWeight: '800' }}><i className="fa-solid fa-user-pen"></i> {isEditing ? "Chỉnh sửa hồ sơ" : "Hồ sơ khách hàng"}</h3>
                             <button onClick={() => setSelectedCustomer(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✖</button>
@@ -243,41 +308,85 @@ function CRM() {
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                             <div>
-                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Họ tên</label>
-                                {isEditing ? <input className="form-control" value={selectedCustomer.name || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, name: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.name || 'Không rõ'}</div>}
-                            </div>
-                            <div>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Tên Facebook</label>
                                 {isEditing ? <input className="form-control" value={selectedCustomer.fbName || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, fbName: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.fbName || 'Không có'}</div>}
                             </div>
                             <div>
-                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Số điện thoại</label>
-                                {isEditing ? <input className="form-control" value={selectedCustomer.phone || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, phone: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.phone}</div>}
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ngày nhận</label>
+                                {isEditing ? <input className="form-control" value={selectedCustomer.receiveDate || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, receiveDate: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.receiveDate || 'Không có'}</div>}
                             </div>
                             <div>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Người Sale tiếp nhận</label>
                                 {isEditing ? <input className="form-control" value={selectedCustomer.saleInCharge || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, saleInCharge: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.saleInCharge || 'Không có'}</div>}
                             </div>
                             <div>
-                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ngày nhận (Tự nhập)</label>
-                                {isEditing ? <input className="form-control" value={selectedCustomer.receiveDate || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, receiveDate: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.receiveDate || 'Không có'}</div>}
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Số điện thoại</label>
+                                {isEditing ? <input className="form-control" value={selectedCustomer.phone || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, phone: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.phone}</div>}
                             </div>
                             <div>
-                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ngày sinh (Tự nhập)</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ngày sinh</label>
                                 {isEditing ? <input className="form-control" value={selectedCustomer.dob || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, dob: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.dob || 'Không có'}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Họ tên học viên</label>
+                                {isEditing ? <input className="form-control" value={selectedCustomer.name || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, name: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.name || 'Không rõ'}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Quốc gia</label>
+                                {isEditing ? <input className="form-control" value={selectedCustomer.country || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, country: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.country}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ngôn ngữ</label>
+                                {isEditing ? (
+                                    <select className="form-control" value={selectedCustomer.language || 'Tiếng Trung'} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, language: e.target.value })}>
+                                        <option value="Tiếng Trung">Tiếng Trung</option><option value="Tiếng Nhật">Tiếng Nhật</option><option value="Tiếng Anh">Tiếng Anh</option>
+                                    </select>
+                                ) : <div style={{ fontWeight: '600' }}>{selectedCustomer.language}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Khóa học</label>
+                                {isEditing ? <input className="form-control" value={selectedCustomer.course || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, course: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.course || '---'}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Trình độ</label>
+                                {isEditing ? <input className="form-control" value={selectedCustomer.level || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, level: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.level || '---'}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Học phí</label>
+                                {isEditing ? <input type="number" className="form-control" value={selectedCustomer.fee || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, fee: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.fee ? Number(selectedCustomer.fee).toLocaleString('vi-VN') + ' đ' : '0 đ'}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Số buổi</label>
+                                {isEditing ? <input type="number" className="form-control" value={selectedCustomer.totalSessions || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, totalSessions: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.totalSessions || '---'}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Trạng thái</label>
+                                {isEditing ? (
+                                    <select className="form-control" value={selectedCustomer.status || 'Mới'} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, status: e.target.value })}>
+                                        <option value="Mới">🆕 Mới</option><option value="Đang tư vấn">Đang tư vấn</option><option value="Đã ĐK">Đã ĐK</option>
+                                    </select>
+                                ) : <div style={{ fontWeight: '600' }}>{selectedCustomer.status}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Xếp vào lớp</label>
+                                {isEditing ? <input className="form-control" value={selectedCustomer.assignClass || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, assignClass: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.assignClass || '---'}</div>}
                             </div>
                             <div style={{ gridColumn: 'span 2' }}>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ghi chú / Nhu cầu</label>
-                                {isEditing ? <textarea className="form-control" value={selectedCustomer.notes || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, notes: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.notes || 'Không có ghi chú'}</div>}
+                                {isEditing ? <textarea className="form-control" rows="2" value={selectedCustomer.notes || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, notes: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.notes || 'Không có ghi chú'}</div>}
+                            </div>
+                            <div style={{ gridColumn: 'span 2' }}>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Việc tiếp theo</label>
+                                {isEditing ? <textarea className="form-control" rows="2" value={selectedCustomer.nextAction || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, nextAction: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.nextAction || '---'}</div>}
                             </div>
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
-                            <button className="btn" style={{ padding: '8px 16px', backgroundColor: '#ef4444', color: 'white', borderRadius: '6px', cursor: 'pointer' }} onClick={() => handleDelete(selectedCustomer.id)}><i className="fa-solid fa-trash"></i> Xóa hồ sơ</button>
+                            <button className="btn" style={{ padding: '10px 20px', backgroundColor: '#ef4444', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' }} onClick={() => handleDelete(selectedCustomer.id)}><i className="fa-solid fa-trash"></i> Xóa hồ sơ</button>
                             {!isEditing ? (
-                                <button className="btn" style={{ padding: '8px 16px', backgroundColor: 'var(--warning)', color: 'white', borderRadius: '6px', cursor: 'pointer' }} onClick={() => setIsEditing(true)}><i className="fa-solid fa-pen"></i> Sửa thông tin</button>
+                                <button className="btn" style={{ padding: '10px 20px', backgroundColor: 'var(--warning)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' }} onClick={() => setIsEditing(true)}><i className="fa-solid fa-pen"></i> Sửa thông tin</button>
                             ) : (
-                                <button className="btn" style={{ padding: '8px 16px', backgroundColor: 'var(--success)', color: 'white', borderRadius: '6px', cursor: 'pointer' }} onClick={handleSaveEdit}><i className="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>
+                                <button className="btn" style={{ padding: '10px 20px', backgroundColor: 'var(--success)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' }} onClick={handleSaveEdit}><i className="fa-solid fa-floppy-disk"></i> Lưu thay đổi</button>
                             )}
                         </div>
                     </div>
