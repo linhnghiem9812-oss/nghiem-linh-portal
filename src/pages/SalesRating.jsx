@@ -29,7 +29,7 @@ function SalesRating() {
                     const salesName = user.name || user.username;
 
                     // 1. Lọc ra các khách hàng do Sale này phụ trách (Không phân biệt hoa/thường)
-                    const myCustomers = customers ? customers.filter(c => 
+                    const myCustomers = customers ? customers.filter(c =>
                         c.saleInCharge && c.saleInCharge.toLowerCase() === salesName.toLowerCase()
                     ) : [];
 
@@ -43,8 +43,8 @@ function SalesRating() {
                         .reduce((sum, c) => sum + (parseInt(c.fee) || 0), 0);
 
                     // 4. Rút gọn số tiền để hiển thị trên biểu đồ cột (VD: 15000000 -> 15.0M)
-                    const revenueFormatted = totalRevenue >= 1000000 
-                        ? (totalRevenue / 1000000).toFixed(1) + 'M' 
+                    const revenueFormatted = totalRevenue >= 1000000
+                        ? (totalRevenue / 1000000).toFixed(1) + 'M'
                         : totalRevenue.toLocaleString('vi-VN') + ' đ';
 
                     return {
@@ -62,7 +62,7 @@ function SalesRating() {
 
                 // 5. Sắp xếp danh sách Sale theo doanh thu thực tế giảm dần
                 formatted.sort((a, b) => b.revenueValue - a.revenueValue);
-                
+
                 // 6. Gán hạng (Rank) sau khi đã sắp xếp
                 formatted.forEach((member, idx) => member.rank = idx + 1);
 

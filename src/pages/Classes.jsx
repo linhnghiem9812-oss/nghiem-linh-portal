@@ -18,8 +18,8 @@ function Classes() {
     const [classStudents, setClassStudents] = useState([]);
 
     const [formClass, setFormClass] = useState({
-        name: '', teacher: '', ta: '', padletUrl: '', classType: 'Lớp Nhóm',
-        level: 'HSK 1', sessionFee: '', startDate: '', totalSessions: 19, scheduleTime: ''
+        name: '', teacher: '', ta: '', padletUrl: '', classType: '',
+        level: '', sessionFee: '', startDate: '', totalSessions: '', scheduleTime: ''
     });
 
     useEffect(() => {
@@ -60,7 +60,7 @@ function Classes() {
         // HIỂN THỊ THÔNG BÁO THÀNH CÔNG DỰA VÀO KẾT QUẢ TRẢ VỀ TỪ DATACONTEXT
         if (result && result.success) {
             alert(`Hệ thống: Khởi tạo thành công lớp học ${formClass.name}!`);
-            setFormClass({ name: '', teacher: '', ta: '', padletUrl: '', classType: 'Lớp Nhóm', level: 'HSK 1', sessionFee: '', startDate: '', totalSessions: 19, scheduleTime: '' });
+            setFormClass({ name: '', teacher: '', ta: '', padletUrl: '', classType: '', level: '', sessionFee: '', startDate: '', totalSessions: '', scheduleTime: '' });
         } else {
             alert('Lỗi tạo lớp! Vui lòng kiểm tra lại kết nối hoặc dữ liệu nhập.');
         }
@@ -212,14 +212,10 @@ function Classes() {
                             </div>
                             <div>
                                 <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>GIÁO VIÊN PHỤ TRÁCH</label>
-                                <select className="form-control" value={formClass.teacher} onChange={(e) => setFormClass({ ...formClass, teacher: e.target.value })}>
-                                    <option value="">-- Để trống (Xếp lịch sau) --</option>
-                                    {teachers && teachers.map((teacher) => (
-                                        <option key={teacher.id} value={teacher.name}>
-                                            👨‍🏫 {teacher.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                <input list="teachers-list" className="form-control" placeholder="Tự nhập hoặc chọn..." value={formClass.teacher} onChange={(e) => setFormClass({ ...formClass, teacher: e.target.value })} />
+                                <datalist id="teachers-list">
+                                    {teachers && teachers.map((t) => <option key={t.id} value={t.name} />)}
+                                </datalist>
                             </div>
                             <div>
                                 <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>TRỢ GIẢNG PHỤ TRÁCH</label>
@@ -261,12 +257,12 @@ function Classes() {
                                     <input type="number" className="form-control" placeholder="Ví dụ: 350000" value={formClass.sessionFee} onChange={(e) => setFormClass({ ...formClass, sessionFee: e.target.value })} required style={{ background: 'white', borderColor: 'var(--primary)', marginTop: '6px' }} />
                                 </div>
                                 <div>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>NGÀY KHAI GIẢNG</label>
-                                    <input type="date" className="form-control" value={formClass.startDate} onChange={(e) => setFormClass({ ...formClass, startDate: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>NGÀY KHAI GIẢNG (Tự nhập)</label>
+                                    <input type="text" className="form-control" placeholder="VD: 15/08/2026" value={formClass.startDate} onChange={(e) => setFormClass({ ...formClass, startDate: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
                                 </div>
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>TỔNG SỐ BUỔI</label>
-                                    <input type="number" className="form-control" value={formClass.totalSessions} onChange={(e) => setFormClass({ ...formClass, totalSessions: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
+                                    <input type="number" className="form-control" placeholder="VD: 19" value={formClass.totalSessions} onChange={(e) => setFormClass({ ...formClass, totalSessions: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
                                 </div>
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>GIỜ HỌC</label>

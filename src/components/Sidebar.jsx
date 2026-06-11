@@ -1,6 +1,9 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 
+// Kéo file ảnh từ thư mục assets vào
+import adminAvatarImg from '../assets/admin_avatar.jpg';
+
 function Sidebar({ activeTab, setActiveTab }) {
     const { currentUser, currentRole, logout } = useAuth();
     const isTeacher = currentRole === 'teacher';
@@ -13,15 +16,38 @@ function Sidebar({ activeTab, setActiveTab }) {
     return (
         <aside className="sidebar">
             {/* KHU VỰC GÓC BÊN TRÁI: HIỂN THỊ ẢNH VÀ TÊN NGƯỜI DÙNG THỰC TẾ ĐANG ĐĂNG NHẬP */}
-            <div className="sidebar-brand-container" style={{ paddingBottom: '24px' }}>
-                <div className="hanai-robot-avatar" style={{ border: '3px solid var(--primary)', backgroundColor: 'var(--primary-light)' }}>
-                    <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--primary)', fontFamily: 'var(--font-heading)' }}>
-                        {userInitials}
-                    </div>
+            <div className="sidebar-brand-container" style={{ paddingBottom: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+                {/* Khung chứa Avatar / Logo */}
+                <div className="hanai-robot-avatar" style={{
+                    border: '3px solid var(--primary)',
+                    backgroundColor: 'var(--primary-light)',
+                    overflow: 'hidden', // Bo tròn ảnh không bị tràn ra ngoài
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%'
+                }}>
+                    {/* Logic hiển thị: Nếu là Admin thì hiện ảnh, ngược lại hiện chữ viết tắt */}
+                    {currentRole === 'admin' ? (
+                        <img
+                            src={adminAvatarImg}
+                            alt="Logo / Admin Avatar"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                    ) : (
+                        <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--primary)', fontFamily: 'var(--font-heading)' }}>
+                            {userInitials}
+                        </div>
+                    )}
                 </div>
-                <div className="robot-brand-text" style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-main)', marginTop: '4px', wordBreak: 'break-word', padding: '0 8px' }}>
+
+                <div className="robot-brand-text" style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-main)', marginTop: '12px', wordBreak: 'break-word', padding: '0 8px', textAlign: 'center' }}>
                     {currentUser?.name || 'Nghiêm Linh User'}
                 </div>
+
                 <div className="user-title-badge" style={{ marginTop: '8px' }}>
                     {currentRole === 'admin' && 'Quản trị viên'}
                     {currentRole === 'manager' && 'Quản lý'}
