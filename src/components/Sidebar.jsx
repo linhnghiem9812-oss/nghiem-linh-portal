@@ -8,11 +8,6 @@ function Sidebar({ activeTab, setActiveTab }) {
     const { currentUser, currentRole, logout } = useAuth();
     const isTeacher = currentRole === 'teacher';
 
-    // Trích xuất ký tự viết tắt đầu tiên của tên người dùng để làm ảnh đại diện hình tròn hình học
-    const userInitials = currentUser?.name
-        ? currentUser.name.split(' ').pop().substring(0, 2).toUpperCase()
-        : 'NL';
-
     return (
         <aside className="sidebar">
             {/* KHU VỰC GÓC BÊN TRÁI: HIỂN THỊ ẢNH VÀ TÊN NGƯỜI DÙNG THỰC TẾ ĐANG ĐĂNG NHẬP */}
@@ -30,18 +25,12 @@ function Sidebar({ activeTab, setActiveTab }) {
                     height: '64px',
                     borderRadius: '50%'
                 }}>
-                    {/* Logic hiển thị: Nếu là Admin thì hiện ảnh, ngược lại hiện chữ viết tắt */}
-                    {currentRole === 'admin' ? (
-                        <img
-                            src={adminAvatarImg}
-                            alt="Logo / Admin Avatar"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                    ) : (
-                        <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--primary)', fontFamily: 'var(--font-heading)' }}>
-                            {userInitials}
-                        </div>
-                    )}
+                    {/* Luôn luôn hiển thị ảnh đại diện này cho tất cả mọi người */}
+                    <img
+                        src={adminAvatarImg}
+                        alt="Logo / User Avatar"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
                 </div>
 
                 <div className="robot-brand-text" style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-main)', marginTop: '12px', wordBreak: 'break-word', padding: '0 8px', textAlign: 'center' }}>

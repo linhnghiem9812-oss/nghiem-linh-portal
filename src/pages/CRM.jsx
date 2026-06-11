@@ -16,13 +16,12 @@ function CRM() {
     // TRẠNG THÁI ĐÓNG/MỞ KHỐI CHỌN CỘT (Mặc định thu gọn)
     const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
-    // DANH SÁCH CÁC CỘT TÙY CHỌN (Bật/Tắt theo nhu cầu người dùng)
+    // DANH SÁCH CÁC CỘT TÙY CHỌN (Khóa học và Loại lớp đã được chuyển thành Cột cố định)
     const [visibleColumns, setVisibleColumns] = useState({
         receiveDate: false,    // Ngày nhận
         saleInCharge: false,   // Sale nhận
         dob: false,            // Ngày sinh
         name: false,           // Họ tên
-        course: false,         // Khóa học
         customerType: false,   // Loại khách
         source: false,         // Nguồn
         fee: false,            // Học phí
@@ -30,8 +29,7 @@ function CRM() {
         lastContact: false,    // Liên hệ cuối
         notes: false,          // Ghi chú
         nextAction: false,     // Việc tiếp theo
-        assignClass: false,    // Xếp lớp
-        groupType: false       // Loại lớp
+        assignClass: false     // Xếp lớp
     });
 
     // Mảng cấu hình các cột ẩn để render bộ nút tick nhanh (Map với Icon FontAwesome)
@@ -40,7 +38,6 @@ function CRM() {
         { key: 'saleInCharge', label: 'Sale nhận', icon: 'fa-solid fa-user-tie' },
         { key: 'dob', label: 'Ngày sinh', icon: 'fa-cake-candles' },
         { key: 'name', label: 'Họ tên', icon: 'fa-id-card' },
-        { key: 'course', label: 'Khóa học', icon: 'fa-book-open' },
         { key: 'customerType', label: 'Loại khách', icon: 'fa-user-tag' },
         { key: 'source', label: 'Nguồn', icon: 'fa-share-nodes' },
         { key: 'fee', label: 'Học phí', icon: 'fa-wallet' },
@@ -48,8 +45,7 @@ function CRM() {
         { key: 'lastContact', label: 'Liên hệ cuối', icon: 'fa-business-time' },
         { key: 'notes', label: 'Ghi chú', icon: 'fa-note-sticky' },
         { key: 'nextAction', label: 'Việc tiếp theo', icon: 'fa-circle-exclamation' },
-        { key: 'assignClass', label: 'Xếp lớp', icon: 'fa-school' },
-        { key: 'groupType', label: 'Loại lớp', icon: 'fa-layer-group' }
+        { key: 'assignClass', label: 'Xếp lớp', icon: 'fa-school' }
     ];
 
     const toggleColumn = (columnKey) => {
@@ -101,7 +97,8 @@ function CRM() {
             fbName: formData.fbName, name: formData.name, phone: formData.phone,
             dob: formatToStandardDate(formData.dob), language: formData.language,
             customerType: formData.customerType, source: formData.source, course: formData.course,
-            type: formData.groupType, level: formData.level || 'Chưa xác định', potential: formData.potential,
+            type: formData.groupType, groupType: formData.groupType, // Backup biến lưu Loại lớp
+            level: formData.level || 'Chưa xác định', potential: formData.potential,
             status: formData.status, fee: formData.fee ? parseInt(formData.fee) : 0,
             totalSessions: formData.totalSessions, lastContact: formData.lastContact, notes: formData.notes,
             nextAction: formData.nextAction, assignClass: formData.assignClass, country: formData.country,
@@ -213,14 +210,13 @@ function CRM() {
 
             <div className="card" style={{ padding: '24px' }}>
 
-                {/* THANH ĐIỀU KHIỂN CỐ ĐỊNH (STICKY) - ĐÃ CĂN TRÁI */}
+                {/* THANH ĐIỀU KHIỂN CỐ ĐỊNH (STICKY) */}
                 <div style={{
                     position: 'sticky', top: '0', zIndex: '20', backgroundColor: '#ffffff',
                     border: '1px solid #e2e8f0', borderRadius: '10px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                     padding: '16px', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px'
                 }}>
                     <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '15px' }}>
-                        {/* Nút chính: Tùy chỉnh cột */}
                         <button
                             type="button"
                             onClick={() => setIsPanelExpanded(!isPanelExpanded)}
@@ -235,7 +231,6 @@ function CRM() {
                             <span>{isPanelExpanded ? 'Đóng bảng chọn' : 'Tùy chỉnh cột'}</span>
                         </button>
 
-                        {/* Nút Chọn/Bỏ chọn tất cả (Chỉ hiện khi mở rộng) */}
                         {isPanelExpanded && (
                             <div style={{ display: 'flex', gap: '8px' }}>
                                 <button onClick={() => setVisibleColumns(Object.keys(visibleColumns).reduce((acc, key) => ({ ...acc, [key]: true }), {}))}
@@ -249,7 +244,6 @@ function CRM() {
                             </div>
                         )}
 
-                        {/* Icon thu gọn (khi đóng bảng) */}
                         {!isPanelExpanded && (
                             <div style={{ display: 'flex', gap: '8px', color: '#64748b' }}>
                                 {optionalColumnsConfig.filter(col => visibleColumns[col.key]).map(col => (
@@ -259,7 +253,6 @@ function CRM() {
                         )}
                     </div>
 
-                    {/* Danh sách hộp kiểm Checkbox */}
                     {isPanelExpanded && (
                         <div style={{
                             display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '10px',
@@ -281,13 +274,12 @@ function CRM() {
                     )}
                 </div>
 
-                {/* THANH TÌM KIẾM DANH SÁCH KHÁCH HÀNG */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                     <h3 style={{ fontSize: '1.15rem', fontWeight: '800' }}><i className="fa-solid fa-list" style={{ marginRight: '8px' }}></i> Danh sách Khách hàng</h3>
                     <input type="text" className="form-control" placeholder="🔍 Lọc theo tên FB, SĐT..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '300px' }} />
                 </div>
 
-                {/* BẢNG SẼ TỰ ĐỘNG SCALE VÀ GHIM THEO CẤU HÌNH TICK CHỌN */}
+                {/* BẢNG DỮ LIỆU */}
                 <div className="modal-table-container" style={{ overflowX: 'auto', maxWidth: '100%' }}>
                     <table className="modal-table" style={{ width: '100%', borderCollapse: 'collapse', whiteSpace: 'nowrap', tableLayout: 'auto' }}>
                         <thead>
@@ -301,7 +293,8 @@ function CRM() {
                                 {visibleColumns.name && <th style={{ padding: '12px' }}>HỌ TÊN</th>}
                                 <th style={{ padding: '12px' }}>QUỐC GIA</th>
                                 <th style={{ padding: '12px' }}>NGÔN NGỮ</th>
-                                {visibleColumns.course && <th style={{ padding: '12px' }}>KHÓA HỌC</th>}
+                                <th style={{ padding: '12px' }}>KHÓA HỌC</th> {/* Cố định */}
+                                <th style={{ padding: '12px' }}>LOẠI LỚP</th> {/* Cố định */}
                                 {visibleColumns.customerType && <th style={{ padding: '12px' }}>LOẠI KHÁCH</th>}
                                 {visibleColumns.source && <th style={{ padding: '12px' }}>NGUỒN</th>}
                                 <th style={{ padding: '12px' }}>TRÌNH ĐỘ</th>
@@ -312,8 +305,7 @@ function CRM() {
                                 {visibleColumns.lastContact && <th style={{ padding: '12px' }}>LIÊN HỆ CUỐI</th>}
                                 {visibleColumns.notes && <th style={{ padding: '12px' }}>GHI CHÚ</th>}
                                 {visibleColumns.nextAction && <th style={{ padding: '12px' }}>VIỆC TIẾP THEO</th>}
-                                <th style={{ padding: '12px' }}>XẾP LỚP</th>
-                                <th style={{ padding: '12px' }}>LOẠI LỚP</th>
+                                {visibleColumns.assignClass && <th style={{ padding: '12px' }}>XẾP LỚP</th>}
                             </tr>
                         </thead>
                         <tbody style={{ fontSize: '0.85rem' }}>
@@ -321,56 +313,38 @@ function CRM() {
                                 <tr key={c.id || index} style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'white' }}>
                                     <td style={{ padding: '14px 12px', fontWeight: '700' }}>{index + 1}</td>
                                     <td style={{ padding: '14px 12px' }}>
-                                        <span
-                                            style={{ color: 'var(--primary)', textDecoration: 'underline', fontWeight: '700', cursor: 'pointer' }}
-                                            onClick={() => { setSelectedCustomer({ ...c }); setIsEditing(false); }}
-                                        >
+                                        <span style={{ color: 'var(--primary)', textDecoration: 'underline', fontWeight: '700', cursor: 'pointer' }} onClick={() => { setSelectedCustomer({ ...c }); setIsEditing(false); }}>
                                             {c.fbName || '---'}
                                         </span>
                                     </td>
-
-                                    {/* Khối xử lý ẩn hiện giá trị động theo từng ô thuộc hàng dữ liệu */}
                                     {visibleColumns.receiveDate && <td style={{ padding: '14px 12px', color: 'var(--text-muted)' }}>{c.receiveDate || '---'}</td>}
                                     {visibleColumns.saleInCharge && <td style={{ padding: '14px 12px', fontWeight: '600' }}>{c.saleInCharge || '---'}</td>}
-
                                     <td style={{ padding: '14px 12px' }}>{c.phone || '---'}</td>
-
                                     {visibleColumns.dob && <td style={{ padding: '14px 12px' }}>{c.dob || '---'}</td>}
                                     {visibleColumns.name && <td style={{ padding: '14px 12px', fontWeight: '600' }}>{c.name || '---'}</td>}
-
                                     <td style={{ padding: '14px 12px' }}>{c.country || '---'}</td>
                                     <td style={{ padding: '14px 12px' }}>{c.language || '---'}</td>
-
-                                    {visibleColumns.course && <td style={{ padding: '14px 12px' }}>{c.course || '---'}</td>}
+                                    <td style={{ padding: '14px 12px', fontWeight: '600' }}>{c.course || '---'}</td>
+                                    <td style={{ padding: '14px 12px', fontWeight: '600' }}>{c.groupType || c.type || '---'}</td>
                                     {visibleColumns.customerType && <td style={{ padding: '14px 12px' }}>{c.customerType || '---'}</td>}
                                     {visibleColumns.source && <td style={{ padding: '14px 12px' }}>{c.source || '---'}</td>}
-
                                     <td style={{ padding: '14px 12px' }}>{c.level || '---'}</td>
-
                                     <td style={{ padding: '14px 12px' }}>
-                                        <span style={{
-                                            color: c.potential === 'Cao' ? '#166534' : c.potential === 'Thấp' ? '#b91c1c' : '#b45309',
-                                            fontWeight: '700', backgroundColor: c.potential === 'Cao' ? '#dcfce7' : c.potential === 'Thấp' ? '#fee2e2' : '#fef3c7',
-                                            padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem'
-                                        }}>{c.potential || 'Trung bình'}</span>
+                                        <span style={{ color: c.potential === 'Cao' ? '#166534' : c.potential === 'Thấp' ? '#b91c1c' : '#b45309', fontWeight: '700', backgroundColor: c.potential === 'Cao' ? '#dcfce7' : c.potential === 'Thấp' ? '#fee2e2' : '#fef3c7', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem' }}>
+                                            {c.potential || 'Trung bình'}
+                                        </span>
                                     </td>
-
                                     <td style={{ padding: '14px 12px' }}>
-                                        <span className="badge-studying" style={{
-                                            backgroundColor: c.status === 'Đã ĐK' ? '#dcfce7' : c.status === 'Đang tư vấn' ? '#e0e7ff' : '#f1f5f9',
-                                            color: c.status === 'Đã ĐK' ? '#166534' : c.status === 'Đang tư vấn' ? '#3730a3' : '#475569',
-                                            fontWeight: '800', padding: '4px 10px', borderRadius: '50px', fontSize: '0.75rem'
-                                        }}>{c.status || 'Mới'}</span>
+                                        <span className="badge-studying" style={{ backgroundColor: c.status === 'Đã ĐK' ? '#dcfce7' : c.status === 'Đang tư vấn' ? '#e0e7ff' : '#f1f5f9', color: c.status === 'Đã ĐK' ? '#166534' : c.status === 'Đang tư vấn' ? '#3730a3' : '#475569', fontWeight: '800', padding: '4px 10px', borderRadius: '50px', fontSize: '0.75rem' }}>
+                                            {c.status || 'Mới'}
+                                        </span>
                                     </td>
-
                                     {visibleColumns.fee && <td style={{ padding: '14px 12px', fontWeight: '700', color: 'var(--primary)' }}>{c.fee ? `${Number(c.fee).toLocaleString('vi-VN')} đ` : '0 đ'}</td>}
                                     {visibleColumns.totalSessions && <td style={{ padding: '14px 12px', textAlign: 'center', fontWeight: '700' }}>{c.totalSessions || '---'}</td>}
                                     {visibleColumns.lastContact && <td style={{ padding: '14px 12px' }}>{c.lastContact || '---'}</td>}
                                     {visibleColumns.notes && <td style={{ padding: '14px 12px', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={c.notes}>{c.notes || '---'}</td>}
                                     {visibleColumns.nextAction && <td style={{ padding: '14px 12px', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={c.nextAction}>{c.nextAction || '---'}</td>}
-
-                                    <td style={{ padding: '14px 12px' }}>{c.assignClass || '---'}</td>
-                                    <td style={{ padding: '14px 12px' }}>{c.type || c.groupType || '---'}</td>
+                                    {visibleColumns.assignClass && <td style={{ padding: '14px 12px' }}>{c.assignClass || '---'}</td>}
                                 </tr>
                             ))}
                         </tbody>
@@ -378,7 +352,7 @@ function CRM() {
                 </div>
             </div>
 
-            {/* MODAL HỒ SƠ CHI TIẾT (LUÔN GIỮ TRỌN VẸN 22 TRƯỜNG KHÔNG PHỤ THUỘC VÀO TICK BẢNG CHỌN) */}
+            {/* MODAL XEM CHI TIẾT & CHỈNH SỬA HỒ SƠ */}
             {selectedCustomer && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <div className="card" style={{ width: '650px', backgroundColor: 'white', padding: '24px', borderRadius: '12px', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -429,6 +403,10 @@ function CRM() {
                                 {isEditing ? <input className="form-control" value={selectedCustomer.course || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, course: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.course || '---'}</div>}
                             </div>
                             <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Loại lớp</label>
+                                {isEditing ? <input list="groupTypeList" className="form-control" value={selectedCustomer.groupType || selectedCustomer.type || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, groupType: e.target.value, type: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.groupType || selectedCustomer.type || '---'}</div>}
+                            </div>
+                            <div>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Loại khách</label>
                                 {isEditing ? (
                                     <select className="form-control" value={selectedCustomer.customerType || 'Mới'} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, customerType: e.target.value })}>
@@ -447,6 +425,14 @@ function CRM() {
                             <div>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Trình độ</label>
                                 {isEditing ? <input className="form-control" value={selectedCustomer.level || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, level: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.level || '---'}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Tiềm năng</label>
+                                {isEditing ? (
+                                    <select className="form-control" value={selectedCustomer.potential || 'Trung bình'} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, potential: e.target.value })}>
+                                        <option value="Cao">Cao</option><option value="Trung bình">Trung bình</option><option value="Thấp">Thấp</option>
+                                    </select>
+                                ) : <div style={{ fontWeight: '600' }}>{selectedCustomer.potential || 'Trung bình'}</div>}
                             </div>
                             <div>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Học phí</label>
