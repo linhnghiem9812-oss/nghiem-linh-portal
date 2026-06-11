@@ -34,20 +34,32 @@ function TeachingAssistantProfile() {
                 role: 'ta'
             });
 
-            // SỬA LỖI MẤT DỮ LIỆU: Ép dữ liệu Học vấn & Trình độ từ form vào state hiển thị
-            // (Đề phòng trường hợp Backend UserEntity chưa kịp lưu 2 trường này)
+            // Ép dữ liệu Học vấn & Trình độ từ form vào state hiển thị
             setTas([...tas, { ...res.data, education: formInput.education, level: formInput.level }]);
             setFormInput({ name: '', email: '', phone: '', education: '', level: '' });
             alert('Hệ thống: Lưu thông tin hồ sơ Trợ giảng thành công!');
         } catch (error) {
-            alert('Lỗi: CSDL không phản hồi, không thể tạo Trợ giảng.');
+            alert('Lỗi: CSDL không phản hồi, không thể tạo Trợ giảng. Có thể SĐT này đã tồn tại!');
+        }
+    };
+
+    // HÀM MỚI: Xử lý xóa Trợ giảng khỏi Database
+    const handleDeleteTA = async (id) => {
+        if (window.confirm('Bạn có chắc chắn muốn xóa trợ giảng này khỏi hệ thống?')) {
+            try {
+                await api.delete(`/users/${id}`);
+                alert('Đã xóa trợ giảng thành công!');
+                // Tự động lọc trợ giảng bị xóa ra khỏi danh sách hiển thị
+                setTas(tas.filter(t => t.id !== id));
+            } catch (error) {
+                alert('Lỗi khi xóa dữ liệu. Vui lòng kiểm tra lại kết nối!');
+            }
         }
     };
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', animation: 'fadeIn 0.3s ease-out' }}>
             <div className="card" style={{ padding: '32px' }}>
-                {/* SỬA YÊU CẦU: Đổi tên thành "Thông tin Trợ giảng" */}
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '24px', color: '#10b981', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
                     <i className="fa-solid fa-user-graduate" style={{ marginRight: '8px' }}></i> Thông tin Trợ giảng
                 </h3>
@@ -83,43 +95,50 @@ function TeachingAssistantProfile() {
             <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
                 <div style={{ padding: '20px 24px', backgroundColor: 'var(--bg-app)', borderBottom: '1px solid var(--border-color)' }}>
                     <h3 style={{ fontSize: '1.15rem', fontWeight: '800' }}>
-                        <i className="fa-solid fa-table-list"></i> Bảng thông tin Trợ giảng
+                        <i className="fa-solid fa-table-list" style={{ marginRight: '8px' }}></i> Bảng thông tin Trợ giảng
                     </h3>
                 </div>
                 <div className="modal-table-container">
                     <table className="modal-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                        <thead>
-                            <tr style={{ backgroundColor: 'white', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        <thead style={{ backgroundColor: 'white', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                            <tr>
                                 <th style={{ padding: '16px 24px' }}>STT</th>
                                 <th style={{ padding: '16px 24px' }}>Họ & Tên</th>
                                 <th style={{ padding: '16px 24px' }}>Liên hệ (SĐT / Email)</th>
                                 <th style={{ padding: '16px 24px' }}>Học vấn</th>
                                 <th style={{ padding: '16px 24px' }}>Trình độ</th>
-                                {/* SỬA YÊU CẦU: Thêm cột Thao tác */}
                                 <th style={{ padding: '16px 24px', textAlign: 'center' }}>Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {tas.length === 0 && <tr><td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>Chưa có trợ giảng trong hệ thống.</td></tr>}
+                            {tas.length === 0 && <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}><i className="fa-solid fa-inbox" style={{ fontSize: '2rem', marginBottom: '10px', display: 'block' }}></i>Chưa có trợ giảng trong hệ thống.</td></tr>}
                             {tas.map((t, idx) => (
                                 <tr key={t.id || idx} style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'white' }}>
                                     <td style={{ padding: '16px 24px', fontWeight: '700' }}>{idx + 1}</td>
-                                    <td style={{ padding: '16px 24px', fontWeight: '700', color: '#10b981' }}>{t.name}</td>
+                                    <td style={{ padding: '16px 24px', fontWeight: '700', color: '#10b981', fontSize: '0.95rem' }}>{t.name}</td>
                                     <td style={{ padding: '16px 24px' }}>
-                                        <span style={{ display: 'block', fontSize: '0.85rem' }}>Zalo: {t.phone}</span>
+                                        <span style={{ display: 'block', fontSize: '0.85rem' }}><i className="fa-solid fa-phone" style={{ fontSize: '0.7rem', color: '#64748b' }}></i> {t.phone}</span>
                                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t.email || 'Chưa cập nhật'}</span>
                                     </td>
                                     <td style={{ padding: '16px 24px', fontSize: '0.85rem' }}>{t.education || 'Chưa cập nhật'}</td>
                                     <td style={{ padding: '16px 24px' }}>
-                                        <span style={{ backgroundColor: '#f1f5f9', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: '600' }}>
+                                        <span style={{ backgroundColor: '#f1f5f9', padding: '4px 12px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '800', color: '#475569' }}>
                                             {t.level || 'Chưa cập nhật'}
                                         </span>
                                     </td>
-                                    {/* SỬA YÊU CẦU: Thêm nút Xóa giống bảng khách hàng */}
                                     <td style={{ padding: '16px 24px', textAlign: 'center' }}>
-                                        <button title="Xóa" style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer' }}>
-                                            <i className="fa-solid fa-trash"></i>
-                                        </button>
+                                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                            <button title="Chỉnh sửa" style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', color: '#475569' }}>
+                                                <i className="fa-solid fa-pen" style={{ fontSize: '0.8rem' }}></i>
+                                            </button>
+                                            <button
+                                                title="Xóa nhân sự"
+                                                onClick={() => handleDeleteTA(t.id)}
+                                                style={{ background: '#fee2e2', border: '1px solid #fecaca', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', color: '#b91c1c' }}
+                                            >
+                                                <i className="fa-solid fa-trash" style={{ fontSize: '0.8rem' }}></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

@@ -13,17 +13,19 @@ function CRM() {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
 
+    // Lấy ngày hôm nay dưới định dạng hiển thị đẹp (DD/MM/YYYY) làm mặc định cho Ngày nhận
     const today = new Date();
-    const todayFormatted = today.toISOString().split('T')[0];
+    const defaultDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
 
+    // Đã xóa email, thêm saleInCharge, receiveDate, totalSessions
     const [formData, setFormData] = useState({
-        fbName: '', name: '', phone: '', dob: '', language: 'Tiếng Trung', email: '',
+        fbName: '', name: '', phone: '', dob: '', language: 'Tiếng Trung',
         customerType: 'Mới', source: 'Facebook', course: '', level: '',
-        potential: 'Trung bình', status: 'Mới', fee: '', lastContact: '',
-        notes: '', nextAction: '', assignClass: '-- Chưa xếp', groupType: 'Lớp Nhóm', country: 'Việt Nam'
+        potential: 'Trung bình', status: 'Mới', fee: '', totalSessions: '', lastContact: '',
+        notes: '', nextAction: '', assignClass: '', groupType: 'Lớp Nhóm', country: 'Việt Nam',
+        receiveDate: defaultDate, saleInCharge: ''
     });
 
-    // Đồng bộ trực tiếp danh sách data khách hàng từ PostgreSQL database
     useEffect(() => {
         api.get('/customers')
             .then(res => setLocalCustomers(res.data))
@@ -34,6 +36,20 @@ function CRM() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // Hàm thông minh: Tự động nắn lại định dạng ngày tháng (từ 15/8/98 thành 15/08/1998)
+    const formatToStandardDate = (str) => {
+        if (!str) return '';
+        const parts = str.split(/[-/.]/);
+        if (parts.length === 3) {
+            let [d, m, y] = parts;
+            d = d.padStart(2, '0');
+            m = m.padStart(2, '0');
+            if (y.length === 2) y = parseInt(y) > 30 ? `19${y}` : `20${y}`;
+            return `${d}/${m}/${y}`;
+        }
+        return str;
+    };
+
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         if (!formData.phone) {
@@ -42,13 +58,27 @@ function CRM() {
         }
 
         const newRecord = {
-            fbName: formData.fbName, name: formData.name, phone: formData.phone, dob: formData.dob,
-            language: formData.language, email: formData.email, customerType: formData.customerType,
-            source: formData.source, course: formData.course, type: formData.groupType,
-            level: formData.level || 'Chưa xác định', potential: formData.potential,
-            status: formData.status, fee: formData.fee ? parseInt(formData.fee) : 0, lastContact: formData.lastContact,
-            notes: formData.notes, nextAction: formData.nextAction, assignClass: formData.assignClass,
-            country: formData.country
+            fbName: formData.fbName,
+            name: formData.name,
+            phone: formData.phone,
+            dob: formatToStandardDate(formData.dob), // Định dạng lại Ngày sinh
+            language: formData.language,
+            customerType: formData.customerType,
+            source: formData.source,
+            course: formData.course,
+            type: formData.groupType,
+            level: formData.level || 'Chưa xác định',
+            potential: formData.potential,
+            status: formData.status,
+            fee: formData.fee ? parseInt(formData.fee) : 0,
+            totalSessions: formData.totalSessions, // Đẩy thêm Số buổi
+            lastContact: formData.lastContact,
+            notes: formData.notes,
+            nextAction: formData.nextAction,
+            assignClass: formData.assignClass,
+            country: formData.country,
+            receiveDate: formatToStandardDate(formData.receiveDate), // Định dạng lại Ngày nhận
+            saleInCharge: formData.saleInCharge // Đẩy thêm Tên Sale
         };
 
         try {
@@ -56,9 +86,11 @@ function CRM() {
             setLocalCustomers([res.data, ...localCustomers]);
             if (addCustomer) addCustomer(res.data);
             alert('Thêm khách hàng thành công!');
-            setFormData({ fbName: '', name: '', phone: '', dob: '', language: 'Tiếng Trung', email: '', customerType: 'Mới', source: 'Facebook', course: '', level: '', potential: 'Trung bình', status: 'Mới', fee: '', lastContact: '', notes: '', nextAction: '', assignClass: '-- Chưa xếp', groupType: 'Lớp Nhóm', country: 'Việt Nam' });
+
+            // Reset form
+            setFormData({ fbName: '', name: '', phone: '', dob: '', language: 'Tiếng Trung', customerType: 'Mới', source: 'Facebook', course: '', level: '', potential: 'Trung bình', status: 'Mới', fee: '', totalSessions: '', lastContact: '', notes: '', nextAction: '', assignClass: '', groupType: 'Lớp Nhóm', country: 'Việt Nam', receiveDate: defaultDate, saleInCharge: '' });
         } catch (err) {
-            alert('Lỗi khi đẩy khách hàng lên database.');
+            alert('Lỗi khi đẩy khách hàng lên database. Vui lòng kiểm tra lại!');
         }
     };
 
@@ -98,14 +130,17 @@ function CRM() {
                     <i className="fa-solid fa-user-plus" style={{ marginRight: '8px' }}></i> Tiếp nhận Khách hàng
                 </h3>
                 <form onSubmit={handleFormSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+
+                    {/* CỘT 1 */}
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>TÊN FB</label><input type="text" name="fbName" className="form-control" value={formData.fbName} onChange={handleInputChange} placeholder="Nhập tên FB..." /></div>
-                    <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGÀY NHẬN</label><input type="date" className="form-control" value={todayFormatted} disabled style={{ backgroundColor: '#e2e8f0' }} /></div>
-                    <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>HỌ TÊN</label><input type="text" name="name" className="form-control" value={formData.name} onChange={handleInputChange} placeholder="Không bắt buộc" /></div>
+                    <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGÀY NHẬN</label><input type="text" name="receiveDate" className="form-control" value={formData.receiveDate} onChange={handleInputChange} placeholder="VD: 11/06/2026" /></div>
+                    <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGƯỜI SALE TIẾP NHẬN</label><input type="text" name="saleInCharge" className="form-control" value={formData.saleInCharge} onChange={handleInputChange} placeholder="Tên Sale..." /></div>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary)' }}>SĐT (Zalo) (*)</label><input type="text" name="phone" className="form-control" value={formData.phone} onChange={handleInputChange} required style={{ borderColor: 'var(--primary)' }} /></div>
 
-                    <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGÀY SINH</label><input type="date" name="dob" className="form-control" value={formData.dob} onChange={handleInputChange} /></div>
+                    {/* CỘT 2 */}
+                    <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGÀY SINH (Tự nhập)</label><input type="text" name="dob" className="form-control" value={formData.dob} onChange={handleInputChange} placeholder="VD: 15/08/1998" /></div>
+                    <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>HỌ TÊN</label><input type="text" name="name" className="form-control" value={formData.name} onChange={handleInputChange} placeholder="Không bắt buộc" /></div>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>QUỐC GIA</label><input type="text" name="country" className="form-control" value={formData.country} onChange={handleInputChange} placeholder="Ví dụ: Việt Nam" /></div>
-                    <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>EMAIL</label><input type="email" name="email" className="form-control" value={formData.email} onChange={handleInputChange} /></div>
                     <div>
                         <label style={{ fontSize: '0.75rem', fontWeight: '700' }}>LOẠI NGÔN NGỮ</label>
                         <select name="language" className="form-control" value={formData.language} onChange={handleInputChange}>
@@ -113,6 +148,7 @@ function CRM() {
                         </select>
                     </div>
 
+                    {/* CỘT 3 */}
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>KHÓA HỌC</label><input type="text" name="course" className="form-control" value={formData.course} onChange={handleInputChange} placeholder="Tự nhập tên khóa học..." /></div>
                     <div>
                         <label style={{ fontSize: '0.75rem', fontWeight: '700' }}>LOẠI KHÁCH</label>
@@ -124,6 +160,7 @@ function CRM() {
                     </div>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>TRÌNH ĐỘ</label><input type="text" name="level" className="form-control" value={formData.level} onChange={handleInputChange} /></div>
 
+                    {/* CỘT 4 */}
                     <div>
                         <label style={{ fontSize: '0.75rem', fontWeight: '700' }}>TIỀM NĂNG</label>
                         <select name="potential" className="form-control" value={formData.potential} onChange={handleInputChange}><option value="Cao">Cao</option><option value="Trung bình">Trung bình</option><option value="Thấp">Thấp</option></select>
@@ -132,15 +169,27 @@ function CRM() {
                         <label style={{ fontSize: '0.75rem', fontWeight: '700' }}>TRẠNG THÁI (*)</label>
                         <select name="status" className="form-control" value={formData.status} onChange={handleInputChange}><option value="Mới">🆕 Mới</option><option value="Đang tư vấn">Đang tư vấn</option><option value="Đã ĐK">Đã ĐK</option></select>
                     </div>
-                    <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>HỌC PHÍ (VNĐ)</label><input type="number" name="fee" className="form-control" value={formData.fee} onChange={handleInputChange} /></div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ flex: 1 }}><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>HỌC PHÍ</label><input type="number" name="fee" className="form-control" value={formData.fee} onChange={handleInputChange} /></div>
+                        <div style={{ width: '80px' }}><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>SỐ BUỔI</label><input type="number" name="totalSessions" className="form-control" value={formData.totalSessions} onChange={handleInputChange} /></div>
+                    </div>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>LIÊN HỆ CUỐI</label><input type="date" name="lastContact" className="form-control" value={formData.lastContact} onChange={handleInputChange} /></div>
 
+                    {/* CÁC HÀNG CUỐI (SPAN) */}
                     <div style={{ gridColumn: 'span 2' }}><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>GHI CHÚ</label><input type="text" name="notes" className="form-control" value={formData.notes} onChange={handleInputChange} /></div>
                     <div style={{ gridColumn: 'span 2' }}><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>VIỆC TIẾP THEO</label><input type="text" name="nextAction" className="form-control" value={formData.nextAction} onChange={handleInputChange} /></div>
 
                     <div style={{ gridColumn: 'span 2', display: 'flex', gap: '12px' }}>
-                        <div style={{ flex: 1 }}><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>XẾP VÀO LỚP</label><select name="assignClass" className="form-control" value={formData.assignClass} onChange={handleInputChange}><option value="-- Chưa xếp">-- Chưa xếp</option><option value="Lớp cố định">Lớp cố định</option></select></div>
-                        <div style={{ flex: 1 }}><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>LOẠI LỚP</label><select name="groupType" className="form-control" value={formData.groupType} onChange={handleInputChange}><option value="Lớp Nhóm">Lớp Nhóm</option><option value="Lớp VIP 1-1">Lớp VIP 1-1</option></select></div>
+                        <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: '0.75rem', fontWeight: '700' }}>XẾP VÀO LỚP</label>
+                            <input list="assignClassList" name="assignClass" className="form-control" value={formData.assignClass} onChange={handleInputChange} placeholder="Tự nhập hoặc chọn..." />
+                            <datalist id="assignClassList"><option value="Chưa xếp" /><option value="Lớp Khai giảng T6" /></datalist>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: '0.75rem', fontWeight: '700' }}>LOẠI LỚP</label>
+                            <input list="groupTypeList" name="groupType" className="form-control" value={formData.groupType} onChange={handleInputChange} placeholder="Tự nhập hoặc chọn..." />
+                            <datalist id="groupTypeList"><option value="Lớp Nhóm" /><option value="Lớp VIP 1-1" /></datalist>
+                        </div>
                     </div>
 
                     <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'end', justifyContent: 'flex-end' }}>
@@ -160,7 +209,7 @@ function CRM() {
                         <thead>
                             <tr style={{ backgroundColor: 'var(--bg-app)', textAlign: 'left' }}>
                                 <th style={{ padding: '12px' }}>STT</th><th style={{ padding: '12px' }}>NGÀY NHẬN</th>
-                                <th style={{ padding: '12px' }}>KHÁCH HÀNG</th><th style={{ padding: '12px' }}>QUỐC GIA</th><th style={{ padding: '12px' }}>KHÓA HỌC</th>
+                                <th style={{ padding: '12px' }}>KHÁCH HÀNG</th><th style={{ padding: '12px' }}>SALE NHẬN</th><th style={{ padding: '12px' }}>KHÓA HỌC</th>
                                 <th style={{ padding: '12px' }}>TIỀM NĂNG</th><th style={{ padding: '12px' }}>TRẠNG THÁI</th>
                             </tr>
                         </thead>
@@ -168,12 +217,12 @@ function CRM() {
                             {filteredCustomers.map((c, index) => (
                                 <tr key={c.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                                     <td style={{ padding: '14px 12px', fontWeight: '700' }}>{index + 1}</td>
-                                    <td style={{ padding: '14px 12px', color: 'var(--text-muted)' }}>{c.date || todayFormatted}</td>
+                                    <td style={{ padding: '14px 12px', color: 'var(--text-muted)' }}>{c.receiveDate || c.date || 'Chưa nhập'}</td>
                                     <td style={{ padding: '14px 12px', cursor: 'pointer' }} onClick={() => { setSelectedCustomer({ ...c }); setIsEditing(false); }}>
                                         <strong style={{ display: 'block', color: 'var(--primary)', textDecoration: 'underline' }}>{c.name || c.fbName || 'Khách chưa có tên'}</strong>
                                         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>📞 {c.phone}</span>
                                     </td>
-                                    <td style={{ padding: '14px 12px' }}>{c.country || 'Việt Nam'}</td>
+                                    <td style={{ padding: '14px 12px' }}>{c.saleInCharge || 'Chưa có'}</td>
                                     <td style={{ padding: '14px 12px' }}>{c.course}</td>
                                     <td style={{ padding: '14px 12px' }}><span style={{ color: c.potential === 'Cao' ? 'var(--success)' : 'var(--warning-text)', fontWeight: '700' }}>{c.potential}</span></td>
                                     <td style={{ padding: '14px 12px' }}><span className="badge-studying">{c.status}</span></td>
@@ -206,8 +255,16 @@ function CRM() {
                                 {isEditing ? <input className="form-control" value={selectedCustomer.phone || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, phone: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.phone}</div>}
                             </div>
                             <div>
-                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Quốc gia</label>
-                                {isEditing ? <input className="form-control" value={selectedCustomer.country || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, country: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.country}</div>}
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Người Sale tiếp nhận</label>
+                                {isEditing ? <input className="form-control" value={selectedCustomer.saleInCharge || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, saleInCharge: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.saleInCharge || 'Không có'}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ngày nhận (Tự nhập)</label>
+                                {isEditing ? <input className="form-control" value={selectedCustomer.receiveDate || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, receiveDate: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.receiveDate || 'Không có'}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ngày sinh (Tự nhập)</label>
+                                {isEditing ? <input className="form-control" value={selectedCustomer.dob || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, dob: e.target.value })} /> : <div style={{ fontWeight: '600' }}>{selectedCustomer.dob || 'Không có'}</div>}
                             </div>
                             <div style={{ gridColumn: 'span 2' }}>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ghi chú / Nhu cầu</label>

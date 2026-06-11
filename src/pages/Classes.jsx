@@ -8,7 +8,6 @@ const api = axios.create({
 });
 
 function Classes() {
-    // Lấy thêm danh sách giáo viên thực tế (teachers) từ CSDL thông qua DataContext
     const { classes, addClass, teachers } = useData();
     const { currentUser, currentRole } = useAuth();
 
@@ -16,22 +15,18 @@ function Classes() {
     const [selectedClass, setSelectedClass] = useState(null);
     const [activeSession, setActiveSession] = useState(1);
 
-    // Quản lý danh sách học viên thực tế lấy từ CSDL cho lớp được chọn
     const [classStudents, setClassStudents] = useState([]);
 
-    // Để trống giá trị mặc định của trường giáo viên (teacher: '')
     const [formClass, setFormClass] = useState({
         name: '', teacher: '', ta: '', padletUrl: '', classType: 'Lớp Nhóm',
         level: 'HSK 1', sessionFee: '', startDate: '', totalSessions: 19, scheduleTime: ''
     });
 
-    // Tải danh sách học viên động từ DB khi chọn một lớp cụ thể
     useEffect(() => {
         if (selectedClass) {
             api.get(`/classes/${selectedClass.id}/students`)
                 .then(res => setClassStudents(res.data))
                 .catch(() => {
-                    // Nếu chưa có API con, tự động map từ danh sách ID học viên của lớp
                     const fallback = selectedClass.studentIds?.map((id, i) => ({
                         id: id, name: `Học viên ${i + 1}`, initial: 'H'
                     })) || [];
@@ -40,32 +35,30 @@ function Classes() {
         }
     }, [selectedClass]);
 
-    // Thêm chữ async vào đây
     const handleCreateClass = async (e) => {
         e.preventDefault();
         if (!formClass.name || !formClass.sessionFee) {
-            alert('Vui lòng điền Tên lớp học và cấu hình Học phí/Buổi!');
+            alert('Vui lòng điền Tên lớp học và cấu hình Học phí!');
             return;
         }
 
-        // Đóng gói dữ liệu CHUẨN XÁC VỚI ClassEntity.java
         const newClassObj = {
-            classCode: formClass.name,         // Đổi 'name' thành 'classCode'
+            classCode: formClass.name,
             teacher: formClass.teacher ? (formClass.teacher + (currentRole === 'admin' ? ' (admin)' : '')) : '',
             ta: formClass.ta,
-            classType: formClass.classType,    // Bổ sung trường bị thiếu
-            level: formClass.level,            // Bổ sung trường bị thiếu
+            classType: formClass.classType,
+            level: formClass.level,
             totalSessions: parseInt(formClass.totalSessions),
-            scheduleTime: formClass.scheduleTime || '20:00 - 21:30', // Đổi 'schedule' thành 'scheduleTime'
-            startDate: formClass.startDate || '2026-03-10',          // Định dạng chuẩn ISO YYYY-MM-DD
+            scheduleTime: formClass.scheduleTime || '20:00 - 21:30',
+            startDate: formClass.startDate || '2026-03-10',
             sessionFee: parseInt(formClass.sessionFee),
             padletUrl: formClass.padletUrl
         };
 
-        // Đợi Server trả lời xong mới hiện thông báo
         const result = await addClass(newClassObj);
 
-        if (result.success) {
+        // HIỂN THỊ THÔNG BÁO THÀNH CÔNG DỰA VÀO KẾT QUẢ TRẢ VỀ TỪ DATACONTEXT
+        if (result && result.success) {
             alert(`Hệ thống: Khởi tạo thành công lớp học ${formClass.name}!`);
             setFormClass({ name: '', teacher: '', ta: '', padletUrl: '', classType: 'Lớp Nhóm', level: 'HSK 1', sessionFee: '', startDate: '', totalSessions: 19, scheduleTime: '' });
         } else {
@@ -221,8 +214,6 @@ function Classes() {
                                 <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>GIÁO VIÊN PHỤ TRÁCH</label>
                                 <select className="form-control" value={formClass.teacher} onChange={(e) => setFormClass({ ...formClass, teacher: e.target.value })}>
                                     <option value="">-- Để trống (Xếp lịch sau) --</option>
-
-                                    {/* Duyệt mảng liên kết động từ DB database thông qua DataContext */}
                                     {teachers && teachers.map((teacher) => (
                                         <option key={teacher.id} value={teacher.name}>
                                             👨‍🏫 {teacher.name}
@@ -238,7 +229,8 @@ function Classes() {
 
                         <div>
                             <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary)', marginBottom: '8px', display: 'block' }}><i className="fa-solid fa-link"></i> Tài nguyên & Giáo trình</label>
-                            <input type="text" className="form-control" placeholder="LINK PADLET (TÀI LIỆU)" value={formClass.padletUrl} onChange={(e) => setFormClass({ ...formClass, padletUrl: e.target.value })} style={{ backgroundColor: 'var(--primary-light)', border: '1px dashed var(--primary)' }} />
+                            {/* ĐÃ CHUYỂN TYPE="URL" VÀ SỬA PLACEHOLDER ĐỂ NHẬP LINK */}
+                            <input type="url" className="form-control" placeholder="Dán link Padlet / Google Drive tài liệu vào đây..." value={formClass.padletUrl} onChange={(e) => setFormClass({ ...formClass, padletUrl: e.target.value })} style={{ backgroundColor: 'var(--primary-light)', border: '1px dashed var(--primary)' }} />
                         </div>
 
                         <div style={{ backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
@@ -246,18 +238,26 @@ function Classes() {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>LOẠI HÌNH LỚP (*)</label>
-                                    <select className="form-control" value={formClass.classType} onChange={(e) => setFormClass({ ...formClass, classType: e.target.value })} style={{ background: 'white', marginTop: '6px' }}>
-                                        <option>Lớp Nhóm</option><option>Lớp VIP 1-1</option>
-                                    </select>
+                                    {/* ĐÃ CHUYỂN SANG DATALIST ĐỂ TỰ NHẬP HOẶC CHỌN */}
+                                    <input list="class-types" className="form-control" placeholder="Tự nhập hoặc chọn..." value={formClass.classType} onChange={(e) => setFormClass({ ...formClass, classType: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
+                                    <datalist id="class-types">
+                                        <option value="Lớp Nhóm" />
+                                        <option value="Lớp VIP 1-1" />
+                                    </datalist>
                                 </div>
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>CẤP ĐỘ LỚP (*)</label>
-                                    <select className="form-control" value={formClass.level} onChange={(e) => setFormClass({ ...formClass, level: e.target.value })} style={{ background: 'white', marginTop: '6px' }}>
-                                        <option>HSK 1</option><option>HSK 2</option><option>HSK 3</option>
-                                    </select>
+                                    {/* ĐÃ CHUYỂN SANG DATALIST ĐỂ TỰ NHẬP HOẶC CHỌN */}
+                                    <input list="class-levels" className="form-control" placeholder="Tự nhập hoặc chọn..." value={formClass.level} onChange={(e) => setFormClass({ ...formClass, level: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
+                                    <datalist id="class-levels">
+                                        <option value="HSK 1" />
+                                        <option value="HSK 2" />
+                                        <option value="HSK 3" />
+                                    </datalist>
                                 </div>
                                 <div>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary)' }}>HỌC PHÍ / BUỔI (VNĐ)</label>
+                                    {/* ĐÃ XÓA CHỮ "/ BUỔI" */}
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary)' }}>HỌC PHÍ (VNĐ)</label>
                                     <input type="number" className="form-control" placeholder="Ví dụ: 350000" value={formClass.sessionFee} onChange={(e) => setFormClass({ ...formClass, sessionFee: e.target.value })} required style={{ background: 'white', borderColor: 'var(--primary)', marginTop: '6px' }} />
                                 </div>
                                 <div>
@@ -315,7 +315,6 @@ function Classes() {
                                     >
                                         {c.classCode}
                                     </strong>
-                                    {/* Hiển thị 'Chưa xếp lịch' nếu giá trị giáo viên trong DB rỗng */}
                                     <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}><i className="fa-solid fa-chalkboard-user" style={{ color: '#94a3b8', marginRight: '6px' }}></i> {c.teacher || 'Chưa xếp giáo viên'} {c.ta && `| TA: ${c.ta}`}</span>
                                 </td>
                                 <td style={{ padding: '20px 24px', fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.6' }}>
@@ -345,6 +344,3 @@ function Classes() {
 }
 
 export default Classes;
-
-
-
