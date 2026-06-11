@@ -54,10 +54,19 @@ export const DataProvider = ({ children }) => {
 
     const addTeacher = async (newTeacher) => {
         try {
-            // Thực chất là đăng ký 1 user có role = teacher
-            const res = await api.post('/auth/register', { ...newTeacher, role: 'teacher', username: newTeacher.phone, password: '123' });
+            // Đăng ký 1 user có role = teacher, lấy SĐT làm tài khoản, pass mặc định 123456
+            const res = await api.post('/auth/register', {
+                ...newTeacher,
+                role: 'teacher',
+                username: newTeacher.phone,
+                password: '123456'
+            });
             setTeachers(prev => [res.data, ...prev]);
-        } catch (e) { alert('Lỗi tạo giáo viên!'); }
+            return { success: true }; // Báo hiệu đã lưu thành công
+        } catch (e) {
+            console.error("Lỗi tạo giáo viên:", e);
+            return { success: false }; // Báo hiệu lỗi (trùng SĐT)
+        }
     };
 
     return (

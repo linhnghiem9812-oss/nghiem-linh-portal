@@ -24,21 +24,15 @@ function TeacherProfile() {
             return;
         }
 
-        try {
-            // Đẩy dữ liệu lên database
-            // Mật khẩu mặc định khi tạo giáo viên là 123456
-            const res = await api.post('/auth/register', {
-                ...formInput,
-                username: formInput.phone, // Lấy SĐT làm tên đăng nhập
-                password: '123456',
-                role: 'teacher'
-            });
+        // Chỉ gọi API 1 lần duy nhất thông qua DataContext
+        const result = await addTeacher(formInput);
 
-            if (addTeacher) addTeacher(res.data);
+        // Kiểm tra kết quả trả về
+        if (result && result.success) {
             alert('Hệ thống: Lưu thông tin hồ sơ giáo viên thành công!');
             setFormInput({ name: '', email: '', phone: '', experience: '', fee: '', address: '', status: 'Đang dạy' });
-        } catch (error) {
-            alert('Lỗi: Không thể lưu thông tin giáo viên vào cơ sở dữ liệu.');
+        } else {
+            alert('Lỗi: Không thể lưu thông tin giáo viên. Có thể SĐT (Tài khoản) này đã tồn tại!');
         }
     };
 
