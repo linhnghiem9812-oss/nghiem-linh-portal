@@ -41,9 +41,9 @@ function MyClassActive() {
             try {
                 const res = await api.get(`/sessions/class/${activeClass.id}`);
                 const dbSessions = res.data || [];
-                
+
                 const total = parseInt(activeClass.totalSessions) || 19;
-                
+
                 // 1. LUÔN DỰNG SẴN KHUNG LỘ TRÌNH ĐẦY ĐỦ
                 const fullSessions = Array.from({ length: total }, (_, i) => ({
                     classId: activeClass.id, sessionNum: i + 1, title: `BÀI ${i + 1}`, status: 'draft', notes: '', hasLessonPlan: false, lessonPlanUrl: ''
@@ -126,7 +126,7 @@ function MyClassActive() {
             await api.post(`/sessions`, { ...currentSession, classId: activeClass.id });
             await api.post(`/attendance/save`, { classId: activeClass.id, sessionNum: selectedSessionNum, records: studentsAttendance });
             alert(`Hệ thống: Đã tiến hành lưu và cập nhật thành công dữ liệu Tiến độ giảng dạy Buổi ${selectedSessionNum}!`);
-            
+
             // Tải lại cục bộ lộ trình để cập nhật màu sắc viền tức thì sau khi bấm Lưu
             const res = await api.get(`/sessions/class/${activeClass.id}`);
             if (res.data && res.data.length > 0) {
@@ -160,13 +160,13 @@ function MyClassActive() {
                             value={activeClassId || ''}
                             onChange={e => setActiveClassId(parseInt(e.target.value) || e.target.value)}
                             disabled={!activeClass}
-                            style={{ 
-                                fontSize: '1.4rem', fontWeight: '800', 
-                                color: !activeClass ? '#94a3b8' : '#1e3a8a', 
-                                border: '1px solid var(--primary)', 
-                                padding: '6px 12px', 
-                                borderRadius: '8px', 
-                                cursor: !activeClass ? 'not-allowed' : 'pointer', 
+                            style={{
+                                fontSize: '1.4rem', fontWeight: '800',
+                                color: !activeClass ? '#94a3b8' : '#1e3a8a',
+                                border: '1px solid var(--primary)',
+                                padding: '6px 12px',
+                                borderRadius: '8px',
+                                cursor: !activeClass ? 'not-allowed' : 'pointer',
                                 display: 'block', maxWidth: '400px',
                                 backgroundColor: !activeClass ? '#f1f5f9' : 'white'
                             }}
@@ -179,8 +179,8 @@ function MyClassActive() {
                         </select>
 
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '12px' }}>
-                            <i className="fa-solid fa-clock" style={{ marginRight: '6px' }}></i> Giờ học: {activeClass?.scheduleTime || 'Chưa xếp'} | 
-                            <i className="fa-solid fa-user-tie" style={{ marginLeft: '12px', marginRight: '6px' }}></i> Giáo viên: {activeClass?.teacher || 'Chưa xếp'} | 
+                            <i className="fa-solid fa-clock" style={{ marginRight: '6px' }}></i> Giờ học: {activeClass?.scheduleTime || 'Chưa xếp'} |
+                            <i className="fa-solid fa-user-tie" style={{ marginLeft: '12px', marginRight: '6px' }}></i> Giáo viên: {activeClass?.teacher || 'Chưa xếp'} |
                             <i className="fa-solid fa-user-graduate" style={{ marginLeft: '12px', marginRight: '6px' }}></i> Trợ giảng: {activeClass?.ta ? activeClass.ta : 'Không có'}
                         </p>
                     </div>
@@ -211,7 +211,7 @@ function MyClassActive() {
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '14px' }}>
                             {sessionsData.map((session) => {
                                 const isSelected = selectedSessionNum === session.sessionNum;
-                                
+
                                 let borderStyle = '1px solid #e2e8f0';
                                 if (session.status === 'completed') borderStyle = '2px solid #10b981';
                                 if (session.status === 'cancelled') borderStyle = '2px solid #ef4444';
@@ -220,8 +220,8 @@ function MyClassActive() {
                                 const bgStyle = isSelected ? '#eff6ff' : '#ffffff';
 
                                 return (
-                                    <div 
-                                        key={session.sessionNum} 
+                                    <div
+                                        key={session.sessionNum}
                                         onClick={() => setSelectedSessionNum(session.sessionNum)}
                                         style={{
                                             display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '14px 10px',
@@ -256,7 +256,7 @@ function MyClassActive() {
                     </div>
 
                     <div className="my-portal-grid" style={{ gridTemplateColumns: '1.2fr 1fr' }}>
-                        
+
                         {/* CHỈNH SỬA NỘI DUNG BUỔI HỌC */}
                         <div className="card" style={{ padding: '24px' }}>
                             <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '16px', color: 'var(--primary)' }}>

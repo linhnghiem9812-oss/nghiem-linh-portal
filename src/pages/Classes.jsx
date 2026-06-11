@@ -344,8 +344,8 @@ function Classes() {
                                             </button>
 
                                             {/* SỰ KIỆN NÚT XÓA ĐÃ ĐƯỢC KẾT NỐI */}
-                                            <button 
-                                                title="Xóa" 
+                                            <button
+                                                title="Xóa"
                                                 onClick={() => handleDeleteClass(c.id)}
                                                 style={{ background: '#f8fafc', border: '1px solid #cbd5e1', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', color: '#1e293b' }}
                                             >
