@@ -62,7 +62,7 @@ function Sidebar({ activeTab, setActiveTab }) {
                     <i className="fa-solid fa-school"></i><span>Quản lý Lớp học</span>
                 </div>
                 <div className={`menu-item ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>
-                    <i className="fa-solid fa-square-poll-vertical"></i><span>BC Lớp</span>
+                    <i className="fa-solid fa-square-poll-vertical"></i><span>Báo cáo Lớp học</span>
                 </div>
                 <div className={`menu-item ${activeTab === 'my-class' ? 'active' : ''}`} onClick={() => setActiveTab('my-class')}>
                     <i className="fa-solid fa-chalkboard-user"></i><span>Lớp của tôi</span>

@@ -13,7 +13,7 @@ function Topbar({ activeTab, theme, toggleTheme }) {
 
     const pageTitles = {
         'classes': { title: 'Quản lý Lớp học', subtitle: 'Danh sách các lớp học chính thức đang hoạt động tại trung tâm' },
-        'reports': { title: 'Báo cáo Lớp học (BC Lớp)', subtitle: 'Theo dõi sĩ số học viên, giáo viên, tiến độ và lịch sử chi tiết ca dạy' },
+        'reports': { title: 'Báo cáo Lớp học', subtitle: 'Theo dõi sĩ số học viên, giáo viên, tiến độ và lịch sử chi tiết ca dạy' },
         'my-class': { title: 'Lớp của tôi', subtitle: 'Thông tin chi tiết giảng dạy, lộ trình & điểm danh chuyên cần' },
         'dashboard': { title: 'Tổng quan trung tâm', subtitle: 'Hệ thống phân tích doanh số, tuyển sinh & hiệu suất kinh doanh' },
         'crm': { title: 'Phễu Tuyển sinh & CRM', subtitle: 'Quản lý hành trình khách hàng từ lúc mới liên hệ' },
