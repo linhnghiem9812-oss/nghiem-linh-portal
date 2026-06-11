@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useData } from '../context/DataContext'; // Lấy dữ liệu dùng chung của toàn hệ thống
 import axios from 'axios';
 
 const api = axios.create({
@@ -6,25 +7,69 @@ const api = axios.create({
 });
 
 function SalesRating() {
+    const { customers } = useData(); // Kéo danh sách khách hàng thực tế từ CRM
     const [salesTeam, setSalesTeam] = useState([]);
+
+    // TÍNH TOÁN TỔNG QUAN CHO KHỐI SALE TOÀN TRUNG TÂM
+    const totalClosed = customers ? customers.filter(c => c.status === 'Đã ĐK').length : 0;
+    const totalCustomers = customers ? customers.length : 0;
+    const conversionRate = totalCustomers > 0 ? ((totalClosed / totalCustomers) * 100).toFixed(1) : 0;
+
+    const totalRevenueAll = customers ? customers
+        .filter(c => c.status === 'Đã ĐK')
+        .reduce((sum, c) => sum + (parseInt(c.fee) || 0), 0) : 0;
 
     useEffect(() => {
         api.get('/users/role/sales')
             .then(res => {
-                const formatted = res.data.map((user, index) => ({
-                    id: user.id,
-                    name: user.name || user.username,
-                    role: 'SALES EXECUTIVE',
-                    revenue: `${(Math.random() * 50).toFixed(1)}M`,
-                    clients: Math.floor(Math.random() * 20),
-                    rank: index + 1,
-                    color: ['#facc15', '#e2e8f0', '#f97316', '#a855f7', '#10b981'][index % 5] || '#94a3b8',
-                    bg: ['#eab308', '#cbd5e1', '#ea580c', '#9333ea', '#16a34a'][index % 5] || '#64748b'
-                }));
+                const salesUsers = res.data;
+
+                // TÍNH DOANH THU & CHỈ SỐ CHO TỪNG NHÂN VIÊN SALE
+                let formatted = salesUsers.map((user, index) => {
+                    const salesName = user.name || user.username;
+
+                    // 1. Lọc ra các khách hàng do Sale này phụ trách (Không phân biệt hoa/thường)
+                    const myCustomers = customers ? customers.filter(c => 
+                        c.saleInCharge && c.saleInCharge.toLowerCase() === salesName.toLowerCase()
+                    ) : [];
+
+                    // 2. Đếm số lượng khách hàng
+                    const closed = myCustomers.filter(c => c.status === 'Đã ĐK').length;
+                    const consulting = myCustomers.length - closed; // Khách chưa đăng ký
+
+                    // 3. Tính tổng doanh thu (chỉ cộng tiền khách Đã ĐK)
+                    const totalRevenue = myCustomers
+                        .filter(c => c.status === 'Đã ĐK')
+                        .reduce((sum, c) => sum + (parseInt(c.fee) || 0), 0);
+
+                    // 4. Rút gọn số tiền để hiển thị trên biểu đồ cột (VD: 15000000 -> 15.0M)
+                    const revenueFormatted = totalRevenue >= 1000000 
+                        ? (totalRevenue / 1000000).toFixed(1) + 'M' 
+                        : totalRevenue.toLocaleString('vi-VN') + ' đ';
+
+                    return {
+                        id: user.id,
+                        name: salesName,
+                        role: 'SALES EXECUTIVE',
+                        revenue: revenueFormatted,
+                        revenueValue: totalRevenue, // Dùng để máy tính so xếp hạng
+                        clients: closed,
+                        consulting: consulting,
+                        color: ['#facc15', '#e2e8f0', '#f97316', '#a855f7', '#10b981'][index % 5] || '#94a3b8',
+                        bg: ['#eab308', '#cbd5e1', '#ea580c', '#9333ea', '#16a34a'][index % 5] || '#64748b'
+                    };
+                });
+
+                // 5. Sắp xếp danh sách Sale theo doanh thu thực tế giảm dần
+                formatted.sort((a, b) => b.revenueValue - a.revenueValue);
+                
+                // 6. Gán hạng (Rank) sau khi đã sắp xếp
+                formatted.forEach((member, idx) => member.rank = idx + 1);
+
                 setSalesTeam(formatted);
             })
             .catch(() => console.log('Chưa có nhân sự Sale trên DB.'));
-    }, []);
+    }, [customers]); // Lệnh này giúp Bảng Sale tự động cập nhật ngay lập tức khi CRM có thêm khách
 
     const top3Data = salesTeam.filter(s => s.rank <= 3).sort((a, b) => a.rank - b.rank);
     const podiumOrder = top3Data.length >= 3 ? [
@@ -44,13 +89,14 @@ function SalesRating() {
                 `}
             </style>
 
+            {/* BẢNG TỔNG QUAN TỰ ĐỘNG CỘNG SỐ LIỆU TỪ CRM */}
             <div className="kpi-row">
                 <div className="card kpi-card-simple">
-                    <div><div className="kpi-card-label">Tổng doanh thu khối Sale</div><div className="kpi-card-number">35.400.000 VNĐ</div></div>
+                    <div><div className="kpi-card-label">Tổng doanh thu khối Sale</div><div className="kpi-card-number">{totalRevenueAll.toLocaleString('vi-VN')} VNĐ</div></div>
                     <div className="kpi-card-circle-icon purple"><i className="fa-solid fa-chart-line"></i></div>
                 </div>
                 <div className="card kpi-card-simple">
-                    <div><div className="kpi-card-label">Tỷ lệ chuyển đổi chung</div><div className="kpi-card-number">21.8%</div></div>
+                    <div><div className="kpi-card-label">Tỷ lệ chuyển đổi chung</div><div className="kpi-card-number">{conversionRate}%</div></div>
                     <div className="kpi-card-circle-icon success" style={{ backgroundColor: 'var(--success-light)', color: 'var(--success)' }}><i className="fa-solid fa-percentage"></i></div>
                 </div>
             </div>
@@ -73,7 +119,7 @@ function SalesRating() {
                                 </div>
                             </div>
                         </div>
-                    )) : <div style={{ marginBottom: '40px', color: '#cbd5e1' }}>Chưa có đủ 3 nhân sự Sale trên hệ thống để xếp hạng.</div>}
+                    )) : <div style={{ marginBottom: '40px', color: '#cbd5e1' }}>Chưa có đủ 3 nhân sự Sale sinh ra doanh thu để xếp hạng.</div>}
                 </div>
             </div>
 
@@ -96,7 +142,7 @@ function SalesRating() {
                             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                                 <div style={{ flex: 1, backgroundColor: 'var(--bg-app)', padding: '10px', borderRadius: '8px', textAlign: 'center' }}>
                                     <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: '700' }}>ĐANG TƯ VẤN</span>
-                                    <span style={{ fontSize: '1.2rem', fontWeight: '800' }}>0</span>
+                                    <span style={{ fontSize: '1.2rem', fontWeight: '800' }}>{member.consulting}</span>
                                 </div>
                                 <div style={{ flex: 1, backgroundColor: `${member.color}15`, color: member.color, padding: '10px', borderRadius: '8px', textAlign: 'center' }}>
                                     <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: '700' }}>ĐÃ CHỐT</span>
@@ -105,7 +151,9 @@ function SalesRating() {
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
                                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Hoa hồng tháng này</span>
-                                <strong style={{ color: 'var(--primary)' }}>{member.revenue === '0' ? 'đ' : '145.000 đ'}</strong>
+                                <strong style={{ color: 'var(--primary)' }}>
+                                    {member.revenueValue === 0 ? '0 đ' : `${(member.revenueValue * 0.1).toLocaleString('vi-VN')} đ`}
+                                </strong>
                             </div>
                         </div>
                     ))}
