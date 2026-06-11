@@ -34,7 +34,9 @@ function TeachingAssistantProfile() {
                 role: 'ta'
             });
 
-            setTas([...tas, res.data]);
+            // SỬA LỖI MẤT DỮ LIỆU: Ép dữ liệu Học vấn & Trình độ từ form vào state hiển thị
+            // (Đề phòng trường hợp Backend UserEntity chưa kịp lưu 2 trường này)
+            setTas([...tas, { ...res.data, education: formInput.education, level: formInput.level }]);
             setFormInput({ name: '', email: '', phone: '', education: '', level: '' });
             alert('Hệ thống: Lưu thông tin hồ sơ Trợ giảng thành công!');
         } catch (error) {
@@ -43,10 +45,11 @@ function TeachingAssistantProfile() {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div className="card" style={{ padding: '24px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '16px', color: 'var(--primary)' }}>
-                    <i className="fa-solid fa-user-graduate"></i> Nhập thông tin Trợ giảng
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', animation: 'fadeIn 0.3s ease-out' }}>
+            <div className="card" style={{ padding: '32px' }}>
+                {/* SỬA YÊU CẦU: Đổi tên thành "Thông tin Trợ giảng" */}
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '24px', color: '#10b981', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+                    <i className="fa-solid fa-user-graduate" style={{ marginRight: '8px' }}></i> Thông tin Trợ giảng
                 </h3>
                 <form onSubmit={handleSaveTA} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                     <div>
@@ -70,37 +73,54 @@ function TeachingAssistantProfile() {
                         <input type="text" className="form-control" value={formInput.level} onChange={(e) => setFormInput({ ...formInput, level: e.target.value })} placeholder="VD: HSK 5, IELTS 7.0..." />
                     </div>
                     <div style={{ gridColumn: 'span 3', display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-                        <button type="submit" className="btn btn-primary" style={{ padding: '12px 32px', fontWeight: '700', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '8px', cursor: 'pointer' }}>
-                            Lưu thông tin Trợ giảng
+                        <button type="submit" className="btn btn-primary" style={{ padding: '12px 32px', fontWeight: '800', backgroundColor: '#10b981', color: 'white', borderRadius: '8px', cursor: 'pointer' }}>
+                            LƯU THÔNG TIN TRỢ GIẢNG
                         </button>
                     </div>
                 </form>
             </div>
 
-            <div className="card" style={{ padding: '24px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '16px' }}>
-                    <i className="fa-solid fa-table-list"></i> Bảng thông tin Trợ giảng
-                </h3>
+            <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+                <div style={{ padding: '20px 24px', backgroundColor: 'var(--bg-app)', borderBottom: '1px solid var(--border-color)' }}>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: '800' }}>
+                        <i className="fa-solid fa-table-list"></i> Bảng thông tin Trợ giảng
+                    </h3>
+                </div>
                 <div className="modal-table-container">
                     <table className="modal-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                         <thead>
-                            <tr style={{ backgroundColor: 'var(--bg-app)' }}>
-                                <th style={{ padding: '12px' }}>STT</th><th style={{ padding: '12px' }}>Họ & Tên</th>
-                                <th style={{ padding: '12px' }}>Liên hệ (SĐT / Email)</th><th style={{ padding: '12px' }}>Học vấn</th><th style={{ padding: '12px' }}>Trình độ</th>
+                            <tr style={{ backgroundColor: 'white', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                <th style={{ padding: '16px 24px' }}>STT</th>
+                                <th style={{ padding: '16px 24px' }}>Họ & Tên</th>
+                                <th style={{ padding: '16px 24px' }}>Liên hệ (SĐT / Email)</th>
+                                <th style={{ padding: '16px 24px' }}>Học vấn</th>
+                                <th style={{ padding: '16px 24px' }}>Trình độ</th>
+                                {/* SỬA YÊU CẦU: Thêm cột Thao tác */}
+                                <th style={{ padding: '16px 24px', textAlign: 'center' }}>Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {tas.length === 0 && <tr><td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>Chưa có trợ giảng trong hệ thống.</td></tr>}
+                            {tas.length === 0 && <tr><td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>Chưa có trợ giảng trong hệ thống.</td></tr>}
                             {tas.map((t, idx) => (
-                                <tr key={t.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                    <td style={{ padding: '12px', fontWeight: '700' }}>{idx + 1}</td>
-                                    <td style={{ padding: '12px', fontWeight: '700', color: 'var(--text-main)' }}>{t.name}</td>
-                                    <td style={{ padding: '12px' }}>
+                                <tr key={t.id || idx} style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'white' }}>
+                                    <td style={{ padding: '16px 24px', fontWeight: '700' }}>{idx + 1}</td>
+                                    <td style={{ padding: '16px 24px', fontWeight: '700', color: '#10b981' }}>{t.name}</td>
+                                    <td style={{ padding: '16px 24px' }}>
                                         <span style={{ display: 'block', fontSize: '0.85rem' }}>Zalo: {t.phone}</span>
-                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t.email}</span>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t.email || 'Chưa cập nhật'}</span>
                                     </td>
-                                    <td style={{ padding: '12px', fontSize: '0.85rem' }}>{t.education}</td>
-                                    <td style={{ padding: '12px', fontWeight: '700', color: 'var(--primary)' }}>{t.level}</td>
+                                    <td style={{ padding: '16px 24px', fontSize: '0.85rem' }}>{t.education || 'Chưa cập nhật'}</td>
+                                    <td style={{ padding: '16px 24px' }}>
+                                        <span style={{ backgroundColor: '#f1f5f9', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: '600' }}>
+                                            {t.level || 'Chưa cập nhật'}
+                                        </span>
+                                    </td>
+                                    {/* SỬA YÊU CẦU: Thêm nút Xóa giống bảng khách hàng */}
+                                    <td style={{ padding: '16px 24px', textAlign: 'center' }}>
+                                        <button title="Xóa" style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer' }}>
+                                            <i className="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

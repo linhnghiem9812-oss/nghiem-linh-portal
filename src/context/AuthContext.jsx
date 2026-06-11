@@ -32,7 +32,6 @@ export const AuthProvider = ({ children }) => {
             setCurrentUser(response.data); // Backend trả về thông tin User
             return { success: true };
         } catch (error) {
-            console.error("Login Error:", error); // Thêm log để debug
             return { success: false, message: error.response?.data?.message || 'Sai tài khoản hoặc mật khẩu!' };
         }
     };
@@ -43,8 +42,27 @@ export const AuthProvider = ({ children }) => {
             await api.post('/auth/register', { name, username, password, role });
             return { success: true };
         } catch (error) {
-            console.error("Register Error:", error); // Thêm log để debug
             return { success: false, message: error.response?.data?.message || 'Tên đăng nhập đã tồn tại!' };
+        }
+    };
+
+    // BƯỚC 1: Gọi API Yêu cầu gửi mã xác thực (OTP)
+    const requestPasswordReset = async (email) => {
+        try {
+            const response = await api.post('/auth/forgot-password/request', { email });
+            return { success: true, message: response.data?.message || 'Mã xác thực đã được gửi!' };
+        } catch (error) {
+            return { success: false, message: error.response?.data?.message || 'Không tìm thấy email/tài khoản trong hệ thống!' };
+        }
+    };
+
+    // BƯỚC 2: Gọi API Xác nhận mã OTP và Đặt mật khẩu mới
+    const confirmPasswordReset = async (email, otp, newPassword) => {
+        try {
+            const response = await api.post('/auth/forgot-password/reset', { email, otp, newPassword });
+            return { success: true, message: response.data?.message || 'Đặt lại mật khẩu thành công!' };
+        } catch (error) {
+            return { success: false, message: error.response?.data?.message || 'Mã xác thực không đúng hoặc đã hết hạn!' };
         }
     };
 
@@ -58,13 +76,12 @@ export const AuthProvider = ({ children }) => {
             setCurrentUser(response.data);
             return { success: true };
         } catch (error) {
-            console.error("Update Profile Error:", error); // Thêm log để debug
             return { success: false, message: 'Lỗi cập nhật hồ sơ!' };
         }
     };
 
     return (
-        <AuthContext.Provider value={{ currentUser, currentRole, login, register, logout, updateProfile }}>
+        <AuthContext.Provider value={{ currentUser, currentRole, login, register, logout, updateProfile, requestPasswordReset, confirmPasswordReset }}>
             {children}
         </AuthContext.Provider>
     );

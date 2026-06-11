@@ -40,31 +40,37 @@ function Classes() {
         }
     }, [selectedClass]);
 
-    const handleCreateClass = (e) => {
+    // Thêm chữ async vào đây
+    const handleCreateClass = async (e) => {
         e.preventDefault();
-        // Không bắt buộc phải chọn giáo viên khi tạo lớp mới
         if (!formClass.name || !formClass.sessionFee) {
             alert('Vui lòng điền Tên lớp học và cấu hình Học phí/Buổi!');
             return;
         }
 
+        // Đóng gói dữ liệu CHUẨN XÁC VỚI ClassEntity.java
         const newClassObj = {
-            name: formClass.name,
-            // Nếu có chọn giáo viên thì mới gán tên, đi kèm hậu tố nếu là Admin, nếu trống thì để rỗng
+            classCode: formClass.name,         // Đổi 'name' thành 'classCode'
             teacher: formClass.teacher ? (formClass.teacher + (currentRole === 'admin' ? ' (admin)' : '')) : '',
             ta: formClass.ta,
-            progress: 0,
+            classType: formClass.classType,    // Bổ sung trường bị thiếu
+            level: formClass.level,            // Bổ sung trường bị thiếu
             totalSessions: parseInt(formClass.totalSessions),
-            schedule: formClass.scheduleTime || '20:00 - 21:30',
-            startDate: formClass.startDate || '10/03/2026',
+            scheduleTime: formClass.scheduleTime || '20:00 - 21:30', // Đổi 'schedule' thành 'scheduleTime'
+            startDate: formClass.startDate || '2026-03-10',          // Định dạng chuẩn ISO YYYY-MM-DD
             sessionFee: parseInt(formClass.sessionFee),
             padletUrl: formClass.padletUrl
         };
 
-        addClass(newClassObj);
-        alert(`Hệ thống: Khởi tạo thành công lớp học ${formClass.name}!`);
-        // Reset form về trạng thái trống
-        setFormClass({ name: '', teacher: '', ta: '', padletUrl: '', classType: 'Lớp Nhóm', level: 'HSK 1', sessionFee: '', startDate: '', totalSessions: 19, scheduleTime: '' });
+        // Đợi Server trả lời xong mới hiện thông báo
+        const result = await addClass(newClassObj);
+
+        if (result.success) {
+            alert(`Hệ thống: Khởi tạo thành công lớp học ${formClass.name}!`);
+            setFormClass({ name: '', teacher: '', ta: '', padletUrl: '', classType: 'Lớp Nhóm', level: 'HSK 1', sessionFee: '', startDate: '', totalSessions: 19, scheduleTime: '' });
+        } else {
+            alert('Lỗi tạo lớp! Vui lòng kiểm tra lại kết nối hoặc dữ liệu nhập.');
+        }
     };
 
     let displayClasses = classes || [];
@@ -75,7 +81,7 @@ function Classes() {
     }
 
     if (searchTerm) {
-        displayClasses = displayClasses.filter(c => c.name && c.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        displayClasses = displayClasses.filter(c => c.classCode && c.classCode.toLowerCase().includes(searchTerm.toLowerCase()));
     }
 
     if (selectedClass) {
@@ -215,7 +221,7 @@ function Classes() {
                                 <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>GIÁO VIÊN PHỤ TRÁCH</label>
                                 <select className="form-control" value={formClass.teacher} onChange={(e) => setFormClass({ ...formClass, teacher: e.target.value })}>
                                     <option value="">-- Để trống (Xếp lịch sau) --</option>
-                                    
+
                                     {/* Duyệt mảng liên kết động từ DB database thông qua DataContext */}
                                     {teachers && teachers.map((teacher) => (
                                         <option key={teacher.id} value={teacher.name}>
@@ -307,13 +313,13 @@ function Classes() {
                                         onClick={() => setSelectedClass(c)}
                                         title="Nhấn để xem chi tiết Lớp học"
                                     >
-                                        {c.name}
+                                        {c.classCode}
                                     </strong>
                                     {/* Hiển thị 'Chưa xếp lịch' nếu giá trị giáo viên trong DB rỗng */}
                                     <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}><i className="fa-solid fa-chalkboard-user" style={{ color: '#94a3b8', marginRight: '6px' }}></i> {c.teacher || 'Chưa xếp giáo viên'} {c.ta && `| TA: ${c.ta}`}</span>
                                 </td>
                                 <td style={{ padding: '20px 24px', fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-                                    <div><i className="fa-regular fa-clock" style={{ color: '#94a3b8', width: '20px' }}></i> {c.schedule}</div>
+                                    <div><i className="fa-regular fa-clock" style={{ color: '#94a3b8', width: '20px' }}></i> {c.scheduleTime}</div>
                                     <div><i className="fa-regular fa-calendar" style={{ color: '#94a3b8', width: '20px' }}></i> KG: {c.startDate || 'Dự kiến'}</div>
                                 </td>
                                 <td style={{ padding: '20px 24px' }}>
@@ -339,3 +345,6 @@ function Classes() {
 }
 
 export default Classes;
+
+
+
