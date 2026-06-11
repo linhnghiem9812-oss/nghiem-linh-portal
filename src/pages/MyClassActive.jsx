@@ -52,6 +52,12 @@ function MyClassActive() {
                 }
             } catch (e) {
                 console.log("Sử dụng lộ trình trắng do DB chưa có dữ liệu.");
+                // SỬA LỖI: Dựng lộ trình trắng kể cả khi CSDL phản hồi 404 hoặc chưa có dữ liệu
+                const total = activeClass.totalSessions || 19;
+                const initialSessions = Array.from({ length: total }, (_, i) => ({
+                    classId: activeClass.id, sessionNum: i + 1, title: `BÀI ${i + 1}`, status: 'draft', notes: '', hasLessonPlan: false, lessonPlanUrl: ''
+                }));
+                setSessionsData(initialSessions);
             }
         };
         fetchSessions();
@@ -76,6 +82,11 @@ function MyClassActive() {
                 }
             } catch (error) {
                 console.log("Khởi tạo danh sách điểm danh trắng.");
+                // SỬA LỖI: Khởi tạo danh sách học viên dự phòng khi CSDL báo lỗi hoặc trống
+                const defaultStudents = activeClass.studentIds?.length > 0
+                    ? activeClass.studentIds.map((id, index) => ({ id: `HV${id}`, name: `Học viên ${index + 1}`, status: 'present', flag: false }))
+                    : [];
+                setStudentsAttendance(defaultStudents);
             }
         };
         fetchAttendance();
@@ -149,8 +160,11 @@ function MyClassActive() {
                             )}
                         </select>
 
+                        {/* ĐÃ ĐIỀU CHỈNH: Đọc chuẩn xác 3 thông tin từ Database, hiển thị Không có nếu trợ giảng rỗng */}
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '12px' }}>
-                            <i className="fa-solid fa-clock" style={{ marginRight: '6px' }}></i> Giờ học: {activeClass?.scheduleTime || '---'} | <i className="fa-solid fa-user-tie" style={{ marginLeft: '12px', marginRight: '6px' }}></i> Giáo viên: {activeClass?.teacher || '---'}
+                            <i className="fa-solid fa-clock" style={{ marginRight: '6px' }}></i> Giờ học: {activeClass?.scheduleTime || 'Chưa xếp'} | 
+                            <i className="fa-solid fa-user-tie" style={{ marginLeft: '12px', marginRight: '6px' }}></i> Giáo viên: {activeClass?.teacher || 'Chưa xếp'} | 
+                            <i className="fa-solid fa-user-graduate" style={{ marginLeft: '12px', marginRight: '6px' }}></i> Trợ giảng: {activeClass?.ta ? activeClass.ta : 'Không có'}
                         </p>
                     </div>
                     <div style={{ textAlign: 'right', padding: '12px 20px', backgroundColor: 'var(--bg-app)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
