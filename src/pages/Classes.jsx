@@ -17,6 +17,9 @@ function Classes() {
 
     const [classStudents, setClassStudents] = useState([]);
 
+    // STATE CHO TÍNH NĂNG CHỈNH SỬA LỚP HỌC
+    const [editingClass, setEditingClass] = useState(null);
+
     const [formClass, setFormClass] = useState({
         name: '', teacher: '', ta: '', padletUrl: '', classType: '',
         level: '', sessionFee: '', startDate: '', totalSessions: '', scheduleTime: ''
@@ -57,12 +60,22 @@ function Classes() {
 
         const result = await addClass(newClassObj);
 
-        // HIỂN THỊ THÔNG BÁO THÀNH CÔNG DỰA VÀO KẾT QUẢ TRẢ VỀ TỪ DATACONTEXT
         if (result && result.success) {
             alert(`Hệ thống: Khởi tạo thành công lớp học ${formClass.name}!`);
             setFormClass({ name: '', teacher: '', ta: '', padletUrl: '', classType: '', level: '', sessionFee: '', startDate: '', totalSessions: '', scheduleTime: '' });
         } else {
             alert('Lỗi tạo lớp! Vui lòng kiểm tra lại kết nối hoặc dữ liệu nhập.');
+        }
+    };
+
+    // HÀM LƯU THÔNG TIN LỚP SAU KHI SỬA
+    const handleSaveEdit = async () => {
+        try {
+            await api.put(`/classes/${editingClass.id}`, editingClass);
+            alert('Cập nhật thông tin lớp học thành công!');
+            window.location.reload(); // Tải lại trang để cập nhật danh sách mới nhất
+        } catch (error) {
+            alert('Lỗi cập nhật! Vui lòng kiểm tra lại kết nối CSDL.');
         }
     };
 
@@ -85,7 +98,7 @@ function Classes() {
                         <i className="fa-solid fa-arrow-left"></i>
                     </button>
                     <div>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--primary)' }}>{selectedClass.name}</h2>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--primary)' }}>{selectedClass.classCode}</h2>
                         <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Chi tiết tiến trình giảng dạy và học viên</span>
                     </div>
                 </div>
@@ -117,7 +130,7 @@ function Classes() {
                                     <div className="timeline-node" key={num}>
                                         <div className="timeline-dot" style={{ backgroundColor: 'var(--primary)', left: '-25px' }}></div>
                                         <div className="timeline-header" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                                            <strong style={{ color: 'var(--primary)', fontSize: '0.85rem', backgroundColor: 'var(--primary-light)', padding: '2px 8px', borderRadius: '4px' }}>{selectedClass.name}</strong>
+                                            <strong style={{ color: 'var(--primary)', fontSize: '0.85rem', backgroundColor: 'var(--primary-light)', padding: '2px 8px', borderRadius: '4px' }}>{selectedClass.classCode}</strong>
                                             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{10 + num}/4/2026</span>
                                         </div>
                                         <div className="timeline-content" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
@@ -198,7 +211,7 @@ function Classes() {
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', animation: 'fadeIn 0.3s ease-out' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', animation: 'fadeIn 0.3s ease-out', position: 'relative' }}>
             {currentRole !== 'teacher' && (
                 <div className="card" style={{ padding: '32px' }}>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '24px', color: '#1e3a8a', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
@@ -212,20 +225,17 @@ function Classes() {
                             </div>
                             <div>
                                 <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>GIÁO VIÊN PHỤ TRÁCH</label>
-                                <input list="teachers-list" className="form-control" placeholder="Tự nhập hoặc chọn..." value={formClass.teacher} onChange={(e) => setFormClass({ ...formClass, teacher: e.target.value })} />
-                                <datalist id="teachers-list">
-                                    {teachers && teachers.map((t) => <option key={t.id} value={t.name} />)}
-                                </datalist>
+                                {/* ĐÃ ĐỔI THÀNH TỰ NHẬP HOÀN TOÀN */}
+                                <input type="text" className="form-control" placeholder="Tự nhập tên Giáo viên..." value={formClass.teacher} onChange={(e) => setFormClass({ ...formClass, teacher: e.target.value })} />
                             </div>
                             <div>
                                 <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>TRỢ GIẢNG PHỤ TRÁCH</label>
-                                <input type="text" className="form-control" placeholder="Tên trợ giảng..." value={formClass.ta} onChange={(e) => setFormClass({ ...formClass, ta: e.target.value })} />
+                                <input type="text" className="form-control" placeholder="Tự nhập tên Trợ giảng..." value={formClass.ta} onChange={(e) => setFormClass({ ...formClass, ta: e.target.value })} />
                             </div>
                         </div>
 
                         <div>
                             <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary)', marginBottom: '8px', display: 'block' }}><i className="fa-solid fa-link"></i> Tài nguyên & Giáo trình</label>
-                            {/* ĐÃ CHUYỂN TYPE="URL" VÀ SỬA PLACEHOLDER ĐỂ NHẬP LINK */}
                             <input type="url" className="form-control" placeholder="Dán link Padlet / Google Drive tài liệu vào đây..." value={formClass.padletUrl} onChange={(e) => setFormClass({ ...formClass, padletUrl: e.target.value })} style={{ backgroundColor: 'var(--primary-light)', border: '1px dashed var(--primary)' }} />
                         </div>
 
@@ -234,35 +244,26 @@ function Classes() {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>LOẠI HÌNH LỚP (*)</label>
-                                    {/* ĐÃ CHUYỂN SANG DATALIST ĐỂ TỰ NHẬP HOẶC CHỌN */}
-                                    <input list="class-types" className="form-control" placeholder="Tự nhập hoặc chọn..." value={formClass.classType} onChange={(e) => setFormClass({ ...formClass, classType: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
-                                    <datalist id="class-types">
-                                        <option value="Lớp Nhóm" />
-                                        <option value="Lớp VIP 1-1" />
-                                    </datalist>
+                                    {/* ĐÃ ĐỔI THÀNH TỰ NHẬP HOÀN TOÀN */}
+                                    <input type="text" className="form-control" placeholder="VD: Lớp Nhóm, VIP..." value={formClass.classType} onChange={(e) => setFormClass({ ...formClass, classType: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
                                 </div>
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>CẤP ĐỘ LỚP (*)</label>
-                                    {/* ĐÃ CHUYỂN SANG DATALIST ĐỂ TỰ NHẬP HOẶC CHỌN */}
-                                    <input list="class-levels" className="form-control" placeholder="Tự nhập hoặc chọn..." value={formClass.level} onChange={(e) => setFormClass({ ...formClass, level: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
-                                    <datalist id="class-levels">
-                                        <option value="HSK 1" />
-                                        <option value="HSK 2" />
-                                        <option value="HSK 3" />
-                                    </datalist>
+                                    {/* ĐÃ ĐỔI THÀNH TỰ NHẬP HOÀN TOÀN */}
+                                    <input type="text" className="form-control" placeholder="VD: HSK 1, HSK 2..." value={formClass.level} onChange={(e) => setFormClass({ ...formClass, level: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
                                 </div>
                                 <div>
-                                    {/* ĐÃ XÓA CHỮ "/ BUỔI" */}
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary)' }}>HỌC PHÍ (VNĐ)</label>
                                     <input type="number" className="form-control" placeholder="Ví dụ: 350000" value={formClass.sessionFee} onChange={(e) => setFormClass({ ...formClass, sessionFee: e.target.value })} required style={{ background: 'white', borderColor: 'var(--primary)', marginTop: '6px' }} />
                                 </div>
                                 <div>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>NGÀY KHAI GIẢNG (Tự nhập)</label>
-                                    <input type="text" className="form-control" placeholder="VD: 15/08/2026" value={formClass.startDate} onChange={(e) => setFormClass({ ...formClass, startDate: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>NGÀY KHAI GIẢNG</label>
+                                    <input type="date" className="form-control" value={formClass.startDate} onChange={(e) => setFormClass({ ...formClass, startDate: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
                                 </div>
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>TỔNG SỐ BUỔI</label>
-                                    <input type="number" className="form-control" placeholder="VD: 19" value={formClass.totalSessions} onChange={(e) => setFormClass({ ...formClass, totalSessions: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
+                                    {/* ĐÃ ĐỔI THÀNH TỰ NHẬP HOÀN TOÀN */}
+                                    <input type="number" className="form-control" placeholder="Tự nhập..." value={formClass.totalSessions} onChange={(e) => setFormClass({ ...formClass, totalSessions: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
                                 </div>
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>GIỜ HỌC</label>
@@ -325,8 +326,18 @@ function Classes() {
                                 {currentRole !== 'teacher' && (
                                     <td style={{ padding: '20px 24px', textAlign: 'center' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                            <button title="Sửa" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', color: '#475569' }}><i className="fa-solid fa-pen"></i></button>
-                                            <button title="Xóa" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', color: '#1e293b' }}><i className="fa-solid fa-trash"></i></button>
+                                            {/* NÚT SỬA ĐÃ ĐƯỢC GẮN SỰ KIỆN */}
+                                            <button 
+                                                title="Sửa" 
+                                                onClick={() => setEditingClass(c)} 
+                                                style={{ background: '#f8fafc', border: '1px solid #cbd5e1', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', color: '#475569' }}
+                                            >
+                                                <i className="fa-solid fa-pen"></i>
+                                            </button>
+                                            
+                                            <button title="Xóa" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', color: '#1e293b' }}>
+                                                <i className="fa-solid fa-trash"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 )}
@@ -335,6 +346,63 @@ function Classes() {
                     </tbody>
                 </table>
             </div>
+
+            {/* GIAO DIỆN MODAL MENU ĐỂ CHỈNH SỬA LỚP HỌC */}
+            {editingClass && (
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <div className="card" style={{ width: '650px', backgroundColor: 'white', padding: '24px', borderRadius: '12px', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
+                            <h3 style={{ fontWeight: '800', color: 'var(--primary)' }}><i className="fa-solid fa-pen-to-square"></i> Chỉnh sửa thông tin Lớp học</h3>
+                            <button onClick={() => setEditingClass(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✖</button>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Mã/Tên Lớp</label>
+                                <input className="form-control" value={editingClass.classCode || ''} onChange={(e) => setEditingClass({ ...editingClass, classCode: e.target.value })} />
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Học phí</label>
+                                <input type="number" className="form-control" value={editingClass.sessionFee || ''} onChange={(e) => setEditingClass({ ...editingClass, sessionFee: e.target.value })} />
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Giáo viên</label>
+                                <input className="form-control" value={editingClass.teacher || ''} onChange={(e) => setEditingClass({ ...editingClass, teacher: e.target.value })} />
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Trợ giảng</label>
+                                <input className="form-control" value={editingClass.ta || ''} onChange={(e) => setEditingClass({ ...editingClass, ta: e.target.value })} />
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Loại hình</label>
+                                <input className="form-control" value={editingClass.classType || ''} onChange={(e) => setEditingClass({ ...editingClass, classType: e.target.value })} />
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Cấp độ</label>
+                                <input className="form-control" value={editingClass.level || ''} onChange={(e) => setEditingClass({ ...editingClass, level: e.target.value })} />
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Tổng số buổi</label>
+                                <input type="number" className="form-control" value={editingClass.totalSessions || ''} onChange={(e) => setEditingClass({ ...editingClass, totalSessions: e.target.value })} />
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Giờ học</label>
+                                <input className="form-control" value={editingClass.scheduleTime || ''} onChange={(e) => setEditingClass({ ...editingClass, scheduleTime: e.target.value })} />
+                            </div>
+                            <div style={{ gridColumn: 'span 2' }}>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Link tài nguyên (Padlet/Drive)</label>
+                                <input type="url" className="form-control" value={editingClass.padletUrl || ''} onChange={(e) => setEditingClass({ ...editingClass, padletUrl: e.target.value })} />
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
+                            <button className="btn" style={{ padding: '10px 24px', backgroundColor: 'var(--success)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' }} onClick={handleSaveEdit}>
+                                <i className="fa-solid fa-floppy-disk"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
