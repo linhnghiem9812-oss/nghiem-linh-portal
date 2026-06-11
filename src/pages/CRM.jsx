@@ -151,7 +151,7 @@ function CRM() {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', position: 'relative' }}>
-            
+
             {/* PHẦN 1: FORM TIẾP NHẬN HỒ SƠ */}
             <div className="card" style={{ padding: '24px' }}>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '20px', color: '#1e3a8a' }}>
@@ -211,65 +211,60 @@ function CRM() {
                 </form>
             </div>
 
-            {/* KHU VỰC BẢNG MODULE ĐỒNG BỘ MODULE ICON MINECRAFT */}
             <div className="card" style={{ padding: '24px' }}>
-                
-                {/* THANH ĐIỀU KHIỂN ĐÓNG/MỞ MA TRẬN CỘT TRÊN CÙNG */}
-                <div style={{ 
-                    backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '10px', 
-                    padding: '12px 18px', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px',
-                    transition: 'all 0.25s ease-in-out'
+
+                {/* THANH ĐIỀU KHIỂN CỐ ĐỊNH (STICKY) */}
+                <div style={{
+                    position: 'sticky', top: '0', zIndex: '10', backgroundColor: '#ffffff',
+                    border: '1px solid #e2e8f0', borderRadius: '10px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    padding: '16px', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px'
                 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cấu hình lưới hiển thị:</span>
-                            {/* Danh sách logo icon thu gọn khi đóng bảng */}
-                            {!isPanelExpanded && (
-                                <div style={{ display: 'flex', gap: '6px', color: '#64748b', fontSize: '0.85rem' }}>
-                                    {optionalColumnsConfig.map(col => (
-                                        <i key={col.key} className={`fa-solid ${col.icon}`} style={{ opacity: visibleColumns[col.key] ? 1 : 0.25, backgroundColor: visibleColumns[col.key] ? '#e2e8f0' : 'transparent', padding: '4px', borderRadius: '4px' }} title={col.label}></i>
-                                    ))}
-                                </div>
-                            )}
+                        {/* Thu gọn hiển thị icon */}
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            {!isPanelExpanded && optionalColumnsConfig.map(col => (
+                                <i key={col.key} className={`fa-solid ${col.icon}`}
+                                    style={{
+                                        fontSize: '1.1rem',
+                                        color: visibleColumns[col.key] ? '#4f46e5' : '#cbd5e1',
+                                        transition: 'color 0.2s'
+                                    }} title={col.label}></i>
+                            ))}
                         </div>
-                        {/* Nút bấm chuyển trạng thái mở rộng */}
-                        <button 
-                            type="button"
-                            onClick={() => setIsPanelExpanded(!isPanelExpanded)}
-                            style={{ 
-                                background: isPanelExpanded ? '#4f46e5' : '#ffffff', 
-                                color: isPanelExpanded ? 'white' : '#4f46e5',
-                                border: '1px solid #4f46e5', padding: '6px 14px', borderRadius: '6px',
-                                fontSize: '0.75rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
-                            }}
-                        >
-                            <span>{isPanelExpanded ? 'Thu gọn bảng chọn' : 'Mở rộng bảng cấu hình cột'}</span>
-                            <i className={`fa-solid ${isPanelExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
-                        </button>
+
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            {isPanelExpanded && (
+                                <>
+                                    <button onClick={() => setVisibleColumns(Object.keys(visibleColumns).reduce((acc, key) => ({ ...acc, [key]: true }), {}))} style={{ fontSize: '0.7rem', padding: '4px 8px', cursor: 'pointer' }}>Chọn tất cả</button>
+                                    <button onClick={() => setVisibleColumns(Object.keys(visibleColumns).reduce((acc, key) => ({ ...acc, [key]: false }), {}))} style={{ fontSize: '0.7rem', padding: '4px 8px', cursor: 'pointer' }}>Bỏ chọn</button>
+                                </>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => setIsPanelExpanded(!isPanelExpanded)}
+                                style={{
+                                    background: '#4f46e5', color: 'white', border: 'none',
+                                    padding: '6px 16px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '800', cursor: 'pointer'
+                                }}
+                            >
+                                {isPanelExpanded ? 'Đóng bảng chọn' : 'Tùy chỉnh cột'}
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Danh sách hộp kiểm Checkbox chỉ lộ diện khi bấm Mở rộng panel */}
+                    {/* Danh sách chọn cột */}
                     {isPanelExpanded && (
-                        <div style={{ 
-                            display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '10px', 
-                            borderTop: '1px solid #cbd5e1', paddingTop: '12px', animation: 'fadeIn 0.2s ease-out'
-                        }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
                             {optionalColumnsConfig.map(col => (
-                                <label key={col.key} style={{ 
-                                    display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', 
-                                    backgroundColor: visibleColumns[col.key] ? '#e0e7ff' : '#ffffff', 
-                                    border: visibleColumns[col.key] ? '1px solid #818cf8' : '1px solid #cbd5e1',
-                                    borderRadius: '6px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: '700',
-                                    color: visibleColumns[col.key] ? '#3730a3' : '#475569', transition: 'all 0.1s'
+                                <label key={col.key} style={{
+                                    display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px',
+                                    backgroundColor: visibleColumns[col.key] ? '#eef2ff' : '#f8fafc',
+                                    border: visibleColumns[col.key] ? '1px solid #4f46e5' : '1px solid #e2e8f0',
+                                    borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '600',
+                                    color: visibleColumns[col.key] ? '#4f46e5' : '#475569'
                                 }}>
-                                    <input 
-                                        type="checkbox" 
-                                        checked={visibleColumns[col.key]} 
-                                        onChange={() => toggleColumn(col.key)}
-                                        style={{ accentColor: '#4f46e5', cursor: 'pointer' }}
-                                    />
-                                    <i className={`fa-solid ${col.icon}`} style={{ fontSize: '0.85rem' }}></i>
-                                    <span>{col.label}</span>
+                                    <input type="checkbox" checked={visibleColumns[col.key]} onChange={() => toggleColumn(col.key)} />
+                                    <i className={`fa-solid ${col.icon}`}></i> {col.label}
                                 </label>
                             ))}
                         </div>
@@ -316,40 +311,40 @@ function CRM() {
                                 <tr key={c.id || index} style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'white' }}>
                                     <td style={{ padding: '14px 12px', fontWeight: '700' }}>{index + 1}</td>
                                     <td style={{ padding: '14px 12px' }}>
-                                        <span 
+                                        <span
                                             style={{ color: 'var(--primary)', textDecoration: 'underline', fontWeight: '700', cursor: 'pointer' }}
                                             onClick={() => { setSelectedCustomer({ ...c }); setIsEditing(false); }}
                                         >
                                             {c.fbName || '---'}
                                         </span>
                                     </td>
-                                    
+
                                     {/* Khối xử lý ẩn hiện giá trị động theo từng ô thuộc hàng dữ liệu */}
                                     {visibleColumns.receiveDate && <td style={{ padding: '14px 12px', color: 'var(--text-muted)' }}>{c.receiveDate || '---'}</td>}
                                     {visibleColumns.saleInCharge && <td style={{ padding: '14px 12px', fontWeight: '600' }}>{c.saleInCharge || '---'}</td>}
-                                    
+
                                     <td style={{ padding: '14px 12px' }}>{c.phone || '---'}</td>
-                                    
+
                                     {visibleColumns.dob && <td style={{ padding: '14px 12px' }}>{c.dob || '---'}</td>}
                                     {visibleColumns.name && <td style={{ padding: '14px 12px', fontWeight: '600' }}>{c.name || '---'}</td>}
-                                    
+
                                     <td style={{ padding: '14px 12px' }}>{c.country || '---'}</td>
                                     <td style={{ padding: '14px 12px' }}>{c.language || '---'}</td>
-                                    
+
                                     {visibleColumns.course && <td style={{ padding: '14px 12px' }}>{c.course || '---'}</td>}
                                     {visibleColumns.customerType && <td style={{ padding: '14px 12px' }}>{c.customerType || '---'}</td>}
                                     {visibleColumns.source && <td style={{ padding: '14px 12px' }}>{c.source || '---'}</td>}
-                                    
+
                                     <td style={{ padding: '14px 12px' }}>{c.level || '---'}</td>
-                                    
+
                                     <td style={{ padding: '14px 12px' }}>
-                                        <span style={{ 
-                                            color: c.potential === 'Cao' ? '#166534' : c.potential === 'Thấp' ? '#b91c1c' : '#b45309', 
+                                        <span style={{
+                                            color: c.potential === 'Cao' ? '#166534' : c.potential === 'Thấp' ? '#b91c1c' : '#b45309',
                                             fontWeight: '700', backgroundColor: c.potential === 'Cao' ? '#dcfce7' : c.potential === 'Thấp' ? '#fee2e2' : '#fef3c7',
                                             padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem'
                                         }}>{c.potential || 'Trung bình'}</span>
                                     </td>
-                                    
+
                                     <td style={{ padding: '14px 12px' }}>
                                         <span className="badge-studying" style={{
                                             backgroundColor: c.status === 'Đã ĐK' ? '#dcfce7' : c.status === 'Đang tư vấn' ? '#e0e7ff' : '#f1f5f9',
@@ -357,13 +352,13 @@ function CRM() {
                                             fontWeight: '800', padding: '4px 10px', borderRadius: '50px', fontSize: '0.75rem'
                                         }}>{c.status || 'Mới'}</span>
                                     </td>
-                                    
+
                                     {visibleColumns.fee && <td style={{ padding: '14px 12px', fontWeight: '700', color: 'var(--primary)' }}>{c.fee ? `${Number(c.fee).toLocaleString('vi-VN')} đ` : '0 đ'}</td>}
                                     {visibleColumns.totalSessions && <td style={{ padding: '14px 12px', textAlign: 'center', fontWeight: '700' }}>{c.totalSessions || '---'}</td>}
                                     {visibleColumns.lastContact && <td style={{ padding: '14px 12px' }}>{c.lastContact || '---'}</td>}
                                     {visibleColumns.notes && <td style={{ padding: '14px 12px', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={c.notes}>{c.notes || '---'}</td>}
                                     {visibleColumns.nextAction && <td style={{ padding: '14px 12px', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={c.nextAction}>{c.nextAction || '---'}</td>}
-                                    
+
                                     <td style={{ padding: '14px 12px' }}>{c.assignClass || '---'}</td>
                                     <td style={{ padding: '14px 12px' }}>{c.type || c.groupType || '---'}</td>
                                 </tr>
