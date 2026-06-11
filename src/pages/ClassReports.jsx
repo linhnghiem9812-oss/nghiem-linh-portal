@@ -11,55 +11,63 @@ function ClassReports() {
     const { classes } = useData();
     const { currentUser, currentRole } = useAuth();
     const [selectedReport, setSelectedReport] = useState(null);
-
+    
     const [reportStudents, setReportStudents] = useState([]);
     const [reportSessions, setReportSessions] = useState([]);
 
-    // --- CÁC STATE MỚI ĐỂ LƯU TRỮ DỮ LIỆU ĐỒNG BỘ THỜI GIAN THỰC ---
     const [progressMap, setProgressMap] = useState({});
     const [attendanceMap, setAttendanceMap] = useState({});
 
-    // 1. TỰ ĐỘNG ĐỒNG BỘ TIẾN ĐỘ CHO TẤT CẢ CÁC LỚP BÊN NGOÀI DANH SÁCH
+    // 1. TỰ ĐỘNG ĐỒNG BỘ TIẾN ĐỘ CHO TẤT CẢ CÁC LỚP, BỎ ĐI DỮ LIỆU RÁC
     useEffect(() => {
         if (classes && classes.length > 0) {
             classes.forEach(c => {
                 api.get(`/sessions/class/${c.id}`)
                     .then(res => {
-                        const sessions = res.data || [];
-                        // Đếm những buổi có trạng thái 'completed' hoặc 'cancelled'
+                        const rawSessions = res.data || [];
+                        const uniqueMap = new Map();
+                        rawSessions.forEach(s => { if(s.sessionNum) uniqueMap.set(s.sessionNum, s); });
+                        const sessions = Array.from(uniqueMap.values());
+                        
                         const completedCount = sessions.filter(s => s.status === 'completed' || s.status === 'cancelled').length;
                         setProgressMap(prev => ({ ...prev, [c.id]: completedCount }));
                     })
-                    .catch(() => { });
+                    .catch(() => {});
             });
         }
     }, [classes]);
 
-    // 2. TẢI DỮ LIỆU CHI TIẾT (HỌC VIÊN, LỊCH SỬ, ĐIỂM DANH) KHI MỞ BÁO CÁO MỘT LỚP
+    // 2. TẢI DỮ LIỆU CHI TIẾT KHI MỞ BÁO CÁO (LỌC TRÙNG LẶP)
     useEffect(() => {
         if (selectedReport) {
-            // Lấy danh sách Học viên
             api.get(`/classes/${selectedReport.id}/students`)
                 .then(res => setReportStudents(res.data || []))
                 .catch(() => setReportStudents([]));
-
-            // Lấy Lịch sử giảng dạy và đếm Điểm danh
+            
             api.get(`/sessions/class/${selectedReport.id}`)
                 .then(res => {
-                    const sessions = res.data || [];
+                    const rawSessions = res.data || [];
+                    
+                    // LỌC BỎ CÁC BẢN GHI RÁC TỪ DATABASE
+                    const uniqueSessionsMap = new Map();
+                    rawSessions.forEach(s => {
+                        if (s.sessionNum) {
+                            uniqueSessionsMap.set(s.sessionNum, s);
+                        }
+                    });
+                    const sessions = Array.from(uniqueSessionsMap.values());
+
                     setReportSessions(sessions);
 
-                    // Tải dữ liệu điểm danh thực tế cho từng buổi đã dạy
                     sessions.forEach(session => {
                         if (session.status === 'completed' || session.status === 'cancelled') {
                             api.get(`/attendance/${selectedReport.id}/${session.sessionNum}`)
                                 .then(attRes => {
                                     const records = attRes.data || [];
-                                    // Đếm số lượng học viên có mặt (present)
                                     const presentCount = records.filter(r => r.status === 'present').length;
                                     setAttendanceMap(prev => ({ ...prev, [session.sessionNum]: presentCount }));
                                 })
-                                .catch(() => { });
+                                .catch(() => {});
                         }
                     });
                 })
@@ -74,7 +82,6 @@ function ClassReports() {
         );
     }
 
-    // Tính toán tiến độ thực tế của lớp đang được chọn
     const currentProgress = reportSessions.filter(s => s.status === 'completed' || s.status === 'cancelled').length;
 
     return (
@@ -95,13 +102,12 @@ function ClassReports() {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                             <span><i className="fa-solid fa-user-tie" style={{ width: '20px' }}></i> GV: <strong style={{ color: 'var(--text-main)' }}>{c.teacher || 'Chưa xếp'}</strong></span>
-
+                            
                             {c.ta && (
                                 <span><i className="fa-solid fa-user-graduate" style={{ width: '20px' }}></i> TA: <strong style={{ color: 'var(--text-main)' }}>{c.ta}</strong></span>
                             )}
-
+                            
                             <span><i className="fa-solid fa-clock" style={{ width: '20px' }}></i> Lịch học: <strong style={{ color: 'var(--text-main)' }}>{c.scheduleTime || 'Chưa xếp'}</strong></span>
-                            {/* TIẾN ĐỘ ĐƯỢC ĐỒNG BỘ TỪ progressMap */}
                             <span><i className="fa-solid fa-list-check" style={{ width: '20px' }}></i> Tiến độ: <strong style={{ color: 'var(--text-main)' }}>{progressMap[c.id] || 0}/{c.totalSessions || 19} buổi</strong></span>
                         </div>
 
@@ -145,7 +151,6 @@ function ClassReports() {
                             </div>
                             <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)' }}>
                                 <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>Tiến độ</span>
-                                {/* TIẾN ĐỘ THỰC TẾ TRONG BẢNG CHI TIẾT */}
                                 <strong style={{ fontSize: '1rem', color: '#9333ea' }}>{currentProgress}/{selectedReport.totalSessions || 19} buổi</strong>
                             </div>
                         </div>
@@ -167,11 +172,11 @@ function ClassReports() {
                             <div style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                                 <div style={{ padding: '16px', backgroundColor: '#f1f5f9', borderBottom: '1px solid var(--border-color)', fontWeight: '800' }}>Lịch sử Dạy & Điểm danh</div>
                                 <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto', flex: 1 }}>
-
-                                    {reportSessions.filter(s => s.status === 'completed' || s.status === 'cancelled').length === 0 &&
+                                    
+                                    {reportSessions.filter(s => s.status === 'completed' || s.status === 'cancelled').length === 0 && 
                                         <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', marginTop: '20px' }}>Chưa có lịch sử dạy được ghi nhận từ Giáo viên.</p>
                                     }
-
+                                    
                                     {reportSessions
                                         .filter(s => s.status === 'completed' || s.status === 'cancelled')
                                         .sort((a, b) => b.sessionNum - a.sessionNum)
@@ -179,9 +184,8 @@ function ClassReports() {
                                             <div key={session.sessionNum} style={{ border: `1px solid ${session.status === 'completed' ? '#10b981' : '#ef4444'}`, borderRadius: '8px', padding: '12px', backgroundColor: 'var(--bg-card)' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                                                     <strong style={{ color: 'var(--primary)' }}>BUỔI {session.sessionNum}</strong>
-
+                                                    
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                        {/* CON SỐ ĐIỂM DANH THỰC TẾ LẤY TỪ attendanceMap */}
                                                         <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--success)' }}>
                                                             {attendanceMap[session.sessionNum] !== undefined ? attendanceMap[session.sessionNum] : 0}/{reportStudents.length} HV đi học
                                                         </span>
@@ -191,7 +195,7 @@ function ClassReports() {
                                                     </div>
                                                 </div>
                                                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px' }}>{session.title} - {session.notes || 'Không có ghi chú'}</p>
-
+                                                
                                                 {session.hasLessonPlan && (
                                                     <span style={{ fontSize: '0.7rem', fontWeight: '700', color: '#2563eb', backgroundColor: '#e0e7ff', padding: '2px 6px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                                                         <i className="fa-solid fa-file-shield"></i> Đã nộp giáo án
