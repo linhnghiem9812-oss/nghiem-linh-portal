@@ -19,7 +19,6 @@ function MyClassActive() {
 
     const [activeClassId, setActiveClassId] = useState(null);
 
-    // Tự động chọn lớp đầu tiên nếu có danh sách
     useEffect(() => {
         if (myClasses.length > 0) {
             const isValid = myClasses.some(c => c.id === activeClassId);
@@ -41,18 +40,26 @@ function MyClassActive() {
         const fetchSessions = async () => {
             try {
                 const res = await api.get(`/sessions/class/${activeClass.id}`);
-                if (res.data && res.data.length > 0) {
-                    setSessionsData(res.data);
-                } else {
-                    const total = activeClass.totalSessions || 19;
-                    const initialSessions = Array.from({ length: total }, (_, i) => ({
-                        classId: activeClass.id, sessionNum: i + 1, title: `BÀI ${i + 1}`, status: 'draft', notes: '', hasLessonPlan: false, lessonPlanUrl: ''
-                    }));
-                    setSessionsData(initialSessions);
-                }
+                const dbSessions = res.data || [];
+                
+                const total = parseInt(activeClass.totalSessions) || 19;
+                
+                // 1. LUÔN DỰNG SẴN KHUNG LỘ TRÌNH ĐẦY ĐỦ
+                const fullSessions = Array.from({ length: total }, (_, i) => ({
+                    classId: activeClass.id, sessionNum: i + 1, title: `BÀI ${i + 1}`, status: 'draft', notes: '', hasLessonPlan: false, lessonPlanUrl: ''
+                }));
+
+                // 2. LỌC VÀ ĐẮP DỮ LIỆU TỪ DB LÊN KHUNG (Tự động đè lên dữ liệu rác/trùng lặp)
+                dbSessions.forEach(dbS => {
+                    if (dbS.sessionNum && dbS.sessionNum >= 1 && dbS.sessionNum <= total) {
+                        fullSessions[dbS.sessionNum - 1] = { ...fullSessions[dbS.sessionNum - 1], ...dbS };
+                    }
+                });
+
+                setSessionsData(fullSessions);
             } catch (e) {
                 console.log("Sử dụng lộ trình trắng do DB chưa có dữ liệu.");
-                const total = activeClass.totalSessions || 19;
+                const total = parseInt(activeClass.totalSessions) || 19;
                 const initialSessions = Array.from({ length: total }, (_, i) => ({
                     classId: activeClass.id, sessionNum: i + 1, title: `BÀI ${i + 1}`, status: 'draft', notes: '', hasLessonPlan: false, lessonPlanUrl: ''
                 }));
@@ -119,10 +126,21 @@ function MyClassActive() {
             await api.post(`/sessions`, { ...currentSession, classId: activeClass.id });
             await api.post(`/attendance/save`, { classId: activeClass.id, sessionNum: selectedSessionNum, records: studentsAttendance });
             alert(`Hệ thống: Đã tiến hành lưu và cập nhật thành công dữ liệu Tiến độ giảng dạy Buổi ${selectedSessionNum}!`);
-
+            
             // Tải lại cục bộ lộ trình để cập nhật màu sắc viền tức thì sau khi bấm Lưu
             const res = await api.get(`/sessions/class/${activeClass.id}`);
-            if (res.data && res.data.length > 0) setSessionsData(res.data);
+            if (res.data && res.data.length > 0) {
+                const total = parseInt(activeClass.totalSessions) || 19;
+                const fullSessions = Array.from({ length: total }, (_, i) => ({
+                    classId: activeClass.id, sessionNum: i + 1, title: `BÀI ${i + 1}`, status: 'draft', notes: '', hasLessonPlan: false, lessonPlanUrl: ''
+                }));
+                res.data.forEach(dbS => {
+                    if (dbS.sessionNum && dbS.sessionNum >= 1 && dbS.sessionNum <= total) {
+                        fullSessions[dbS.sessionNum - 1] = { ...fullSessions[dbS.sessionNum - 1], ...dbS };
+                    }
+                });
+                setSessionsData(fullSessions);
+            }
         } catch (error) {
             alert(`Hệ thống: Đã tiến hành lưu và cập nhật thành công dữ liệu Tiến độ giảng dạy Buổi ${selectedSessionNum}!`);
         }
@@ -130,8 +148,6 @@ function MyClassActive() {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
-            {/* KHU VỰC HEADER CHỌN LỚP */}
             <div className="card" style={{ padding: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                     <div>
@@ -144,13 +160,13 @@ function MyClassActive() {
                             value={activeClassId || ''}
                             onChange={e => setActiveClassId(parseInt(e.target.value) || e.target.value)}
                             disabled={!activeClass}
-                            style={{
-                                fontSize: '1.4rem', fontWeight: '800',
-                                color: !activeClass ? '#94a3b8' : '#1e3a8a',
-                                border: '1px solid var(--primary)',
-                                padding: '6px 12px',
-                                borderRadius: '8px',
-                                cursor: !activeClass ? 'not-allowed' : 'pointer',
+                            style={{ 
+                                fontSize: '1.4rem', fontWeight: '800', 
+                                color: !activeClass ? '#94a3b8' : '#1e3a8a', 
+                                border: '1px solid var(--primary)', 
+                                padding: '6px 12px', 
+                                borderRadius: '8px', 
+                                cursor: !activeClass ? 'not-allowed' : 'pointer', 
                                 display: 'block', maxWidth: '400px',
                                 backgroundColor: !activeClass ? '#f1f5f9' : 'white'
                             }}
@@ -163,8 +179,8 @@ function MyClassActive() {
                         </select>
 
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '12px' }}>
-                            <i className="fa-solid fa-clock" style={{ marginRight: '6px' }}></i> Giờ học: {activeClass?.scheduleTime || 'Chưa xếp'} |
-                            <i className="fa-solid fa-user-tie" style={{ marginLeft: '12px', marginRight: '6px' }}></i> Giáo viên: {activeClass?.teacher || 'Chưa xếp'} |
+                            <i className="fa-solid fa-clock" style={{ marginRight: '6px' }}></i> Giờ học: {activeClass?.scheduleTime || 'Chưa xếp'} | 
+                            <i className="fa-solid fa-user-tie" style={{ marginLeft: '12px', marginRight: '6px' }}></i> Giáo viên: {activeClass?.teacher || 'Chưa xếp'} | 
                             <i className="fa-solid fa-user-graduate" style={{ marginLeft: '12px', marginRight: '6px' }}></i> Trợ giảng: {activeClass?.ta ? activeClass.ta : 'Không có'}
                         </p>
                     </div>
@@ -187,7 +203,6 @@ function MyClassActive() {
                 </div>
             ) : (
                 <>
-                    {/* Ô LƯỚI LỘ TRÌNH VÀ NHẬT KÝ ĐÃ ĐƯỢC CHỈNH SỬA ĐỊNH DẠNG THEO YÊU CẦU */}
                     <div className="card" style={{ padding: '24px' }}>
                         <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '16px' }}>
                             <i className="fa-solid fa-calendar-days" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
@@ -196,33 +211,24 @@ function MyClassActive() {
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '14px' }}>
                             {sessionsData.map((session) => {
                                 const isSelected = selectedSessionNum === session.sessionNum;
-
-                                // 1. Cấu hình màu đường viền động dựa theo trạng thái lưu của Backend
+                                
                                 let borderStyle = '1px solid #e2e8f0';
-                                if (session.status === 'completed') borderStyle = '2px solid #10b981'; // Viền xanh lá cây
-                                if (session.status === 'cancelled') borderStyle = '2px solid #ef4444'; // Viền đỏ
-                                if (isSelected) borderStyle = '2px solid #2563eb'; // Click chọn ưu tiên nổi bật viền xanh dương
+                                if (session.status === 'completed') borderStyle = '2px solid #10b981';
+                                if (session.status === 'cancelled') borderStyle = '2px solid #ef4444';
+                                if (isSelected) borderStyle = '2px solid #2563eb';
 
-                                // 2. Cấu hình màu nền: Chọn thì dùng màu xanh lam nhạt pastel dịu mát
                                 const bgStyle = isSelected ? '#eff6ff' : '#ffffff';
 
                                 return (
-                                    <div
-                                        key={session.sessionNum}
+                                    <div 
+                                        key={session.sessionNum} 
                                         onClick={() => setSelectedSessionNum(session.sessionNum)}
                                         style={{
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            padding: '14px 10px',
-                                            borderRadius: '12px',
-                                            backgroundColor: bgStyle,
-                                            border: borderStyle,
-                                            cursor: 'pointer',
+                                            display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '14px 10px',
+                                            borderRadius: '12px', backgroundColor: bgStyle, border: borderStyle, cursor: 'pointer',
                                             transition: 'all 0.15s ease',
                                             boxShadow: isSelected ? '0 4px 12px rgba(37, 99, 235, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)',
-                                            textAlign: 'center',
-                                            minHeight: '110px'
+                                            textAlign: 'center', minHeight: '110px'
                                         }}
                                     >
                                         <strong style={{ fontSize: '0.85rem', color: isSelected ? '#1e40af' : '#1e293b' }}>Buổi {session.sessionNum}</strong>
@@ -230,22 +236,13 @@ function MyClassActive() {
                                             {session.title}
                                         </span>
 
-                                        {/* KHU VỰC GHI CHÚ TRẠNG THÁI NẰM Ở DƯỚI CÙNG CỦA Ô */}
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center', width: '100%', marginTop: 'auto' }}>
-
-                                            {/* Trạng thái Hoàn Thành / Nghỉ */}
                                             {session.status === 'completed' && (
-                                                <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#10b981', backgroundColor: '#dcfce7', padding: '1px 6px', borderRadius: '4px' }}>
-                                                    Đã hoàn thành
-                                                </span>
+                                                <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#10b981', backgroundColor: '#dcfce7', padding: '1px 6px', borderRadius: '4px' }}>Đã hoàn thành</span>
                                             )}
                                             {session.status === 'cancelled' && (
-                                                <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#ef4444', backgroundColor: '#fee2e2', padding: '1px 6px', borderRadius: '4px' }}>
-                                                    Nghỉ
-                                                </span>
+                                                <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#ef4444', backgroundColor: '#fee2e2', padding: '1px 6px', borderRadius: '4px' }}>Nghỉ</span>
                                             )}
-
-                                            {/* Trạng thái Nộp giáo án (GA) */}
                                             {session.hasLessonPlan && (
                                                 <span style={{ fontSize: '0.65rem', fontWeight: '700', color: '#2563eb', backgroundColor: '#e0e7ff', padding: '1px 6px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
                                                     <i className="fa-solid fa-file-shield" style={{ fontSize: '0.6rem' }}></i> Đã nộp giáo án
@@ -259,7 +256,7 @@ function MyClassActive() {
                     </div>
 
                     <div className="my-portal-grid" style={{ gridTemplateColumns: '1.2fr 1fr' }}>
-
+                        
                         {/* CHỈNH SỬA NỘI DUNG BUỔI HỌC */}
                         <div className="card" style={{ padding: '24px' }}>
                             <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '16px', color: 'var(--primary)' }}>
