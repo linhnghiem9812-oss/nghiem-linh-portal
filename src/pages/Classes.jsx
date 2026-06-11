@@ -225,12 +225,12 @@ function Classes() {
                             </div>
                             <div>
                                 <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>GIÁO VIÊN PHỤ TRÁCH</label>
-                                {/* ĐÃ ĐỔI THÀNH TỰ NHẬP HOÀN TOÀN */}
-                                <input type="text" className="form-control" placeholder="Tự nhập tên Giáo viên..." value={formClass.teacher} onChange={(e) => setFormClass({ ...formClass, teacher: e.target.value })} />
+                                {/* ĐÃ ĐỔI THÀNH NHẬP HOÀN TOÀN */}
+                                <input type="text" className="form-control" placeholder="Nhập tên Giáo viên..." value={formClass.teacher} onChange={(e) => setFormClass({ ...formClass, teacher: e.target.value })} />
                             </div>
                             <div>
                                 <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>TRỢ GIẢNG PHỤ TRÁCH</label>
-                                <input type="text" className="form-control" placeholder="Tự nhập tên Trợ giảng..." value={formClass.ta} onChange={(e) => setFormClass({ ...formClass, ta: e.target.value })} />
+                                <input type="text" className="form-control" placeholder="Nhập tên Trợ giảng..." value={formClass.ta} onChange={(e) => setFormClass({ ...formClass, ta: e.target.value })} />
                             </div>
                         </div>
 
@@ -244,12 +244,12 @@ function Classes() {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>LOẠI HÌNH LỚP (*)</label>
-                                    {/* ĐÃ ĐỔI THÀNH TỰ NHẬP HOÀN TOÀN */}
+                                    {/* ĐÃ ĐỔI THÀNH NHẬP HOÀN TOÀN */}
                                     <input type="text" className="form-control" placeholder="VD: Lớp Nhóm, VIP..." value={formClass.classType} onChange={(e) => setFormClass({ ...formClass, classType: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
                                 </div>
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>CẤP ĐỘ LỚP (*)</label>
-                                    {/* ĐÃ ĐỔI THÀNH TỰ NHẬP HOÀN TOÀN */}
+                                    {/* ĐÃ ĐỔI THÀNH NHẬP HOÀN TOÀN */}
                                     <input type="text" className="form-control" placeholder="VD: HSK 1, HSK 2..." value={formClass.level} onChange={(e) => setFormClass({ ...formClass, level: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
                                 </div>
                                 <div>
@@ -262,8 +262,8 @@ function Classes() {
                                 </div>
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>TỔNG SỐ BUỔI</label>
-                                    {/* ĐÃ ĐỔI THÀNH TỰ NHẬP HOÀN TOÀN */}
-                                    <input type="number" className="form-control" placeholder="Tự nhập..." value={formClass.totalSessions} onChange={(e) => setFormClass({ ...formClass, totalSessions: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
+                                    {/* ĐÃ ĐỔI THÀNH NHẬP HOÀN TOÀN */}
+                                    <input type="number" className="form-control" placeholder="Nhập..." value={formClass.totalSessions} onChange={(e) => setFormClass({ ...formClass, totalSessions: e.target.value })} style={{ background: 'white', marginTop: '6px' }} />
                                 </div>
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>GIỜ HỌC</label>
@@ -327,14 +327,14 @@ function Classes() {
                                     <td style={{ padding: '20px 24px', textAlign: 'center' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                             {/* NÚT SỬA ĐÃ ĐƯỢC GẮN SỰ KIỆN */}
-                                            <button 
-                                                title="Sửa" 
-                                                onClick={() => setEditingClass(c)} 
+                                            <button
+                                                title="Sửa"
+                                                onClick={() => setEditingClass(c)}
                                                 style={{ background: '#f8fafc', border: '1px solid #cbd5e1', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', color: '#475569' }}
                                             >
                                                 <i className="fa-solid fa-pen"></i>
                                             </button>
-                                            
+
                                             <button title="Xóa" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', color: '#1e293b' }}>
                                                 <i className="fa-solid fa-trash"></i>
                                             </button>
