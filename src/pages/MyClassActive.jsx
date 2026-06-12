@@ -11,16 +11,44 @@ function MyClassActive() {
     const { currentUser, currentRole } = useAuth();
     const { classes } = useData();
 
-    // Lọc lớp học dựa trên quyền: Admin thấy hết, Giáo viên chỉ thấy lớp của mình
+    const [allStudents, setAllStudents] = useState([]);
+
+    // --- 1. HỢP NHẤT DỮ LIỆU ĐỂ GIÁO VIÊN LẤY DANH SÁCH ĐIỂM DANH ---
+    useEffect(() => {
+        const fetchAllData = async () => {
+            try {
+                const [studentsRes, customersRes] = await Promise.all([
+                    api.get('/students').catch(() => ({ data: [] })),
+                    api.get('/customers').catch(() => ({ data: [] }))
+                ]);
+
+                // Lấy học viên từ bảng StudentCare
+                const studentsList = studentsRes.data.map(s => ({
+                    id: `ST-${s.id}`, name: s.name, classCode: s.classId || s.class
+                }));
+
+                // Lấy khách hàng từ bảng CRM (Đã ĐK và có điền Xếp Lớp)
+                const customersList = customersRes.data
+                    .filter(c => c.status === 'Đã ĐK' && c.assignClass)
+                    .map(c => ({
+                        id: `CUS-${c.id}`, name: c.name || c.fbName, classCode: c.assignClass
+                    }));
+
+                setAllStudents([...studentsList, ...customersList]);
+            } catch (error) {
+                console.log("Lỗi đồng bộ dữ liệu học viên");
+            }
+        };
+        fetchAllData();
+    }, []);
+
     // Lọc lớp học dựa trên quyền: Admin thấy hết, Giáo viên/Trợ giảng chỉ thấy lớp của mình
     const myClasses = classes.filter(c => {
         if (currentRole === 'admin' || currentRole === 'manager') return true;
         if (currentRole === 'teacher') {
-            // Ưu tiên lọc theo ID chính xác tuyệt đối, dự phòng lọc tên cho các lớp cũ chưa có ID
             return c.teacherId === currentUser.id || (c.teacher && c.teacher.toLowerCase().includes(currentUser.name.toLowerCase()));
         }
         if (currentRole === 'ta') {
-            // Tương tự bảo vệ quyền lợi cho cả Trợ giảng
             return c.taId === currentUser.id || (c.ta && c.ta.toLowerCase().includes(currentUser.name.toLowerCase()));
         }
         return false;
@@ -53,12 +81,10 @@ function MyClassActive() {
 
                 const total = parseInt(activeClass.totalSessions) || 19;
 
-                // 1. LUÔN DỰNG SẴN KHUNG LỘ TRÌNH ĐẦY ĐỦ
                 const fullSessions = Array.from({ length: total }, (_, i) => ({
                     classId: activeClass.id, sessionNum: i + 1, title: `BÀI ${i + 1}`, status: 'draft', notes: '', hasLessonPlan: false, lessonPlanUrl: ''
                 }));
 
-                // 2. LỌC VÀ ĐẮP DỮ LIỆU TỪ DB LÊN KHUNG (Tự động đè lên dữ liệu rác/trùng lặp)
                 dbSessions.forEach(dbS => {
                     if (dbS.sessionNum && dbS.sessionNum >= 1 && dbS.sessionNum <= total) {
                         fullSessions[dbS.sessionNum - 1] = { ...fullSessions[dbS.sessionNum - 1], ...dbS };
@@ -67,7 +93,6 @@ function MyClassActive() {
 
                 setSessionsData(fullSessions);
             } catch (e) {
-                console.log("Sử dụng lộ trình trắng do DB chưa có dữ liệu.");
                 const total = parseInt(activeClass.totalSessions) || 19;
                 const initialSessions = Array.from({ length: total }, (_, i) => ({
                     classId: activeClass.id, sessionNum: i + 1, title: `BÀI ${i + 1}`, status: 'draft', notes: '', hasLessonPlan: false, lessonPlanUrl: ''
@@ -79,32 +104,37 @@ function MyClassActive() {
         setSelectedSessionNum(1);
     }, [activeClass]);
 
-    // QUẢN LÝ ĐIỂM DANH (Database)
+    // --- 2. QUẢN LÝ ĐIỂM DANH DỰA TRÊN DỮ LIỆU ĐÃ HỢP NHẤT ---
     const [studentsAttendance, setStudentsAttendance] = useState([]);
 
     useEffect(() => {
         if (!activeClass) return;
+
+        // Lọc ra các học viên có mã lớp khớp với lớp đang mở
+        const classRoster = allStudents.filter(s => s.classCode === activeClass.classCode);
+
         const fetchAttendance = async () => {
             try {
                 const res = await api.get(`/attendance/${activeClass.id}/${selectedSessionNum}`);
                 if (res.data && res.data.length > 0) {
+                    // Nếu đã có dữ liệu điểm danh cũ trong DB, sử dụng luôn
                     setStudentsAttendance(res.data);
                 } else {
-                    const defaultStudents = activeClass.studentIds?.length > 0
-                        ? activeClass.studentIds.map((id, index) => ({ id: `HV${id}`, name: `Học viên ${index + 1}`, status: 'present', flag: false }))
-                        : [];
+                    // Nếu chưa điểm danh buổi này, tạo danh sách mặc định (Có mặt) từ classRoster
+                    const defaultStudents = classRoster.map(st => ({
+                        id: st.id, name: st.name, status: 'present', flag: false
+                    }));
                     setStudentsAttendance(defaultStudents);
                 }
             } catch (error) {
-                console.log("Khởi tạo danh sách điểm danh trắng.");
-                const defaultStudents = activeClass.studentIds?.length > 0
-                    ? activeClass.studentIds.map((id, index) => ({ id: `HV${id}`, name: `Học viên ${index + 1}`, status: 'present', flag: false }))
-                    : [];
+                const defaultStudents = classRoster.map(st => ({
+                    id: st.id, name: st.name, status: 'present', flag: false
+                }));
                 setStudentsAttendance(defaultStudents);
             }
         };
         fetchAttendance();
-    }, [activeClass, selectedSessionNum]);
+    }, [activeClass, selectedSessionNum, allStudents]);
 
     const handleUpdateSessionField = (field, value) => {
         setSessionsData(prev => prev.map(s => s.sessionNum === selectedSessionNum ? { ...s, [field]: value } : s));
@@ -136,7 +166,6 @@ function MyClassActive() {
             await api.post(`/attendance/save`, { classId: activeClass.id, sessionNum: selectedSessionNum, records: studentsAttendance });
             alert(`Hệ thống: Đã tiến hành lưu và cập nhật thành công dữ liệu Tiến độ giảng dạy Buổi ${selectedSessionNum}!`);
 
-            // Tải lại cục bộ lộ trình để cập nhật màu sắc viền tức thì sau khi bấm Lưu
             const res = await api.get(`/sessions/class/${activeClass.id}`);
             if (res.data && res.data.length > 0) {
                 const total = parseInt(activeClass.totalSessions) || 19;
@@ -151,7 +180,7 @@ function MyClassActive() {
                 setSessionsData(fullSessions);
             }
         } catch (error) {
-            alert(`Hệ thống: Đã tiến hành lưu và cập nhật thành công dữ liệu Tiến độ giảng dạy Buổi ${selectedSessionNum}!`);
+            alert(`Lỗi hệ thống: Không thể lưu tiến độ Buổi ${selectedSessionNum}!`);
         }
     };
 
@@ -332,7 +361,7 @@ function MyClassActive() {
                             </div>
 
                             <div className="attendance-students-grid" style={{ gridTemplateColumns: '1fr', gap: '12px', maxHeight: '400px', overflowY: 'auto', paddingRight: '8px' }}>
-                                {studentsAttendance.length === 0 && <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Lớp chưa có học viên.</p>}
+                                {studentsAttendance.length === 0 && <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Lớp chưa có học viên. Hãy kiểm tra lại Mã lớp bên bảng Chăm sóc Học viên.</p>}
                                 {studentsAttendance.map((student) => (
                                     <div className="attendance-student-card" key={student.id} style={{ padding: '12px' }}>
                                         <div className="student-card-left">
