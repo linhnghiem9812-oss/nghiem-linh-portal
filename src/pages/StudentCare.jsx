@@ -8,7 +8,7 @@ const api = axios.create({
 function StudentCare() {
     const [students, setStudents] = useState([]);
     const [tickets, setTickets] = useState([]);
-    const [classes, setClasses] = useState([]); 
+    const [classes, setClasses] = useState([]);
     const [newTicket, setNewTicket] = useState({ studentName: '', details: '' });
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -17,12 +17,14 @@ function StudentCare() {
     // --- STATE QUẢN LÝ GIAO DIỆN BẢNG VÀ CỘT ---
     const [isPanelExpanded, setIsPanelExpanded] = useState(false);
     const [visibleColumns, setVisibleColumns] = useState({
-        email: false, birthday: false, course: true, teacher: true, notes: false
+        email: false, birthday: false, province: false, country: false, course: true, teacher: true, notes: false
     });
 
     const optionalColumnsConfig = [
         { key: 'email', label: 'Email cá nhân', icon: 'fa-envelope' },
         { key: 'birthday', label: 'Ngày sinh', icon: 'fa-cake-candles' },
+        { key: 'province', label: 'Tỉnh/Thành', icon: 'fa-map-location-dot' },
+        { key: 'country', label: 'Quốc gia', icon: 'fa-globe' },
         { key: 'course', label: 'Khóa học', icon: 'fa-book' },
         { key: 'teacher', label: 'Giáo viên', icon: 'fa-chalkboard-user' },
         { key: 'notes', label: 'Ghi chú', icon: 'fa-note-sticky' }
@@ -31,11 +33,11 @@ function StudentCare() {
     const toggleColumn = (columnKey) => setVisibleColumns(prev => ({ ...prev, [columnKey]: !prev[columnKey] }));
 
     const [showModal, setShowModal] = useState(false);
-    const [modalMode, setModalMode] = useState('add'); 
-    
-    // BỔ SUNG BIẾN notes
-    const [currentStudent, setCurrentStudent] = useState({ 
-        name: '', phone: '', email: '', course: '', classId: '', teacher: '', status: 'Đang học', birthday: '', notes: '' 
+    const [modalMode, setModalMode] = useState('add');
+
+    // --- KHỞI TẠO STATE CÓ ĐẦY ĐỦ CÁC TRƯỜNG MỚI ---
+    const [currentStudent, setCurrentStudent] = useState({
+        name: '', phone: '', email: '', course: '', classId: '', teacher: '', status: 'Đang học', birthday: '', province: '', country: 'Việt Nam', notes: ''
     });
 
     useEffect(() => {
@@ -52,7 +54,7 @@ function StudentCare() {
 
     const openModal = (mode, student = null) => {
         setModalMode(mode);
-        setCurrentStudent(student ? { ...student } : { name: '', phone: '', email: '', course: '', classId: '', teacher: '', status: 'Đang học', birthday: '', notes: '' });
+        setCurrentStudent(student ? { ...student } : { name: '', phone: '', email: '', course: '', classId: '', teacher: '', status: 'Đang học', birthday: '', province: '', country: 'Việt Nam', notes: '' });
         setShowModal(true);
     };
 
@@ -64,8 +66,8 @@ function StudentCare() {
             setCurrentStudent({
                 ...currentStudent,
                 classId: selectedClassCode,
-                course: selectedClassObj.level || 'Chưa rõ',     
-                teacher: selectedClassObj.teacher || 'Chưa phân công' 
+                course: selectedClassObj.level || 'Chưa rõ',
+                teacher: selectedClassObj.teacher || 'Chưa phân công'
             });
         } else {
             setCurrentStudent({ ...currentStudent, classId: selectedClassCode, course: '', teacher: '' });
@@ -73,7 +75,6 @@ function StudentCare() {
     };
 
     const handleSaveStudent = async () => {
-        // ĐÃ XÓA RÀO CẢN BẮT BUỘC ĐIỀN HỌ TÊN VÀ SỐ ĐIỆN THOẠI
         if (modalMode === 'add') {
             try {
                 const res = await api.post('/students', currentStudent);
@@ -86,7 +87,7 @@ function StudentCare() {
                 const res = await api.put(`/students/${currentStudent.id}`, currentStudent);
                 setStudents(students.map(s => s.id === currentStudent.id ? res.data : s));
                 alert('Lưu thay đổi thành công!');
-                setModalMode('view'); 
+                setModalMode('view');
             } catch (error) { alert('Lỗi cập nhật CSDL.'); }
         }
     };
@@ -162,6 +163,8 @@ function StudentCare() {
                                 <th style={{ padding: '12px' }}>SĐT (ZALO)</th>
                                 {visibleColumns.email && <th style={{ padding: '12px' }}>EMAIL</th>}
                                 {visibleColumns.birthday && <th style={{ padding: '12px' }}>NGÀY SINH</th>}
+                                {visibleColumns.province && <th style={{ padding: '12px' }}>TỈNH/THÀNH</th>}
+                                {visibleColumns.country && <th style={{ padding: '12px' }}>QUỐC GIA</th>}
                                 <th style={{ padding: '12px' }}>MÃ LỚP</th>
                                 {visibleColumns.course && <th style={{ padding: '12px' }}>KHÓA HỌC</th>}
                                 {visibleColumns.teacher && <th style={{ padding: '12px' }}>GIÁO VIÊN</th>}
@@ -170,7 +173,7 @@ function StudentCare() {
                             </tr>
                         </thead>
                         <tbody style={{ fontSize: '0.85rem' }}>
-                            {filteredStudents.length === 0 && <tr><td colSpan="10" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>Chưa có học viên nào trong CSDL.</td></tr>}
+                            {filteredStudents.length === 0 && <tr><td colSpan="12" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>Chưa có học viên nào trong CSDL.</td></tr>}
                             {filteredStudents.map((s, index) => (
                                 <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'white' }}>
                                     <td style={{ padding: '14px 12px', fontWeight: '700' }}>{index + 1}</td>
@@ -182,6 +185,8 @@ function StudentCare() {
                                     <td style={{ padding: '14px 12px' }}>{s.phone || '---'}</td>
                                     {visibleColumns.email && <td style={{ padding: '14px 12px' }}>{s.email || '---'}</td>}
                                     {visibleColumns.birthday && <td style={{ padding: '14px 12px' }}>{s.birthday ? new Date(s.birthday).toLocaleDateString('vi-VN') : '---'}</td>}
+                                    {visibleColumns.province && <td style={{ padding: '14px 12px' }}>{s.province || '---'}</td>}
+                                    {visibleColumns.country && <td style={{ padding: '14px 12px' }}>{s.country || '---'}</td>}
                                     <td style={{ padding: '14px 12px', fontWeight: '700', color: 'var(--primary)' }}>{s.classId || s.class || '---'}</td>
                                     {visibleColumns.course && <td style={{ padding: '14px 12px' }}>{s.course || '---'}</td>}
                                     {visibleColumns.teacher && <td style={{ padding: '14px 12px' }}>{s.teacher || '---'}</td>}
@@ -221,7 +226,7 @@ function StudentCare() {
                     <div className="card" style={{ width: '680px', backgroundColor: 'white', padding: '24px', borderRadius: '12px', maxHeight: '90vh', overflowY: 'auto' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
                             <h3 style={{ fontWeight: '800', color: 'var(--text-main)' }}>
-                                <i className="fa-solid fa-user-graduate" style={{ color: 'var(--primary)', marginRight: '8px' }}></i> 
+                                <i className="fa-solid fa-user-graduate" style={{ color: 'var(--primary)', marginRight: '8px' }}></i>
                                 {modalMode === 'add' ? "Tiếp nhận học viên mới" : modalMode === 'edit' ? "Chỉnh sửa hồ sơ học viên" : "Hồ sơ học viên chi tiết"}
                             </h3>
                             <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✖</button>
@@ -245,6 +250,16 @@ function StudentCare() {
                                 {modalMode !== 'view' ? <input type="email" className="form-control" value={currentStudent.email || ''} onChange={e => setCurrentStudent({ ...currentStudent, email: e.target.value })} /> : <div style={{ fontWeight: '600', padding: '8px 0' }}>{currentStudent.email || '---'}</div>}
                             </div>
 
+                            {/* --- TRƯỜNG TỈNH / THÀNH PHỐ VÀ QUỐC GIA --- */}
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Tỉnh / Thành phố</label>
+                                {modalMode !== 'view' ? <input className="form-control" value={currentStudent.province || ''} onChange={e => setCurrentStudent({ ...currentStudent, province: e.target.value })} placeholder="VD: Hà Nội..." /> : <div style={{ fontWeight: '600', padding: '8px 0' }}>{currentStudent.province || '---'}</div>}
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Quốc gia</label>
+                                {modalMode !== 'view' ? <input className="form-control" value={currentStudent.country || ''} onChange={e => setCurrentStudent({ ...currentStudent, country: e.target.value })} /> : <div style={{ fontWeight: '600', padding: '8px 0' }}>{currentStudent.country || '---'}</div>}
+                            </div>
+
                             <div style={{ gridColumn: 'span 2', backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '8px' }}>
                                 <div>
                                     <label style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--primary)' }}>Xếp vào Lớp học</label>
@@ -257,7 +272,7 @@ function StudentCare() {
                                         </select>
                                     ) : <div style={{ fontWeight: '800', padding: '8px 0', color: 'var(--primary)', fontSize: '1.1rem' }}>{currentStudent.classId || 'Chưa xếp lớp'}</div>}
                                 </div>
-                                
+
                                 <div>
                                     <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Trạng thái học tập</label>
                                     {modalMode !== 'view' ? (
@@ -276,8 +291,8 @@ function StudentCare() {
                                     {modalMode !== 'view' ? <input className="form-control" value={currentStudent.teacher || ''} disabled style={{ backgroundColor: '#e2e8f0', cursor: 'not-allowed' }} placeholder="Tự động hiển thị..." /> : <div style={{ fontWeight: '600', padding: '8px 0' }}>{currentStudent.teacher || '---'}</div>}
                                 </div>
                             </div>
-                            
-                            {/* KHU VỰC GHI CHÚ */}
+
+                            {/* --- TRƯỜNG GHI CHÚ --- */}
                             <div style={{ gridColumn: 'span 2', marginTop: '8px' }}>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ghi chú / Yêu cầu thêm</label>
                                 {modalMode !== 'view' ? (
@@ -292,7 +307,7 @@ function StudentCare() {
                             {modalMode !== 'add' ? (
                                 <button className="btn" style={{ padding: '10px 20px', backgroundColor: '#ef4444', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' }} onClick={() => handleDelete(currentStudent.id)}><i className="fa-solid fa-trash"></i> Xóa hồ sơ</button>
                             ) : <div></div>}
-                            
+
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 {modalMode === 'view' ? (
                                     <button className="btn" style={{ padding: '10px 20px', backgroundColor: 'var(--warning)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' }} onClick={() => setModalMode('edit')}><i className="fa-solid fa-pen"></i> Sửa thông tin</button>

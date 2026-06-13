@@ -13,12 +13,16 @@ function CRM() {
     const [isEditing, setIsEditing] = useState(false);
     const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
-    // --- BƯỚC 1: LẤY DANH SÁCH TÀI KHOẢN SALE TỪ DATABASE ---
+    // --- ĐÃ SỬA: LẤY CẢ ACCOUNT ADMIN & MANAGER VÀO DANH SÁCH SALE ---
     const [salesUsers, setSalesUsers] = useState([]);
 
     useEffect(() => {
-        api.get('/users/role/sales')
-            .then(res => setSalesUsers(res.data))
+        api.get('/users') // Đổi từ /users/role/sales thành /users để lấy tất cả
+            .then(res => {
+                // Chỉ lọc lấy những người là sales, admin, manager
+                const eligibleSales = res.data.filter(u => u.role === 'sales' || u.role === 'admin' || u.role === 'manager');
+                setSalesUsers(eligibleSales);
+            })
             .catch(() => console.log('Chưa lấy được danh sách Sale.'));
     }, []);
 
@@ -150,8 +154,7 @@ function CRM() {
                 <form onSubmit={handleFormSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>TÊN FB</label><input type="text" name="fbName" className="form-control" value={formData.fbName} onChange={handleInputChange} placeholder="Nhập tên FB..." /></div>
                     <div><label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGÀY NHẬN</label><input type="text" name="receiveDate" className="form-control" value={formData.receiveDate} onChange={handleInputChange} /></div>
-                    
-                    {/* --- BƯỚC 2: CHUYỂN Ô NHẬP SALE THÀNH DROPDOWN --- */}
+
                     <div>
                         <label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGƯỜI SALE TIẾP NHẬN</label>
                         <select name="saleInCharge" className="form-control" value={formData.saleInCharge} onChange={handleInputChange}>
@@ -315,7 +318,6 @@ function CRM() {
                                 {isEditing ? <input className="form-control" value={selectedCustomer.receiveDate || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, receiveDate: e.target.value })} /> : <div style={{ fontWeight: '600', padding: '8px 0' }}>{selectedCustomer.receiveDate || '---'}</div>}
                             </div>
 
-                            {/* --- BƯỚC 3: ĐỒNG BỘ DROPDOWN TRONG MODAL CHỈNH SỬA --- */}
                             <div>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Người Sale phụ trách</label>
                                 {isEditing ? (
