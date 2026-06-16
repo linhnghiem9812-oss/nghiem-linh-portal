@@ -13,7 +13,6 @@ function MyClassActive() {
 
     const [allStudents, setAllStudents] = useState([]);
 
-    // --- 1. HỢP NHẤT DỮ LIỆU ĐỂ GIÁO VIÊN LẤY DANH SÁCH ĐIỂM DANH ---
     useEffect(() => {
         const fetchAllData = async () => {
             try {
@@ -22,14 +21,15 @@ function MyClassActive() {
                     api.get('/customers').catch(() => ({ data: [] }))
                 ]);
 
-                const studentsList = studentsRes.data.map(s => ({
-                    id: `ST-${s.id}`, name: s.name, classCode: s.classId || s.class
+                // BỌC LƯỚI AN TOÀN: Ép kiểu String và lọc bỏ null
+                const studentsList = (studentsRes.data || []).filter(Boolean).map(s => ({
+                    id: `ST-${s.id}`, name: String(s.name || 'Học viên ẩn danh'), classCode: s.classId || s.class
                 }));
 
-                const customersList = customersRes.data
-                    .filter(c => c.status === 'Đã ĐK' && c.assignClass)
+                const customersList = (customersRes.data || [])
+                    .filter(c => c && c.status === 'Đã ĐK' && c.assignClass)
                     .map(c => ({
-                        id: `CUS-${c.id}`, name: c.name || c.fbName, classCode: c.assignClass
+                        id: `CUS-${c.id}`, name: String(c.name || c.fbName || 'Khách hàng ẩn danh'), classCode: c.assignClass
                     }));
 
                 setAllStudents([...studentsList, ...customersList]);
@@ -40,19 +40,17 @@ function MyClassActive() {
         fetchAllData();
     }, []);
 
-    // Lọc lớp học dựa trên quyền
     let myClasses = classes.filter(c => {
         if (currentRole === 'admin' || currentRole === 'manager') return true;
         if (currentRole === 'teacher') {
-            return c.teacherId === currentUser.id || (c.teacher && c.teacher.toLowerCase().includes(currentUser.name.toLowerCase()));
+            return c.teacherId === currentUser.id || (c.teacher && currentUser.name && c.teacher.toLowerCase().includes(currentUser.name.toLowerCase()));
         }
         if (currentRole === 'ta') {
-            return c.taId === currentUser.id || (c.ta && c.ta.toLowerCase().includes(currentUser.name.toLowerCase()));
+            return c.taId === currentUser.id || (c.ta && currentUser.name && c.ta.toLowerCase().includes(currentUser.name.toLowerCase()));
         }
         return false;
     });
 
-    // --- LOGIC SẮP XẾP VÀ GOM NHÓM THEO THÁNG ---
     myClasses.sort((a, b) => {
         if (!a.startDate) return 1;
         if (!b.startDate) return -1;
@@ -61,7 +59,7 @@ function MyClassActive() {
 
     const groupedMyClasses = myClasses.reduce((acc, c) => {
         const dateObj = c.startDate ? new Date(c.startDate) : null;
-        const groupName = dateObj ? `Tháng ${dateObj.getMonth() + 1} / ${dateObj.getFullYear()}` : 'Lớp chưa xác định ngày KG';
+        const groupName = dateObj && !isNaN(dateObj.getTime()) ? `Tháng ${dateObj.getMonth() + 1} / ${dateObj.getFullYear()}` : 'Lớp chưa xác định ngày KG';
 
         if (!acc[groupName]) {
             acc[groupName] = [];
@@ -83,7 +81,6 @@ function MyClassActive() {
 
     const activeClass = myClasses.find(c => c.id === activeClassId);
 
-    // QUẢN LÝ TIẾN ĐỘ & GIÁO ÁN
     const [sessionsData, setSessionsData] = useState([]);
     const [selectedSessionNum, setSelectedSessionNum] = useState(1);
     const currentSession = sessionsData.find(s => s.sessionNum === selectedSessionNum) || {};
@@ -95,21 +92,23 @@ function MyClassActive() {
                 const res = await api.get(`/sessions/class/${activeClass.id}`);
                 const dbSessions = res.data || [];
 
-                const total = parseInt(activeClass.totalSessions) || 19;
+                // BỌC LƯỚI AN TOÀN CHỐNG CRASH DO SỐ BUỔI ÂM: Ép luôn >= 1
+                const total = Math.max(1, parseInt(activeClass.totalSessions) || 19);
 
                 const fullSessions = Array.from({ length: total }, (_, i) => ({
                     classId: activeClass.id, sessionNum: i + 1, title: `BÀI ${i + 1}`, status: 'draft', notes: '', hasLessonPlan: false, lessonPlanUrl: ''
                 }));
 
                 dbSessions.forEach(dbS => {
-                    if (dbS.sessionNum && dbS.sessionNum >= 1 && dbS.sessionNum <= total) {
+                    // Chống crash nếu dbS bị null
+                    if (dbS && dbS.sessionNum && dbS.sessionNum >= 1 && dbS.sessionNum <= total) {
                         fullSessions[dbS.sessionNum - 1] = { ...fullSessions[dbS.sessionNum - 1], ...dbS };
                     }
                 });
 
                 setSessionsData(fullSessions);
             } catch (e) {
-                const total = parseInt(activeClass.totalSessions) || 19;
+                const total = Math.max(1, parseInt(activeClass.totalSessions) || 19);
                 const initialSessions = Array.from({ length: total }, (_, i) => ({
                     classId: activeClass.id, sessionNum: i + 1, title: `BÀI ${i + 1}`, status: 'draft', notes: '', hasLessonPlan: false, lessonPlanUrl: ''
                 }));
@@ -120,28 +119,28 @@ function MyClassActive() {
         setSelectedSessionNum(1);
     }, [activeClass]);
 
-    // QUẢN LÝ ĐIỂM DANH
     const [studentsAttendance, setStudentsAttendance] = useState([]);
 
     useEffect(() => {
         if (!activeClass) return;
 
-        const classRoster = allStudents.filter(s => s.classCode === activeClass.classCode);
+        const classRoster = allStudents.filter(s => s && s.classCode === activeClass.classCode);
 
         const fetchAttendance = async () => {
             try {
                 const res = await api.get(`/attendance/${activeClass.id}/${selectedSessionNum}`);
                 if (res.data && res.data.length > 0) {
-                    setStudentsAttendance(res.data);
+                    const cleanData = res.data.map(r => ({ ...r, name: String(r.studentName || 'Học viên ẩn danh') }));
+                    setStudentsAttendance(cleanData);
                 } else {
                     const defaultStudents = classRoster.map(st => ({
-                        id: st.id, name: st.name, status: 'present', flag: false
+                        id: st.id, name: String(st.name || 'Học viên ẩn danh'), status: 'present', flag: false
                     }));
                     setStudentsAttendance(defaultStudents);
                 }
             } catch (error) {
                 const defaultStudents = classRoster.map(st => ({
-                    id: st.id, name: st.name, status: 'present', flag: false
+                    id: st.id, name: String(st.name || 'Học viên ẩn danh'), status: 'present', flag: false
                 }));
                 setStudentsAttendance(defaultStudents);
             }
@@ -181,19 +180,19 @@ function MyClassActive() {
 
             const res = await api.get(`/sessions/class/${activeClass.id}`);
             if (res.data && res.data.length > 0) {
-                const total = parseInt(activeClass.totalSessions) || 19;
+                const total = Math.max(1, parseInt(activeClass.totalSessions) || 19);
                 const fullSessions = Array.from({ length: total }, (_, i) => ({
                     classId: activeClass.id, sessionNum: i + 1, title: `BÀI ${i + 1}`, status: 'draft', notes: '', hasLessonPlan: false, lessonPlanUrl: ''
                 }));
                 res.data.forEach(dbS => {
-                    if (dbS.sessionNum && dbS.sessionNum >= 1 && dbS.sessionNum <= total) {
+                    if (dbS && dbS.sessionNum && dbS.sessionNum >= 1 && dbS.sessionNum <= total) {
                         fullSessions[dbS.sessionNum - 1] = { ...fullSessions[dbS.sessionNum - 1], ...dbS };
                     }
                 });
                 setSessionsData(fullSessions);
             }
         } catch (error) {
-            alert(`Lỗi hệ thống: Không thể lưu tiến độ Buổi ${selectedSessionNum}!`);
+            alert(`Lỗi hệ thống: Không thể lưu tiến độ Buổi ${selectedSessionNum}! Vui lòng thử lại.`);
         }
     };
 
@@ -206,7 +205,6 @@ function MyClassActive() {
                             LỚP ĐANG DẠY
                         </span>
 
-                        {/* MENU DROPDOWN CÓ GOM NHÓM THEO THÁNG BẰNG <optgroup> */}
                         <select
                             className="form-control"
                             value={activeClassId || ''}
@@ -295,7 +293,7 @@ function MyClassActive() {
                                     >
                                         <strong style={{ fontSize: '0.85rem', color: isSelected ? '#1e40af' : '#1e293b' }}>Buổi {session.sessionNum}</strong>
                                         <span style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '2px', marginBottom: '8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
-                                            {session.title}
+                                            {session.title || 'Chưa có tiêu đề'}
                                         </span>
 
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center', width: '100%', marginTop: 'auto' }}>
@@ -319,7 +317,6 @@ function MyClassActive() {
 
                     <div className="my-portal-grid" style={{ gridTemplateColumns: '1.2fr 1fr' }}>
 
-                        {/* CHỈNH SỬA NỘI DUNG BUỔI HỌC */}
                         <div className="card" style={{ padding: '24px' }}>
                             <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '16px', color: 'var(--primary)' }}>
                                 <i className="fa-solid fa-pen-to-square" style={{ marginRight: '6px' }}></i> Chỉnh sửa Nội dung: Buổi {selectedSessionNum}
@@ -372,7 +369,6 @@ function MyClassActive() {
                             </div>
                         </div>
 
-                        {/* KHU VỰC ĐIỂM DANH HỌC VIÊN */}
                         <div className="card" style={{ padding: '24px' }}>
                             <div className="attendance-header-row">
                                 <h3 style={{ fontSize: '1.05rem', fontWeight: '800' }}>
@@ -387,9 +383,10 @@ function MyClassActive() {
                                 {studentsAttendance.map((student) => (
                                     <div className="attendance-student-card" key={student.id} style={{ padding: '12px' }}>
                                         <div className="student-card-left">
-                                            <div className="student-avatar-letter">{student.name.charAt(0)}</div>
+                                            {/* BỌC LƯỚI: Chống crash .charAt khi tên là undefined/số */}
+                                            <div className="student-avatar-letter">{String(student.name || 'H').charAt(0).toUpperCase()}</div>
                                             <div className="student-card-info">
-                                                <h5 style={{ fontSize: '0.85rem' }}>{student.name}</h5>
+                                                <h5 style={{ fontSize: '0.85rem' }}>{student.name || 'Học viên chưa có tên'}</h5>
                                                 <div className="student-attendance-radio-group">
                                                     <label className="attendance-radio-label"><input type="radio" name={`att-${student.id}`} checked={student.status === 'present'} onChange={() => handleAttendanceChange(student.id, 'present')} /> Có mặt</label>
                                                     <label className="attendance-radio-label"><input type="radio" name={`att-${student.id}`} checked={student.status === 'absent'} onChange={() => handleAttendanceChange(student.id, 'absent')} /> Vắng</label>
