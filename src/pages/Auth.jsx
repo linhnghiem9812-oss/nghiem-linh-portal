@@ -102,7 +102,7 @@ function Auth() {
             <div className="card" style={{ width: '100%', maxWidth: '440px', padding: '40px', boxShadow: 'var(--shadow-lg)', backgroundColor: 'white', borderRadius: '16px' }}>
 
                 <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-                    <h2 style={{ fontSize: '1.6rem', fontWeight: '800', color: 'var(--primary)', fontFamily: 'var(--font-heading)' }}>Ngoại ngữ Nghiêm Linh</h2>
+                    <h2 style={{ fontSize: '1.6rem', fontWeight: '800', color: 'var(--primary)', fontFamily: 'var(--font-heading)' }}>Ngoại Ngữ Nghiêm Linh</h2>
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '6px' }}>
                         {authMode === 'login' ? 'Đăng nhập cổng quản trị & giảng dạy trung tâm' :
                             authMode === 'register' ? 'Đăng ký tài khoản nhân sự / phân quyền mới' :
