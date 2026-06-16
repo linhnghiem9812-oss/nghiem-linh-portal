@@ -22,12 +22,10 @@ function MyClassActive() {
                     api.get('/customers').catch(() => ({ data: [] }))
                 ]);
 
-                // Lấy học viên từ bảng StudentCare
                 const studentsList = studentsRes.data.map(s => ({
                     id: `ST-${s.id}`, name: s.name, classCode: s.classId || s.class
                 }));
 
-                // Lấy khách hàng từ bảng CRM (Đã ĐK và có điền Xếp Lớp)
                 const customersList = customersRes.data
                     .filter(c => c.status === 'Đã ĐK' && c.assignClass)
                     .map(c => ({
@@ -42,8 +40,8 @@ function MyClassActive() {
         fetchAllData();
     }, []);
 
-    // Lọc lớp học dựa trên quyền: Admin thấy hết, Giáo viên/Trợ giảng chỉ thấy lớp của mình
-    const myClasses = classes.filter(c => {
+    // Lọc lớp học dựa trên quyền
+    let myClasses = classes.filter(c => {
         if (currentRole === 'admin' || currentRole === 'manager') return true;
         if (currentRole === 'teacher') {
             return c.teacherId === currentUser.id || (c.teacher && c.teacher.toLowerCase().includes(currentUser.name.toLowerCase()));
@@ -53,6 +51,24 @@ function MyClassActive() {
         }
         return false;
     });
+
+    // --- LOGIC SẮP XẾP VÀ GOM NHÓM THEO THÁNG ---
+    myClasses.sort((a, b) => {
+        if (!a.startDate) return 1;
+        if (!b.startDate) return -1;
+        return new Date(b.startDate) - new Date(a.startDate);
+    });
+
+    const groupedMyClasses = myClasses.reduce((acc, c) => {
+        const dateObj = c.startDate ? new Date(c.startDate) : null;
+        const groupName = dateObj ? `Tháng ${dateObj.getMonth() + 1} / ${dateObj.getFullYear()}` : 'Lớp chưa xác định ngày KG';
+
+        if (!acc[groupName]) {
+            acc[groupName] = [];
+        }
+        acc[groupName].push(c);
+        return acc;
+    }, {});
 
     const [activeClassId, setActiveClassId] = useState(null);
 
@@ -67,7 +83,7 @@ function MyClassActive() {
 
     const activeClass = myClasses.find(c => c.id === activeClassId);
 
-    // QUẢN LÝ TIẾN ĐỘ & GIÁO ÁN (Database)
+    // QUẢN LÝ TIẾN ĐỘ & GIÁO ÁN
     const [sessionsData, setSessionsData] = useState([]);
     const [selectedSessionNum, setSelectedSessionNum] = useState(1);
     const currentSession = sessionsData.find(s => s.sessionNum === selectedSessionNum) || {};
@@ -104,23 +120,20 @@ function MyClassActive() {
         setSelectedSessionNum(1);
     }, [activeClass]);
 
-    // --- 2. QUẢN LÝ ĐIỂM DANH DỰA TRÊN DỮ LIỆU ĐÃ HỢP NHẤT ---
+    // QUẢN LÝ ĐIỂM DANH
     const [studentsAttendance, setStudentsAttendance] = useState([]);
 
     useEffect(() => {
         if (!activeClass) return;
 
-        // Lọc ra các học viên có mã lớp khớp với lớp đang mở
         const classRoster = allStudents.filter(s => s.classCode === activeClass.classCode);
 
         const fetchAttendance = async () => {
             try {
                 const res = await api.get(`/attendance/${activeClass.id}/${selectedSessionNum}`);
                 if (res.data && res.data.length > 0) {
-                    // Nếu đã có dữ liệu điểm danh cũ trong DB, sử dụng luôn
                     setStudentsAttendance(res.data);
                 } else {
-                    // Nếu chưa điểm danh buổi này, tạo danh sách mặc định (Có mặt) từ classRoster
                     const defaultStudents = classRoster.map(st => ({
                         id: st.id, name: st.name, status: 'present', flag: false
                     }));
@@ -193,6 +206,7 @@ function MyClassActive() {
                             LỚP ĐANG DẠY
                         </span>
 
+                        {/* MENU DROPDOWN CÓ GOM NHÓM THEO THÁNG BẰNG <optgroup> */}
                         <select
                             className="form-control"
                             value={activeClassId || ''}
@@ -212,7 +226,15 @@ function MyClassActive() {
                             {!activeClass ? (
                                 <option value="">Giáo viên chưa có lớp</option>
                             ) : (
-                                myClasses.map(c => <option key={c.id} value={c.id}>{c.classCode || 'Lớp chưa có tên'}</option>)
+                                Object.keys(groupedMyClasses).map(monthLabel => (
+                                    <optgroup key={monthLabel} label={`--- ${monthLabel} ---`} style={{ color: 'var(--primary)' }}>
+                                        {groupedMyClasses[monthLabel].map(c => (
+                                            <option key={c.id} value={c.id} style={{ color: 'var(--text-main)' }}>
+                                                {c.classCode || 'Lớp chưa có tên'}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                ))
                             )}
                         </select>
 
