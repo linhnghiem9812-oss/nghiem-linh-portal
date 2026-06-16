@@ -52,7 +52,7 @@ function CourseSyllabus() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                     <h3 style={{ fontSize: '1.2rem', fontWeight: '800' }}>Chương trình học & Syllabus đào tạo</h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Khung giáo án giảng dạy tiêu chuẩn tại Ngoại ngữ Nghiêm Linh</p>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Khung giáo án giảng dạy tiêu chuẩn tại Ngoại Ngữ Nghiêm Linh</p>
                 </div>
                 <button className="btn btn-primary" onClick={() => setShowModal(true)} style={{ padding: '10px 20px', fontWeight: '700', borderRadius: '8px', background: 'var(--primary)', color: 'white', cursor: 'pointer' }}>
                     <i className="fa-solid fa-plus" style={{ marginRight: '6px' }}></i> Thêm Khóa Học
