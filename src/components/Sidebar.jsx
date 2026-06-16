@@ -13,7 +13,7 @@ function Sidebar({ activeTab, setActiveTab }) {
         if (!currentUser?.name) {
             return (
                 <>
-                    <span style={{ display: 'block' }}>Ngoại ngữ</span>
+                    <span style={{ display: 'block' }}>Ngoại Ngữ</span>
                     <span style={{ display: 'block', color: 'var(--primary)' }}>Nghiêm Linh</span>
                 </>
             );
