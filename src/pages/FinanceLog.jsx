@@ -10,7 +10,7 @@ function FinanceLog() {
 
     const todayStr = new Date().toISOString().split('T')[0];
     const [formInvoice, setFormInvoice] = useState({
-        date: todayStr, studentName: '', course: 'Khóa học HSK 1', amount: '', amountJpy: '', method: 'Chuyển khoản ngân hàng', notes: ''
+        date: todayStr, studentName: '', course: 'Khóa học HSK 1', amount: '', amountJpy: '', amountCny: '', method: 'Chuyển khoản ngân hàng', notes: ''
     });
 
     const [editingInvoice, setEditingInvoice] = useState(null);
@@ -27,8 +27,8 @@ function FinanceLog() {
     const handleAddInvoice = async (e) => {
         e.preventDefault();
 
-        if (!formInvoice.studentName || (!formInvoice.amount && !formInvoice.amountJpy)) {
-            alert('Vui lòng điền tên học viên và ít nhất 1 loại số tiền (VNĐ hoặc JPY)!');
+        if (!formInvoice.studentName || (!formInvoice.amount && !formInvoice.amountJpy && !formInvoice.amountCny)) {
+            alert('Vui lòng điền tên học viên và ít nhất 1 loại số tiền (VNĐ, JPY hoặc CNY)!');
             return;
         }
 
@@ -41,6 +41,7 @@ function FinanceLog() {
             course: formInvoice.course,
             amount: parseInt(formInvoice.amount) || 0,
             amountJpy: parseInt(formInvoice.amountJpy) || 0,
+            amountCny: parseInt(formInvoice.amountCny) || 0,
             method: formInvoice.method,
             notes: formInvoice.notes,
             status: 'Đã thanh toán'
@@ -49,7 +50,7 @@ function FinanceLog() {
         try {
             const res = await api.post('/invoices', newInv);
             setInvoices([res.data, ...invoices]);
-            setFormInvoice({ date: todayStr, studentName: '', course: 'Khóa học HSK 1', amount: '', amountJpy: '', method: 'Chuyển khoản ngân hàng', notes: '' });
+            setFormInvoice({ date: todayStr, studentName: '', course: 'Khóa học HSK 1', amount: '', amountJpy: '', amountCny: '', method: 'Chuyển khoản ngân hàng', notes: '' });
             alert('Hệ thống: Ghi nhận hóa đơn thu học phí thành công!');
         } catch (error) {
             alert('Lỗi lưu hóa đơn vào CSDL!');
@@ -61,7 +62,8 @@ function FinanceLog() {
             const payload = {
                 ...editingInvoice,
                 amount: parseInt(editingInvoice.amount) || 0,
-                amountJpy: parseInt(editingInvoice.amountJpy) || 0
+                amountJpy: parseInt(editingInvoice.amountJpy) || 0,
+                amountCny: parseInt(editingInvoice.amountCny) || 0
             };
             const res = await api.put(`/invoices/${editingInvoice.id}`, payload);
             setInvoices(invoices.map(inv => inv.id === editingInvoice.id ? res.data : inv));
@@ -86,6 +88,7 @@ function FinanceLog() {
 
     const totalCollectedVnd = invoices.reduce((sum, inv) => sum + (inv.amount || 0), 0);
     const totalCollectedJpy = invoices.reduce((sum, inv) => sum + (inv.amountJpy || 0), 0);
+    const totalCollectedCny = invoices.reduce((sum, inv) => sum + (inv.amountCny || 0), 0);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', animation: 'fadeIn 0.3s ease-out' }}>
@@ -94,13 +97,18 @@ function FinanceLog() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                         <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--primary)', textTransform: 'uppercase' }}>Tổng dòng tiền học phí đã thu</span>
-                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px', marginTop: '4px' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px', marginTop: '4px', flexWrap: 'wrap' }}>
                             <h2 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--primary)', margin: 0 }}>
                                 {totalCollectedVnd.toLocaleString('vi-VN')} VNĐ
                             </h2>
                             {totalCollectedJpy > 0 && (
                                 <h2 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#059669', margin: 0, paddingBottom: '2px' }}>
-                                    + {totalCollectedJpy.toLocaleString('vi-VN')} ¥
+                                    + {totalCollectedJpy.toLocaleString('vi-VN')} ¥ (JPY)
+                                </h2>
+                            )}
+                            {totalCollectedCny > 0 && (
+                                <h2 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#ea580c', margin: 0, paddingBottom: '2px' }}>
+                                    + {totalCollectedCny.toLocaleString('vi-VN')} ¥ (CNY)
                                 </h2>
                             )}
                         </div>
@@ -133,12 +141,16 @@ function FinanceLog() {
 
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 <div style={{ flex: 1 }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary)' }}>Tiền VNĐ</label>
+                                    <label style={{ fontSize: '0.7rem', fontWeight: '700', color: 'var(--primary)' }}>Tiền VNĐ</label>
                                     <input type="number" className="form-control" placeholder="0" value={formInvoice.amount} onChange={e => setFormInvoice({ ...formInvoice, amount: e.target.value })} style={{ borderColor: 'var(--primary)' }} />
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: '#059669' }}>Tiền JPY (Yên)</label>
+                                    <label style={{ fontSize: '0.7rem', fontWeight: '700', color: '#059669' }}>Tiền JPY (Yên)</label>
                                     <input type="number" className="form-control" placeholder="0" value={formInvoice.amountJpy} onChange={e => setFormInvoice({ ...formInvoice, amountJpy: e.target.value })} style={{ borderColor: '#10b981' }} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.7rem', fontWeight: '700', color: '#ea580c' }}>Tiền CNY (Tệ)</label>
+                                    <input type="number" className="form-control" placeholder="0" value={formInvoice.amountCny} onChange={e => setFormInvoice({ ...formInvoice, amountCny: e.target.value })} style={{ borderColor: '#ea580c' }} />
                                 </div>
                             </div>
 
@@ -149,7 +161,6 @@ function FinanceLog() {
                                 </select>
                             </div>
 
-                            {/* --- BỔ SUNG TRƯỜNG GHI CHÚ FORM TẠO MỚI --- */}
                             <div>
                                 <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ghi chú thêm</label>
                                 <textarea className="form-control" rows="2" placeholder="Ví dụ: Đóng học phí đợt 1..." value={formInvoice.notes} onChange={e => setFormInvoice({ ...formInvoice, notes: e.target.value })} style={{ resize: 'vertical' }}></textarea>
@@ -186,15 +197,17 @@ function FinanceLog() {
                                             <td style={{ padding: '14px 12px' }}>
                                                 <strong style={{ color: 'var(--text-main)' }}>{inv.studentName}</strong>
                                                 <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)' }}>{inv.course} ({inv.method})</span>
-                                                {/* HIỂN THỊ GHI CHÚ TRÊN BẢNG */}
                                                 {inv.notes && <span style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', fontStyle: 'italic', marginTop: '2px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>Lưu ý: {inv.notes}</span>}
                                             </td>
                                             <td style={{ padding: '14px 12px' }}>
-                                                {(inv.amount > 0 || (!inv.amount && !inv.amountJpy)) && (
+                                                {(inv.amount > 0 || (!inv.amount && !inv.amountJpy && !inv.amountCny)) && (
                                                     <div style={{ fontWeight: '700', color: 'var(--primary)' }}>{(inv.amount || 0).toLocaleString('vi-VN')} đ</div>
                                                 )}
                                                 {inv.amountJpy > 0 && (
-                                                    <div style={{ fontWeight: '700', color: '#059669', fontSize: '0.85rem', marginTop: '2px' }}>{inv.amountJpy.toLocaleString('vi-VN')} ¥</div>
+                                                    <div style={{ fontWeight: '700', color: '#059669', fontSize: '0.85rem', marginTop: '2px' }}>{inv.amountJpy.toLocaleString('vi-VN')} ¥ (JPY)</div>
+                                                )}
+                                                {inv.amountCny > 0 && (
+                                                    <div style={{ fontWeight: '700', color: '#ea580c', fontSize: '0.85rem', marginTop: '2px' }}>{inv.amountCny.toLocaleString('vi-VN')} ¥ (CNY)</div>
                                                 )}
                                             </td>
                                             <td style={{ padding: '14px 12px' }}><span className="badge-studying" style={{ backgroundColor: '#dcfce7', color: '#166534', fontWeight: '800' }}>{inv.status}</span></td>
@@ -215,7 +228,7 @@ function FinanceLog() {
 
             {editingInvoice && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <div className="card" style={{ width: '500px', backgroundColor: 'white', padding: '24px', borderRadius: '12px' }}>
+                    <div className="card" style={{ width: '550px', backgroundColor: 'white', padding: '24px', borderRadius: '12px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
                             <h3 style={{ fontWeight: '800', color: 'var(--primary)' }}><i className="fa-solid fa-file-invoice-dollar"></i> Sửa Hóa Đơn INV-{editingInvoice.id}</h3>
                             <button onClick={() => setEditingInvoice(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✖</button>
@@ -243,6 +256,10 @@ function FinanceLog() {
                                     <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Số tiền (JPY)</label>
                                     <input type="number" className="form-control" value={editingInvoice.amountJpy || ''} onChange={(e) => setEditingInvoice({ ...editingInvoice, amountJpy: e.target.value })} />
                                 </div>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Số tiền (CNY)</label>
+                                    <input type="number" className="form-control" value={editingInvoice.amountCny || ''} onChange={(e) => setEditingInvoice({ ...editingInvoice, amountCny: e.target.value })} />
+                                </div>
                             </div>
 
                             <div>
@@ -252,7 +269,6 @@ function FinanceLog() {
                                 </select>
                             </div>
 
-                            {/* --- BỔ SUNG TRƯỜNG GHI CHÚ TRONG MODAL SỬA --- */}
                             <div>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ghi chú thêm</label>
                                 <textarea className="form-control" rows="2" value={editingInvoice.notes || ''} onChange={(e) => setEditingInvoice({ ...editingInvoice, notes: e.target.value })} style={{ resize: 'vertical' }}></textarea>

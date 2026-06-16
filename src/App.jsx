@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react'; // Đảm bảo có useEffect
+
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import { useAuth } from './context/AuthContext';
@@ -15,7 +16,7 @@ import ClassReports from './pages/ClassReports';
 import FinanceLog from './pages/FinanceLog';
 import MyClassActive from './pages/MyClassActive';
 import TeachingAssistantProfile from './pages/TeachingAssistantProfile';
-import AccountProfile from './pages/AccountProfile';
+import AccountProfile from './pages/AccountProfile'; // Trang cấu hình tài khoản mới
 import './styles/globals.css';
 
 function App() {
