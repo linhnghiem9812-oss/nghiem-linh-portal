@@ -28,7 +28,7 @@ function FinanceLog() {
         e.preventDefault();
 
         if (!formInvoice.studentName || (!formInvoice.amount && !formInvoice.amountJpy && !formInvoice.amountCny)) {
-            alert('Vui lòng điền tên học viên và ít nhất 1 loại số tiền (VNĐ, JPY hoặc CNY)!');
+            alert('Vui lòng điền tên học viên và ít nhất 1 loại tiền (VNĐ, JPY hoặc CNY)!');
             return;
         }
 
