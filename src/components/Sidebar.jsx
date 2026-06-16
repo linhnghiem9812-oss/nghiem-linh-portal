@@ -8,16 +8,39 @@ function Sidebar({ activeTab, setActiveTab }) {
     const { currentUser, currentRole, logout } = useAuth();
     const isTeacher = currentRole === 'teacher';
 
+    // HÀM XỬ LÝ: Tách dòng tự động nếu tên tài khoản là "Ngoại ngữ Nghiêm Linh"
+    const renderUserName = () => {
+        if (!currentUser?.name) {
+            return (
+                <>
+                    <span style={{ display: 'block' }}>Ngoại ngữ</span>
+                    <span style={{ display: 'block', color: 'var(--primary)' }}>Nghiêm Linh</span>
+                </>
+            );
+        }
+
+        // Bắt chính xác tên mặc định để ép xuống 2 dòng cân đối
+        if (currentUser.name === 'Ngoại ngữ Nghiêm Linh' || currentUser.name === 'Ngoại Ngữ Nghiêm Linh') {
+            return (
+                <>
+                    <span style={{ display: 'block' }}>Ngoại ngữ</span>
+                    <span style={{ display: 'block' }}>Nghiêm Linh</span>
+                </>
+            );
+        }
+
+        // Với các nhân viên/giáo viên khác thì hiển thị tên bình thường
+        return currentUser.name;
+    };
+
     return (
         <aside className="sidebar">
-            {/* KHU VỰC GÓC BÊN TRÁI: HIỂN THỊ ẢNH VÀ TÊN NGƯỜI DÙNG THỰC TẾ ĐANG ĐĂNG NHẬP */}
             <div className="sidebar-brand-container" style={{ paddingBottom: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-                {/* Khung chứa Avatar / Logo */}
                 <div className="hanai-robot-avatar" style={{
                     border: '3px solid var(--primary)',
                     backgroundColor: 'var(--primary-light)',
-                    overflow: 'hidden', // Bo tròn ảnh không bị tràn ra ngoài
+                    overflow: 'hidden', 
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -25,7 +48,6 @@ function Sidebar({ activeTab, setActiveTab }) {
                     height: '64px',
                     borderRadius: '50%'
                 }}>
-                    {/* Luôn luôn hiển thị ảnh đại diện này cho tất cả mọi người */}
                     <img
                         src={adminAvatarImg}
                         alt="Logo / User Avatar"
@@ -33,16 +55,9 @@ function Sidebar({ activeTab, setActiveTab }) {
                     />
                 </div>
 
-                {/* THAY ĐỔI TẠI ĐÂY: ÉP CHỮ CHIA ĐỀU THÀNH 2 DÒNG CÂN ĐỐI */}
+                {/* GỌI HÀM HIỂN THỊ TÊN ĐÃ ĐƯỢC CHIA DÒNG */}
                 <div className="robot-brand-text" style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-main)', marginTop: '12px', padding: '0 8px', textAlign: 'center', lineHeight: '1.4' }}>
-                    {currentUser?.name ? (
-                        currentUser.name
-                    ) : (
-                        <>
-                            <span style={{ display: 'block' }}>Ngoại ngữ</span>
-                            <span style={{ display: 'block', color: 'var(--primary)' }}>Nghiêm Linh</span>
-                        </>
-                    )}
+                    {renderUserName()}
                 </div>
 
                 <div className="user-title-badge" style={{ marginTop: '8px' }}>
@@ -56,7 +71,6 @@ function Sidebar({ activeTab, setActiveTab }) {
             <nav className="sidebar-menu">
                 <div className="menu-label">Giảng dạy</div>
 
-                {/* Chỉ Admin hoặc Quản lý mới thấy mục Quản lý Lớp học */}
                 {currentRole !== 'teacher' && (
                     <div className={`menu-item ${activeTab === 'classes' ? 'active' : ''}`} onClick={() => setActiveTab('classes')}>
                         <i className="fa-solid fa-school"></i><span>Quản lý Lớp học</span>
