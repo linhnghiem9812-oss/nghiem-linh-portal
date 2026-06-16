@@ -26,7 +26,7 @@ function LandingPage({ onLoginClick }) {
             {/* Nội dung chính (Hero Section) */}
             <main style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '40px' }}>
                 <h2 style={{ fontSize: '3rem', fontWeight: '800', color: '#1e293b', marginBottom: '16px', maxWidth: '800px', lineHeight: '1.2' }}>
-                    Hệ thống Quản trị & Giảng dạy <br /><span style={{ color: 'var(--primary)' }}>Trung tâm Ngoại ngữ Nghiêm Linh</span>
+                    Hệ thống Quản trị & Giảng dạy <br /><span style={{ color: 'var(--primary)' }}>Trung tâm Ngoại Ngữ Nghiêm Linh</span>
                 </h2>
                 <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', marginBottom: '40px', maxWidth: '600px' }}>
                     Nền tảng quản lý toàn diện giúp trung tâm vận hành trơn tru từ khâu tuyển sinh, tài chính đến theo dõi tiến độ giảng dạy của từng lớp học.
