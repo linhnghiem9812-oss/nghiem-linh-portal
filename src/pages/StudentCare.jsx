@@ -76,10 +76,20 @@ function StudentCare() {
         setShowModal(true);
     };
 
+    // --- CẬP NHẬT: Cho phép trạng thái chọn lớp rỗng (Không bắt buộc) ---
     const handleClassChange = (e) => {
         const selectedClassCode = e.target.value;
-        const selectedClassObj = classes.find(c => c.classCode === selectedClassCode);
+        if (!selectedClassCode) {
+            setCurrentStudent({
+                ...currentStudent,
+                classId: '',
+                course: 'Đang chờ xếp lớp',
+                teacher: 'Chưa phân công'
+            });
+            return;
+        }
 
+        const selectedClassObj = classes.find(c => c.classCode === selectedClassCode);
         if (selectedClassObj) {
             setCurrentStudent({
                 ...currentStudent,
@@ -87,8 +97,6 @@ function StudentCare() {
                 course: selectedClassObj.level || 'Chưa rõ',     
                 teacher: selectedClassObj.teacher || 'Chưa phân công' 
             });
-        } else {
-            setCurrentStudent({ ...currentStudent, classId: selectedClassCode, course: '', teacher: '' });
         }
     };
 
@@ -304,7 +312,6 @@ function StudentCare() {
                 </div>
             </div>
 
-            {/* KHU VỰC PHẢN ÁNH CỦA HỌC VIÊN */}
             <div className="card" style={{ padding: '32px' }}>
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '24px', fontWeight: '800', color: '#1e3a8a', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
                     <i className="fa-solid fa-ticket-alt" style={{ color: 'var(--primary)', marginRight: '10px' }}></i>
@@ -333,7 +340,6 @@ function StudentCare() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                     
-                    {/* BẢNG ĐANG XỬ LÝ (MÀU VÀNG/CAM THEME) */}
                     <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', border: '2px solid #fef3c7' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px dashed #fcd34d', paddingBottom: '12px' }}>
                             <h4 style={{ fontSize: '1rem', color: '#b45309', fontWeight: '800', margin: 0 }}>
@@ -371,7 +377,6 @@ function StudentCare() {
                         </div>
                     </div>
 
-                    {/* BẢNG ĐÃ XỬ LÝ (MÀU BLUE/PRIMARY THEME) */}
                     <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', border: '2px solid var(--primary-light)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px dashed var(--primary-light)', paddingBottom: '12px' }}>
                             <h4 style={{ fontSize: '1rem', color: 'var(--primary)', fontWeight: '800', margin: 0 }}>
@@ -408,7 +413,6 @@ function StudentCare() {
                 </div>
             </div>
 
-            {/* MODAL HỒ SƠ HỌC VIÊN: BỔ SUNG LỚP MỚI KHI ĐỔI LỚP */}
             {showModal && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <div className="card" style={{ width: '680px', backgroundColor: 'white', padding: '24px', borderRadius: '12px', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -447,12 +451,19 @@ function StudentCare() {
                                 {modalMode !== 'view' ? <input className="form-control" value={currentStudent.country || ''} onChange={e => setCurrentStudent({ ...currentStudent, country: e.target.value })} /> : <div style={{ fontWeight: '600', padding: '8px 0' }}>{currentStudent.country || '---'}</div>}
                             </div>
 
-                            {/* KHU VỰC THÔNG TIN LỚP HỌC - TỰ ĐỘNG HIGHLIGHT KHI ĐỔI LỚP */}
+                            {/* --- TỰ ĐỘNG GỠ LỚP CŨ KHI CHỌN "ĐỔI LỚP" --- */}
                             <div style={{ gridColumn: 'span 2', backgroundColor: currentStudent.status === 'Đổi lớp' ? '#fffbeb' : '#f8fafc', padding: '16px', borderRadius: '12px', border: currentStudent.status === 'Đổi lớp' ? '1px dashed #f59e0b' : '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '8px', transition: 'all 0.3s' }}>
                                 <div>
                                     <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Trạng thái học tập</label>
                                     {modalMode !== 'view' ? (
-                                        <select className="form-control" value={currentStudent.status || 'Đang học'} onChange={e => setCurrentStudent({ ...currentStudent, status: e.target.value })}>
+                                        <select className="form-control" value={currentStudent.status || 'Đang học'} onChange={e => {
+                                            const newStatus = e.target.value;
+                                            if (newStatus === 'Đổi lớp') {
+                                                setCurrentStudent({ ...currentStudent, status: newStatus, classId: '', course: 'Đang chờ xếp lớp', teacher: 'Chưa phân công' });
+                                            } else {
+                                                setCurrentStudent({ ...currentStudent, status: newStatus });
+                                            }
+                                        }}>
                                             <option value="Đang học">Đang học</option>
                                             <option value="Bảo lưu">Bảo lưu</option>
                                             <option value="Học lại">Học lại</option>
@@ -464,7 +475,7 @@ function StudentCare() {
 
                                 <div>
                                     <label style={{ fontSize: '0.8rem', fontWeight: '800', color: currentStudent.status === 'Đổi lớp' ? '#d97706' : 'var(--primary)' }}>
-                                        {currentStudent.status === 'Đổi lớp' ? 'LỚP MỚI (Chọn để chuyển)' : 'Xếp vào Lớp học'}
+                                        {currentStudent.status === 'Đổi lớp' ? 'LỚP MỚI (Có thể chọn sau)' : 'Xếp vào Lớp học'}
                                     </label>
                                     {modalMode !== 'view' ? (
                                         <select className="form-control" value={currentStudent.classId || ''} onChange={handleClassChange} style={{ border: currentStudent.status === 'Đổi lớp' ? '2px solid #f59e0b' : '1px solid var(--primary)', backgroundColor: currentStudent.status === 'Đổi lớp' ? 'white' : 'var(--primary-light)' }}>
@@ -519,7 +530,6 @@ function StudentCare() {
                 </div>
             )}
 
-            {/* MODAL SỬA YÊU CẦU / PHẢN ÁNH */}
             {editingTicket && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1100, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <div className="card" style={{ width: '500px', backgroundColor: 'white', padding: '24px', borderRadius: '12px' }}>
