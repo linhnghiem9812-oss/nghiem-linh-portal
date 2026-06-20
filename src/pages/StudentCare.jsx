@@ -10,9 +10,7 @@ function StudentCare() {
     const [tickets, setTickets] = useState([]);
     const [classes, setClasses] = useState([]); 
     
-    // Đã thêm priority mặc định
     const [newTicket, setNewTicket] = useState({ studentName: '', details: '', priority: 'Tạo mới' });
-    // State quản lý việc chỉnh sửa ticket
     const [editingTicket, setEditingTicket] = useState(null);
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -123,9 +121,6 @@ function StudentCare() {
         }
     };
 
-    // ==========================================
-    // CÁC HÀM XỬ LÝ TICKET (TẠO, SỬA, XÓA, UPDATE TRẠNG THÁI)
-    // ==========================================
     const handleCreateTicket = async (e) => {
         e.preventDefault();
         try {
@@ -158,7 +153,7 @@ function StudentCare() {
             const payload = {
                 ...ticket,
                 status: 'Đang xử lý',
-                priority: 'Xem xét lại', // Tự động dán nhãn Xem xét lại
+                priority: 'Xem xét lại', 
                 resolvedAt: null
             };
             const res = await api.put(`/tickets/${ticket.id}`, payload);
@@ -184,7 +179,6 @@ function StudentCare() {
         } catch (error) { alert('Lỗi khi cập nhật phản ánh!'); }
     };
 
-    // Tiện ích format thời gian để edit
     const parseToLocalDatetime = (isoString) => {
         if (!isoString) return '';
         const d = new Date(isoString);
@@ -222,7 +216,6 @@ function StudentCare() {
                 <div className="card kpi-card-simple"><div><div className="kpi-card-label">Có vấn đề (Nghỉ/Bảo lưu)</div><div className="kpi-card-number" style={{ color: 'var(--danger-text)' }}>{students.filter(s => s.status === 'Nghỉ học' || s.status === 'Bảo lưu').length}</div></div><div className="kpi-card-circle-icon danger" style={{ backgroundColor: 'var(--danger-light)', color: 'var(--danger-text)' }}><i className="fa-solid fa-triangle-exclamation"></i></div></div>
             </div>
 
-            {/* DANH SÁCH HỌC VIÊN */}
             <div className="card" style={{ padding: '24px' }}>
                 <div style={{ position: 'sticky', top: '0', zIndex: '20', backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -311,16 +304,13 @@ function StudentCare() {
                 </div>
             </div>
 
-            {/* ======================================= */}
-            {/* KHU VỰC PHẢN ÁNH CỦA HỌC VIÊN ĐÃ ĐẠI TU */}
-            {/* ======================================= */}
+            {/* KHU VỰC PHẢN ÁNH CỦA HỌC VIÊN */}
             <div className="card" style={{ padding: '32px' }}>
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '24px', fontWeight: '800', color: '#1e3a8a', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
                     <i className="fa-solid fa-ticket-alt" style={{ color: 'var(--primary)', marginRight: '10px' }}></i>
                     Phản ánh & Yêu cầu từ Học viên
                 </h3>
 
-                {/* MỤC 1: TẠO PHẢN ÁNH */}
                 <div style={{ marginBottom: '32px', backgroundColor: '#f8fafc', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                     <h4 style={{ fontSize: '0.95rem', fontWeight: '800', marginBottom: '16px', color: 'var(--text-main)' }}>1. Tạo Phản ánh / Yêu cầu mới</h4>
                     <form onSubmit={handleCreateTicket} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
@@ -341,37 +331,36 @@ function StudentCare() {
                     </form>
                 </div>
 
-                {/* MỤC 2: YÊU CẦU ĐANG XỬ LÝ & ĐÃ XỬ LÝ (SONG SONG) */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                     
-                    {/* BẢNG ĐANG XỬ LÝ */}
-                    <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', border: '2px solid #fee2e2' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px dashed #fca5a5', paddingBottom: '12px' }}>
-                            <h4 style={{ fontSize: '1rem', color: '#b91c1c', fontWeight: '800', margin: 0 }}>
+                    {/* BẢNG ĐANG XỬ LÝ (MÀU VÀNG/CAM THEME) */}
+                    <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', border: '2px solid #fef3c7' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px dashed #fcd34d', paddingBottom: '12px' }}>
+                            <h4 style={{ fontSize: '1rem', color: '#b45309', fontWeight: '800', margin: 0 }}>
                                 <i className="fa-solid fa-spinner fa-spin-pulse" style={{ marginRight: '8px' }}></i> 2. Đang Xử Lý
                             </h4>
-                            <span style={{ backgroundColor: '#b91c1c', color: 'white', padding: '2px 10px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: '800' }}>{pendingTickets.length}</span>
+                            <span style={{ backgroundColor: '#f59e0b', color: 'white', padding: '2px 10px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: '800' }}>{pendingTickets.length}</span>
                         </div>
                         
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '550px', overflowY: 'auto', paddingRight: '6px' }}>
                             {pendingTickets.length === 0 && <span style={{ color: '#cbd5e1', fontSize: '0.85rem', textAlign: 'center', marginTop: '20px' }}>Không có yêu cầu nào đang chờ.</span>}
                             {pendingTickets.map(t => (
-                                <div key={t.id} style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#fef2f2', border: '1px solid #fca5a5', borderLeft: '5px solid #ef4444', boxShadow: 'var(--shadow-sm)' }}>
+                                <div key={t.id} style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#fffbeb', border: '1px solid #fde68a', borderLeft: '5px solid #f59e0b', boxShadow: 'var(--shadow-sm)' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                                         <div>
-                                            <span style={{ fontWeight: '800', color: '#7f1d1d', display: 'block', fontSize: '1.05rem', marginBottom: '4px' }}>{t.studentName}</span>
+                                            <span style={{ fontWeight: '800', color: '#92400e', display: 'block', fontSize: '1.05rem', marginBottom: '4px' }}>{t.studentName}</span>
                                             <span style={{ fontSize: '0.65rem', padding: '3px 8px', borderRadius: '4px', fontWeight: '800', backgroundColor: (t.priority === 'Xem xét lại' || t.priority === 'Gấp') ? '#ef4444' : '#3b82f6', color: 'white' }}>
                                                 {t.priority || 'Tạo mới'}
                                             </span>
                                         </div>
-                                        <button onClick={() => handleResolveTicket(t)} className="btn" style={{ fontSize: '0.75rem', padding: '6px 12px', backgroundColor: '#10b981', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: '800', border: 'none', boxShadow: '0 2px 4px rgba(16,185,129,0.3)' }}>
+                                        <button onClick={() => handleResolveTicket(t)} className="btn" style={{ fontSize: '0.75rem', padding: '6px 12px', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: '800', border: 'none', boxShadow: '0 2px 4px rgba(79,70,229,0.3)' }}>
                                             <i className="fa-solid fa-check"></i> Đã xử lý xong
                                         </button>
                                     </div>
-                                    <p style={{ color: '#450a0a', fontSize: '0.85rem', marginBottom: '16px', lineHeight: '1.5' }}>{t.details}</p>
+                                    <p style={{ color: '#78350f', fontSize: '0.85rem', marginBottom: '16px', lineHeight: '1.5' }}>{t.details}</p>
                                     
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #fca5a5', paddingTop: '12px' }}>
-                                        <span style={{ fontSize: '0.75rem', color: '#991b1b', fontWeight: '600' }}><i className="fa-regular fa-clock"></i> Tạo: {t.createdAt ? new Date(t.createdAt).toLocaleString('vi-VN') : 'Không rõ'}</span>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #fcd34d', paddingTop: '12px' }}>
+                                        <span style={{ fontSize: '0.75rem', color: '#b45309', fontWeight: '600' }}><i className="fa-regular fa-clock"></i> Tạo: {t.createdAt ? new Date(t.createdAt).toLocaleString('vi-VN') : 'Không rõ'}</span>
                                         <div style={{ display: 'flex', gap: '12px' }}>
                                             <button onClick={() => setEditingTicket(t)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1e40af', fontSize: '0.8rem', fontWeight: '700' }}><i className="fa-solid fa-pen"></i> Sửa</button>
                                             <button onClick={() => handleDeleteTicket(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '0.8rem', fontWeight: '700' }}><i className="fa-solid fa-trash"></i> Xóa</button>
@@ -382,33 +371,33 @@ function StudentCare() {
                         </div>
                     </div>
 
-                    {/* BẢNG ĐÃ XỬ LÝ */}
-                    <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', border: '2px solid #dcfce7' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px dashed #86efac', paddingBottom: '12px' }}>
-                            <h4 style={{ fontSize: '1rem', color: '#166534', fontWeight: '800', margin: 0 }}>
+                    {/* BẢNG ĐÃ XỬ LÝ (MÀU BLUE/PRIMARY THEME) */}
+                    <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', border: '2px solid var(--primary-light)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px dashed var(--primary-light)', paddingBottom: '12px' }}>
+                            <h4 style={{ fontSize: '1rem', color: 'var(--primary)', fontWeight: '800', margin: 0 }}>
                                 <i className="fa-solid fa-check-circle" style={{ marginRight: '8px' }}></i> 3. Đã Xử Lý Xong
                             </h4>
-                            <span style={{ backgroundColor: '#166534', color: 'white', padding: '2px 10px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: '800' }}>{resolvedTickets.length}</span>
+                            <span style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '2px 10px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: '800' }}>{resolvedTickets.length}</span>
                         </div>
                         
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '550px', overflowY: 'auto', paddingRight: '6px' }}>
                             {resolvedTickets.length === 0 && <span style={{ color: '#cbd5e1', fontSize: '0.85rem', textAlign: 'center', marginTop: '20px' }}>Chưa có yêu cầu nào hoàn thành.</span>}
                             {resolvedTickets.map(t => (
-                                <div key={t.id} style={{ padding: '16px', borderRadius: '10px', border: '1px solid #bbf7d0', backgroundColor: '#f0fdf4', opacity: 0.9 }}>
+                                <div key={t.id} style={{ padding: '16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: '#f8fafc', opacity: 0.9 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                        <span style={{ fontWeight: '800', color: '#14532d', fontSize: '1.05rem' }}>{t.studentName}</span>
+                                        <span style={{ fontWeight: '800', color: 'var(--text-main)', fontSize: '1.05rem' }}>{t.studentName}</span>
                                         <span style={{ fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', fontWeight: '700', backgroundColor: '#e2e8f0', color: '#475569' }}>
                                             {t.priority || 'Tạo mới'}
                                         </span>
                                     </div>
-                                    <p style={{ color: '#14532d', fontSize: '0.85rem', marginBottom: '16px', lineHeight: '1.5' }}>{t.details}</p>
+                                    <p style={{ color: 'var(--text-main)', fontSize: '0.85rem', marginBottom: '16px', lineHeight: '1.5' }}>{t.details}</p>
                                     
-                                    <div style={{ fontSize: '0.75rem', color: '#166534', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px', backgroundColor: 'white', padding: '10px', borderRadius: '6px' }}>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px', backgroundColor: 'white', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
                                         <span><i className="fa-regular fa-clock" style={{ width: '16px' }}></i> Gửi lúc: {t.createdAt ? new Date(t.createdAt).toLocaleString('vi-VN') : 'Không rõ'}</span>
-                                        <span style={{ fontWeight: '700' }}><i className="fa-solid fa-check" style={{ width: '16px', color: '#10b981' }}></i> Xong lúc: {t.resolvedAt ? new Date(t.resolvedAt).toLocaleString('vi-VN') : 'Không rõ'}</span>
+                                        <span style={{ fontWeight: '700', color: 'var(--primary)' }}><i className="fa-solid fa-check" style={{ width: '16px' }}></i> Xong lúc: {t.resolvedAt ? new Date(t.resolvedAt).toLocaleString('vi-VN') : 'Không rõ'}</span>
                                     </div>
 
-                                    <div style={{ display: 'flex', gap: '16px', borderTop: '1px dashed #86efac', paddingTop: '12px', justifyContent: 'flex-end' }}>
+                                    <div style={{ display: 'flex', gap: '16px', borderTop: '1px dashed var(--border-color)', paddingTop: '12px', justifyContent: 'flex-end' }}>
                                         <button onClick={() => handleReopenTicket(t)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#d97706', fontSize: '0.8rem', fontWeight: '800' }}><i className="fa-solid fa-rotate-left"></i> Xem xét lại</button>
                                         <button onClick={() => handleDeleteTicket(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '0.8rem', fontWeight: '800' }}><i className="fa-solid fa-trash"></i> Xóa</button>
                                     </div>
@@ -419,7 +408,7 @@ function StudentCare() {
                 </div>
             </div>
 
-            {/* MODAL HỌC VIÊN CƠ BẢN (GIỮ NGUYÊN) */}
+            {/* MODAL HỒ SƠ HỌC VIÊN: BỔ SUNG LỚP MỚI KHI ĐỔI LỚP */}
             {showModal && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <div className="card" style={{ width: '680px', backgroundColor: 'white', padding: '24px', borderRadius: '12px', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -458,11 +447,27 @@ function StudentCare() {
                                 {modalMode !== 'view' ? <input className="form-control" value={currentStudent.country || ''} onChange={e => setCurrentStudent({ ...currentStudent, country: e.target.value })} /> : <div style={{ fontWeight: '600', padding: '8px 0' }}>{currentStudent.country || '---'}</div>}
                             </div>
 
-                            <div style={{ gridColumn: 'span 2', backgroundColor: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '8px' }}>
+                            {/* KHU VỰC THÔNG TIN LỚP HỌC - TỰ ĐỘNG HIGHLIGHT KHI ĐỔI LỚP */}
+                            <div style={{ gridColumn: 'span 2', backgroundColor: currentStudent.status === 'Đổi lớp' ? '#fffbeb' : '#f8fafc', padding: '16px', borderRadius: '12px', border: currentStudent.status === 'Đổi lớp' ? '1px dashed #f59e0b' : '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '8px', transition: 'all 0.3s' }}>
                                 <div>
-                                    <label style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--primary)' }}>Xếp vào Lớp học</label>
+                                    <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Trạng thái học tập</label>
                                     {modalMode !== 'view' ? (
-                                        <select className="form-control" value={currentStudent.classId || ''} onChange={handleClassChange} style={{ border: '1px solid var(--primary)', backgroundColor: 'var(--primary-light)' }}>
+                                        <select className="form-control" value={currentStudent.status || 'Đang học'} onChange={e => setCurrentStudent({ ...currentStudent, status: e.target.value })}>
+                                            <option value="Đang học">Đang học</option>
+                                            <option value="Bảo lưu">Bảo lưu</option>
+                                            <option value="Học lại">Học lại</option>
+                                            <option value="Đổi lớp">Đổi lớp</option>
+                                            <option value="Nghỉ học">Nghỉ học</option>
+                                        </select>
+                                    ) : <div style={{ fontWeight: '700', padding: '8px 0' }}><span style={{ backgroundColor: getStatusBadge(currentStudent.status).bg, color: getStatusBadge(currentStudent.status).color, padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem' }}>{currentStudent.status || '---'}</span></div>}
+                                </div>
+
+                                <div>
+                                    <label style={{ fontSize: '0.8rem', fontWeight: '800', color: currentStudent.status === 'Đổi lớp' ? '#d97706' : 'var(--primary)' }}>
+                                        {currentStudent.status === 'Đổi lớp' ? 'LỚP MỚI (Chọn để chuyển)' : 'Xếp vào Lớp học'}
+                                    </label>
+                                    {modalMode !== 'view' ? (
+                                        <select className="form-control" value={currentStudent.classId || ''} onChange={handleClassChange} style={{ border: currentStudent.status === 'Đổi lớp' ? '2px solid #f59e0b' : '1px solid var(--primary)', backgroundColor: currentStudent.status === 'Đổi lớp' ? 'white' : 'var(--primary-light)' }}>
                                             <option value="">-- Chọn lớp học --</option>
                                             {Object.keys(groupedClassesForForm).map(monthLabel => (
                                                 <optgroup key={monthLabel} label={`--- ${monthLabel} ---`} style={{ color: 'var(--primary)' }}>
@@ -475,19 +480,6 @@ function StudentCare() {
                                             ))}
                                         </select>
                                     ) : <div style={{ fontWeight: '800', padding: '8px 0', color: 'var(--primary)', fontSize: '1.1rem' }}>{currentStudent.classId || 'Chưa xếp lớp'}</div>}
-                                </div>
-                                
-                                <div>
-                                    <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Trạng thái học tập</label>
-                                    {modalMode !== 'view' ? (
-                                        <select className="form-control" value={currentStudent.status || 'Đang học'} onChange={e => setCurrentStudent({ ...currentStudent, status: e.target.value })}>
-                                            <option value="Đang học">Đang học</option>
-                                            <option value="Bảo lưu">Bảo lưu</option>
-                                            <option value="Học lại">Học lại</option>
-                                            <option value="Đổi lớp">Đổi lớp</option>
-                                            <option value="Nghỉ học">Nghỉ học</option>
-                                        </select>
-                                    ) : <div style={{ fontWeight: '700', padding: '8px 0' }}><span style={{ backgroundColor: getStatusBadge(currentStudent.status).bg, color: getStatusBadge(currentStudent.status).color, padding: '4px 10px', borderRadius: '4px', fontSize: '0.75rem' }}>{currentStudent.status || '---'}</span></div>}
                                 </div>
 
                                 <div>
