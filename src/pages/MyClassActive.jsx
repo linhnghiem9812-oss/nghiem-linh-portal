@@ -124,33 +124,42 @@ function MyClassActive() {
 
     const [studentsAttendance, setStudentsAttendance] = useState([]);
 
+    // --- THUẬT TOÁN ĐIỂM DANH MỚI: TỰ ĐỘNG CHỮA LÀNH DỮ LIỆU ---
     useEffect(() => {
         if (!activeClass) return;
 
+        // BƯỚC 1: Luôn lấy danh sách học viên chuẩn từ hệ thống làm gốc
         const classRoster = allStudents.filter(s => s && s.classCode === activeClass.classCode);
+        const defaultStudents = classRoster.map(st => ({
+            id: st.id, name: String(st.name || 'Học viên ẩn danh'), status: 'present', flag: false
+        }));
 
         const fetchAttendance = async () => {
             try {
                 const res = await api.get(`/attendance/${activeClass.id}/${selectedSessionNum}`);
                 if (res.data && res.data.length > 0) {
-                    // Loại bỏ các bản ghi trùng lặp trong DB
-                    const uniqueRecordsMap = new Map();
+                    
+                    // BƯỚC 2: Quét Database để lấy các checkmark điểm danh
+                    const dbStatusMap = new Map();
                     res.data.forEach(r => {
                         if (r && r.studentId) {
-                            uniqueRecordsMap.set(r.studentId, { ...r, name: String(r.studentName || 'Học viên ẩn danh') });
+                            dbStatusMap.set(r.studentId, { status: r.status, flag: r.flag });
                         }
                     });
-                    setStudentsAttendance(Array.from(uniqueRecordsMap.values()));
+
+                    // BƯỚC 3: Ghép dữ liệu checkmark vào danh sách chuẩn. Bỏ qua các dữ liệu rác/lỗi mã ID.
+                    const mergedAttendance = defaultStudents.map(st => {
+                        if (dbStatusMap.has(st.id)) {
+                            return { ...st, status: dbStatusMap.get(st.id).status, flag: dbStatusMap.get(st.id).flag };
+                        }
+                        return st;
+                    });
+                    
+                    setStudentsAttendance(mergedAttendance);
                 } else {
-                    const defaultStudents = classRoster.map(st => ({
-                        id: st.id, name: String(st.name || 'Học viên ẩn danh'), status: 'present', flag: false
-                    }));
                     setStudentsAttendance(defaultStudents);
                 }
             } catch (error) {
-                const defaultStudents = classRoster.map(st => ({
-                    id: st.id, name: String(st.name || 'Học viên ẩn danh'), status: 'present', flag: false
-                }));
                 setStudentsAttendance(defaultStudents);
             }
         };
