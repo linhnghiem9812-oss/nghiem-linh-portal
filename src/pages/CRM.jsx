@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import axios from 'axios';
 
@@ -13,18 +13,32 @@ function CRM() {
     const [isEditing, setIsEditing] = useState(false);
     const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
-    // --- ĐÃ SỬA: LẤY CẢ ACCOUNT ADMIN & MANAGER VÀO DANH SÁCH SALE ---
     const [salesUsers, setSalesUsers] = useState([]);
 
     useEffect(() => {
-        api.get('/users') // Đổi từ /users/role/sales thành /users để lấy tất cả
+        api.get('/users') 
             .then(res => {
-                // Chỉ lọc lấy những người là sales, admin, manager
                 const eligibleSales = res.data.filter(u => u.role === 'sales' || u.role === 'admin' || u.role === 'manager');
                 setSalesUsers(eligibleSales);
             })
             .catch(() => console.log('Chưa lấy được danh sách Sale.'));
     }, []);
+
+    // --- TẠO DANH SÁCH DROPDOWN CHUẨN XÁC, KHÔNG TRÙNG LẶP ---
+    const uniqueSalesOptions = useMemo(() => {
+        const normalize = (str) => str ? str.toString().trim().replace(/\s+/g, ' ').toLowerCase() : '';
+        const dbNames = salesUsers.map(u => u.name || u.username);
+        const crmNames = customers ? customers.map(c => c.saleInCharge).filter(Boolean) : [];
+        
+        const map = new Map();
+        [...dbNames, ...crmNames].forEach(n => {
+            const norm = normalize(n);
+            if (norm && !map.has(norm)) {
+                map.set(norm, n.trim().replace(/\s+/g, ' '));
+            }
+        });
+        return Array.from(map.values());
+    }, [salesUsers, customers]);
 
     const [visibleColumns, setVisibleColumns] = useState({
         receiveDate: false, saleInCharge: false, dob: false, name: false,
@@ -159,8 +173,9 @@ function CRM() {
                         <label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGƯỜI SALE TIẾP NHẬN</label>
                         <select name="saleInCharge" className="form-control" value={formData.saleInCharge} onChange={handleInputChange}>
                             <option value="">-- Chọn Sale --</option>
-                            {salesUsers.map(sale => (
-                                <option key={sale.id} value={sale.name || sale.username}>{sale.name || sale.username}</option>
+                            {/* SỬ DỤNG DANH SÁCH ĐÃ ĐƯỢC CHUẨN HÓA VÀ LỌC TRÙNG */}
+                            {uniqueSalesOptions.map((name, idx) => (
+                                <option key={idx} value={name}>{name}</option>
                             ))}
                         </select>
                     </div>
@@ -323,8 +338,8 @@ function CRM() {
                                 {isEditing ? (
                                     <select className="form-control" value={selectedCustomer.saleInCharge || ''} onChange={(e) => setSelectedCustomer({ ...selectedCustomer, saleInCharge: e.target.value })}>
                                         <option value="">-- Chọn Sale --</option>
-                                        {salesUsers.map(sale => (
-                                            <option key={sale.id} value={sale.name || sale.username}>{sale.name || sale.username}</option>
+                                        {uniqueSalesOptions.map((name, idx) => (
+                                            <option key={idx} value={name}>{name}</option>
                                         ))}
                                     </select>
                                 ) : <div style={{ fontWeight: '600', padding: '8px 0' }}>{selectedCustomer.saleInCharge || '---'}</div>}
