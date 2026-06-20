@@ -21,13 +21,18 @@ function MyClassActive() {
                     api.get('/customers').catch(() => ({ data: [] }))
                 ]);
 
-                // BỌC LƯỚI AN TOÀN: Ép kiểu String và lọc bỏ null
                 const studentsList = (studentsRes.data || []).filter(Boolean).map(s => ({
                     id: `ST-${s.id}`, name: String(s.name || 'Học viên ẩn danh'), classCode: s.classId || s.class
                 }));
 
+                const studentNamesSet = new Set(studentsList.map(s => s.name.trim().toLowerCase()));
+
                 const customersList = (customersRes.data || [])
                     .filter(c => c && c.status === 'Đã ĐK' && c.assignClass)
+                    .filter(c => {
+                        const cName = String(c.name || c.fbName || '').trim().toLowerCase();
+                        return !studentNamesSet.has(cName);
+                    })
                     .map(c => ({
                         id: `CUS-${c.id}`, name: String(c.name || c.fbName || 'Khách hàng ẩn danh'), classCode: c.assignClass
                     }));
@@ -92,7 +97,6 @@ function MyClassActive() {
                 const res = await api.get(`/sessions/class/${activeClass.id}`);
                 const dbSessions = res.data || [];
 
-                // BỌC LƯỚI AN TOÀN CHỐNG CRASH DO SỐ BUỔI ÂM: Ép luôn >= 1
                 const total = Math.max(1, parseInt(activeClass.totalSessions) || 19);
 
                 const fullSessions = Array.from({ length: total }, (_, i) => ({
@@ -100,7 +104,6 @@ function MyClassActive() {
                 }));
 
                 dbSessions.forEach(dbS => {
-                    // Chống crash nếu dbS bị null
                     if (dbS && dbS.sessionNum && dbS.sessionNum >= 1 && dbS.sessionNum <= total) {
                         fullSessions[dbS.sessionNum - 1] = { ...fullSessions[dbS.sessionNum - 1], ...dbS };
                     }
@@ -130,8 +133,14 @@ function MyClassActive() {
             try {
                 const res = await api.get(`/attendance/${activeClass.id}/${selectedSessionNum}`);
                 if (res.data && res.data.length > 0) {
-                    const cleanData = res.data.map(r => ({ ...r, name: String(r.studentName || 'Học viên ẩn danh') }));
-                    setStudentsAttendance(cleanData);
+                    // Loại bỏ các bản ghi trùng lặp trong DB
+                    const uniqueRecordsMap = new Map();
+                    res.data.forEach(r => {
+                        if (r && r.studentId) {
+                            uniqueRecordsMap.set(r.studentId, { ...r, name: String(r.studentName || 'Học viên ẩn danh') });
+                        }
+                    });
+                    setStudentsAttendance(Array.from(uniqueRecordsMap.values()));
                 } else {
                     const defaultStudents = classRoster.map(st => ({
                         id: st.id, name: String(st.name || 'Học viên ẩn danh'), status: 'present', flag: false
@@ -383,7 +392,6 @@ function MyClassActive() {
                                 {studentsAttendance.map((student) => (
                                     <div className="attendance-student-card" key={student.id} style={{ padding: '12px' }}>
                                         <div className="student-card-left">
-                                            {/* BỌC LƯỚI: Chống crash .charAt khi tên là undefined/số */}
                                             <div className="student-avatar-letter">{String(student.name || 'H').charAt(0).toUpperCase()}</div>
                                             <div className="student-card-info">
                                                 <h5 style={{ fontSize: '0.85rem' }}>{student.name || 'Học viên chưa có tên'}</h5>
