@@ -20,24 +20,73 @@ function Classes() {
 
     const [editingClass, setEditingClass] = useState(null);
 
+    // --- STATE ĐỂ LƯU DỮ LIỆU THẬT CỦA TIẾN ĐỘ VÀ ĐIỂM DANH ---
+    const [sessionsData, setSessionsData] = useState([]);
+    const [attendanceData, setAttendanceData] = useState([]);
+
     const [formClass, setFormClass] = useState({
         name: '', teacher: '', teacherId: '', ta: '', taId: '', padletUrl: '', classType: '',
         level: '', sessionFee: '', startDate: '', totalSessions: '', scheduleTime: ''
     });
 
     useEffect(() => {
-        api.get('/students')
-            .then(res => setAllStudents(res.data))
-            .catch(() => console.log('Lỗi tải danh sách học viên'));
+        const fetchAllData = async () => {
+            try {
+                const [studentsRes, customersRes] = await Promise.all([
+                    api.get('/students').catch(() => ({ data: [] })),
+                    api.get('/customers').catch(() => ({ data: [] }))
+                ]);
+
+                const studentsList = (studentsRes.data || []).filter(Boolean).map(s => ({
+                    id: `ST-${s.id}`, name: String(s.name || 'Học viên ẩn danh'), classCode: s.classId || s.class
+                }));
+
+                const customersList = (customersRes.data || [])
+                    .filter(c => c && c.status === 'Đã ĐK' && c.assignClass)
+                    .map(c => ({
+                        id: `CUS-${c.id}`, name: String(c.name || c.fbName || 'Khách hàng ẩn danh'), classCode: c.assignClass
+                    }));
+
+                setAllStudents([...studentsList, ...customersList]);
+            } catch (error) {
+                console.log("Lỗi đồng bộ dữ liệu");
+            }
+        };
+        fetchAllData();
     }, []);
 
+    // --- KÉO DỮ LIỆU BUỔI HỌC VÀ ĐIỂM DANH THẬT TỪ CSDL ---
     useEffect(() => {
         if (selectedClass) {
-            const studentsInThisClass = allStudents.filter(s => s.classId === selectedClass.classCode);
+            const studentsInThisClass = allStudents.filter(s => s && s.classCode === selectedClass.classCode);
             setClassStudents(studentsInThisClass);
+
+            // Kéo tiến độ buổi học
+            api.get(`/sessions/class/${selectedClass.id}`).then(res => {
+                const total = Math.max(1, parseInt(selectedClass.totalSessions) || 19);
+                const fullSessions = Array.from({ length: total }, (_, i) => ({
+                    classId: selectedClass.id, sessionNum: i + 1, title: `BÀI ${i + 1}`, status: 'draft', notes: '', hasLessonPlan: false
+                }));
+                (res.data || []).forEach(dbS => {
+                    if (dbS && dbS.sessionNum && dbS.sessionNum >= 1 && dbS.sessionNum <= total) {
+                        fullSessions[dbS.sessionNum - 1] = { ...fullSessions[dbS.sessionNum - 1], ...dbS };
+                    }
+                });
+                setSessionsData(fullSessions);
+            }).catch(() => setSessionsData([]));
         }
     }, [selectedClass, allStudents]);
 
+    useEffect(() => {
+        if (selectedClass && activeSession) {
+            // Kéo điểm danh của buổi học đang chọn
+            api.get(`/attendance/${selectedClass.id}/${activeSession}`).then(res => {
+                setAttendanceData(res.data || []);
+            }).catch(() => setAttendanceData([]));
+        }
+    }, [selectedClass, activeSession]);
+
+    // ... (Giữ nguyên các hàm handleCreateClass, handleSaveEdit, handleDeleteClass)
     const handleCreateClass = async (e) => {
         e.preventDefault();
         if (!formClass.name) return alert('Vui lòng điền Tên lớp học!');
@@ -92,11 +141,11 @@ function Classes() {
         }
     };
 
-    // --- LOGIC LỌC, SẮP XẾP VÀ GOM NHÓM THEO THÁNG ---
-    let displayClasses = classes || [];
+
+    let displayClasses = classes ? [...classes] : [];
     if (currentRole === 'teacher') {
         displayClasses = displayClasses.filter(c =>
-            c.teacherId === currentUser.id || (c.teacher && c.teacher.toLowerCase().includes(currentUser.name.toLowerCase()))
+            c.teacherId === currentUser.id || (c.teacher && currentUser.name && c.teacher.toLowerCase().includes(currentUser.name.toLowerCase()))
         );
     }
     if (searchTerm) {
@@ -111,7 +160,7 @@ function Classes() {
 
     const groupedClasses = displayClasses.reduce((acc, c) => {
         const dateObj = c.startDate ? new Date(c.startDate) : null;
-        const groupName = dateObj ? `Tháng ${dateObj.getMonth() + 1} / ${dateObj.getFullYear()}` : 'Lớp chưa xác định ngày KG';
+        const groupName = dateObj && !isNaN(dateObj.getTime()) ? `Tháng ${dateObj.getMonth() + 1} / ${dateObj.getFullYear()}` : 'Lớp chưa xác định ngày KG';
 
         if (!acc[groupName]) {
             acc[groupName] = [];
@@ -122,6 +171,15 @@ function Classes() {
 
 
     if (selectedClass) {
+        // Lấy bài học hiện tại từ mảng thật
+        const currentSession = sessionsData.find(s => s.sessionNum === activeSession) || {};
+
+        // Tạo Lịch sử dạy từ dữ liệu thật
+        const completedSessions = sessionsData
+            .filter(s => s.status === 'completed' || s.status === 'cancelled')
+            .sort((a, b) => b.sessionNum - a.sessionNum)
+            .slice(0, 3); // Lấy 3 buổi gần nhất
+
         return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s ease-out' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
@@ -130,7 +188,7 @@ function Classes() {
                     </button>
                     <div>
                         <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--primary)' }}>{selectedClass.classCode}</h2>
-                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Chi tiết tiến trình giảng dạy và học viên</span>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Chi tiết tiến trình giảng dạy và học viên (Chế độ xem)</span>
                     </div>
                 </div>
 
@@ -143,7 +201,9 @@ function Classes() {
                                 {classStudents.map(st => (
                                     <div key={st.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: '800', fontSize: '0.75rem' }}>{st.name?.charAt(0)}</div>
+                                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: '800', fontSize: '0.75rem' }}>
+                                                {String(st.name || 'H').charAt(0).toUpperCase()}
+                                            </div>
                                             <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>{st.name}</span>
                                         </div>
                                         <span style={{ backgroundColor: '#dcfce7', color: '#166534', fontSize: '0.65rem', fontWeight: '700', padding: '2px 8px', borderRadius: '4px' }}>Đã ĐK</span>
@@ -155,19 +215,17 @@ function Classes() {
                         <div className="card" style={{ padding: '20px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                                 <h4 style={{ fontSize: '1rem', fontWeight: '800' }}><i className="fa-solid fa-clock-rotate-left" style={{ color: 'var(--text-muted)', marginRight: '6px' }}></i> Lịch sử dạy</h4>
-                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Tháng này</span>
                             </div>
                             <div className="timeline-container">
-                                {[3, 2, 1].map(num => (
-                                    <div className="timeline-node" key={num}>
-                                        <div className="timeline-dot" style={{ backgroundColor: 'var(--primary)', left: '-25px' }}></div>
+                                {completedSessions.length === 0 && <span style={{ fontSize: '0.8rem', color: 'gray' }}>Chưa có buổi học nào hoàn thành.</span>}
+                                {completedSessions.map(sess => (
+                                    <div className="timeline-node" key={sess.sessionNum}>
+                                        <div className="timeline-dot" style={{ backgroundColor: sess.status === 'cancelled' ? '#ef4444' : 'var(--primary)', left: '-25px' }}></div>
                                         <div className="timeline-header" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                                            <strong style={{ color: 'var(--primary)', fontSize: '0.85rem', backgroundColor: 'var(--primary-light)', padding: '2px 8px', borderRadius: '4px' }}>{selectedClass.classCode}</strong>
-                                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{10 + num}/4/2026</span>
+                                            <strong style={{ color: sess.status === 'cancelled' ? '#b91c1c' : 'var(--primary)', fontSize: '0.85rem', backgroundColor: sess.status === 'cancelled' ? '#fee2e2' : 'var(--primary-light)', padding: '2px 8px', borderRadius: '4px' }}>Buổi {sess.sessionNum}</strong>
                                         </div>
                                         <div className="timeline-content" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
-                                            <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-main)' }}>Bài {num}</span>
-                                            <span style={{ fontSize: '0.75rem', color: 'var(--primary)', cursor: 'pointer', fontWeight: '700' }}><i className="fa-solid fa-users"></i> Xem HV</span>
+                                            <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-main)' }}>{sess.title || 'Không có tiêu đề'}</span>
                                         </div>
                                     </div>
                                 ))}
@@ -178,20 +236,21 @@ function Classes() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                         <div className="card" style={{ padding: '24px' }}>
                             <div className="session-grid-container" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))' }}>
-                                {Array.from({ length: selectedClass.totalSessions || 19 }, (_, i) => i + 1).map(num => {
+                                {sessionsData.map(sess => {
+                                    const num = sess.sessionNum;
                                     const isSelected = activeSession === num;
-                                    const isCancelled = num === 4;
-                                    const isDone = num < 4 && num !== 4;
+                                    const isCancelled = sess.status === 'cancelled';
+                                    const isDone = sess.status === 'completed';
                                     let cardClass = "session-btn-card";
                                     if (isCancelled) cardClass += " session-cancelled";
                                     else if (isDone) cardClass += " session-submitted-ga";
                                     if (isSelected && !isCancelled) cardClass += " session-active-selected";
 
                                     return (
-                                        <div key={num} className={cardClass} onClick={() => !isCancelled && setActiveSession(num)}>
+                                        <div key={num} className={cardClass} onClick={() => setActiveSession(num)}>
                                             <strong style={{ fontSize: '0.7rem' }}>BUỔI {num}</strong>
-                                            <span style={{ fontSize: '0.85rem', marginBottom: '4px' }}>{10 + num}/04</span>
-                                            {isDone && <span className="session-submitted-ga-badge" style={{ backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : '#dcfce7', color: isSelected ? 'white' : '#166534' }}><i className="fa-solid fa-check"></i> Đã nộp GA</span>}
+                                            <span style={{ fontSize: '0.85rem', marginBottom: '4px' }}>Xem</span>
+                                            {isDone && <span className="session-submitted-ga-badge" style={{ backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : '#dcfce7', color: isSelected ? 'white' : '#166534' }}><i className="fa-solid fa-check"></i> Đã dạy</span>}
                                             {isCancelled && <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}><span className="session-cancelled-badge" style={{ backgroundColor: '#fee2e2', color: '#b91c1c' }}><i className="fa-solid fa-ban"></i> NGHỈ</span></div>}
                                         </div>
                                     );
@@ -202,37 +261,46 @@ function Classes() {
                         <div className="card" style={{ padding: '24px', backgroundColor: '#f8fafc', border: '1px solid var(--border-color)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                                 <div>
-                                    <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#1e3a8a' }}>Điểm Danh Học Viên</h3>
-                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Vui lòng chọn trạng thái cho từng học viên</p>
+                                    <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#1e3a8a' }}>Điểm Danh Học Viên: Buổi {activeSession}</h3>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Dữ liệu điểm danh được giáo viên lưu lại</p>
                                 </div>
-                                <button className="btn-all-present" style={{ backgroundColor: '#dcfce7', color: '#166534', padding: '8px 16px', borderRadius: '8px', border: '1px solid #bbf7d0' }}><i className="fa-solid fa-check-double"></i> Tất cả đi học</button>
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-                                {classStudents.length === 0 && <p style={{ gridColumn: 'span 2', textAlign: 'center', color: 'gray' }}>Chưa có học viên để điểm danh.</p>}
-                                {classStudents.map(st => (
-                                    <div key={st.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--bg-app)', color: 'var(--text-muted)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: '800', fontSize: '1rem' }}>{st.name?.charAt(0)}</div>
-                                            <div>
-                                                <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '4px' }}>{st.name}</strong>
-                                                <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem' }}>
-                                                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontWeight: '600', color: 'var(--primary)' }}><input type="radio" name={`att-${st.id}`} defaultChecked /> Có mặt</label>
-                                                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', color: 'var(--text-muted)' }}><input type="radio" name={`att-${st.id}`} /> Vắng</label>
+                                {classStudents.length === 0 && <p style={{ gridColumn: 'span 2', textAlign: 'center', color: 'gray' }}>Chưa có học viên.</p>}
+                                {classStudents.map(st => {
+                                    // Tìm trạng thái điểm danh thật của học viên này trong CSDL
+                                    const attRecord = attendanceData.find(a => a.studentId === st.id) || {};
+                                    const isPresent = attRecord.status === 'present';
+                                    const isAbsent = attRecord.status === 'absent';
+
+                                    return (
+                                        <div key={st.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--bg-app)', color: 'var(--text-muted)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: '800', fontSize: '1rem' }}>
+                                                    {String(st.name || 'H').charAt(0).toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <strong style={{ display: 'block', fontSize: '0.9rem', marginBottom: '4px' }}>{st.name}</strong>
+                                                    <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem' }}>
+                                                        <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'not-allowed', fontWeight: isPresent ? '600' : 'normal', color: isPresent ? 'var(--primary)' : 'gray' }}>
+                                                            <input type="radio" checked={isPresent} readOnly /> Có mặt
+                                                        </label>
+                                                        <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'not-allowed', fontWeight: isAbsent ? '600' : 'normal', color: isAbsent ? '#ef4444' : 'gray' }}>
+                                                            <input type="radio" checked={isAbsent} readOnly /> Vắng
+                                                        </label>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <i className={`fa-solid fa-flag ${attRecord.flag ? 'flagged' : ''}`} style={{ color: attRecord.flag ? '#f59e0b' : '#e2e8f0' }}></i>
                                         </div>
-                                        <i className="fa-solid fa-flag" style={{ color: '#e2e8f0', cursor: 'pointer' }}></i>
-                                    </div>
-                                ))}
+                                    )
+                                })}
                             </div>
 
                             <div>
-                                <h4 style={{ fontSize: '0.95rem', fontWeight: '800', marginBottom: '12px' }}>Nội dung bài dạy / Ghi chú</h4>
-                                <textarea className="form-control" rows="3" placeholder="VD: Học từ vựng bài 5..." style={{ backgroundColor: 'white', resize: 'none' }}></textarea>
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-                                    <button className="btn btn-primary" style={{ padding: '12px 32px', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }} onClick={() => alert('Hệ thống: Lưu sổ điểm danh thành công!')}>Lưu Sổ Điểm Danh</button>
-                                </div>
+                                <h4 style={{ fontSize: '0.95rem', fontWeight: '800', marginBottom: '12px' }}>Nội dung bài dạy / Ghi chú (Chỉ xem)</h4>
+                                <textarea className="form-control" rows="3" value={currentSession.notes || ''} readOnly style={{ backgroundColor: '#f1f5f9', resize: 'none', color: '#475569' }} placeholder="Giáo viên chưa nhập ghi chú..."></textarea>
                             </div>
                         </div>
                     </div>
@@ -343,19 +411,16 @@ function Classes() {
                     <tbody>
                         {Object.keys(groupedClasses).length === 0 && <tr><td colSpan="4" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>Không tìm thấy lớp học nào khớp với dữ liệu.</td></tr>}
 
-                        {/* HIỂN THỊ GOM NHÓM THEO TỪNG THÁNG TRÊN BẢNG */}
                         {Object.keys(groupedClasses).map(monthLabel => (
                             <React.Fragment key={monthLabel}>
-                                {/* HÀNG TIÊU ĐỀ CỦA THÁNG */}
                                 <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0', borderTop: '2px solid #e2e8f0' }}>
                                     <td colSpan="4" style={{ padding: '12px 24px', fontWeight: '800', color: '#1e3a8a', fontSize: '0.9rem' }}>
                                         <i className="fa-regular fa-calendar" style={{ marginRight: '8px', color: 'var(--primary)' }}></i> {monthLabel}
                                     </td>
                                 </tr>
 
-                                {/* DANH SÁCH LỚP CỦA THÁNG ĐÓ */}
                                 {groupedClasses[monthLabel].map((c) => {
-                                    const count = allStudents.filter(s => s.classId === c.classCode).length;
+                                    const count = allStudents.filter(s => s && s.classCode === c.classCode).length;
 
                                     return (
                                         <tr key={c.id} style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'white', transition: 'background 0.2s' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-app)'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}>
@@ -391,7 +456,6 @@ function Classes() {
                 </table>
             </div>
 
-            {/* GIAO DIỆN MODAL CHỈNH SỬA LỚP */}
             {editingClass && (
                 <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <div className="card" style={{ width: '650px', backgroundColor: 'white', padding: '24px', borderRadius: '12px', maxHeight: '90vh', overflowY: 'auto' }}>
