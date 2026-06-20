@@ -11,39 +11,44 @@ function SalesRating() {
     const [rawSalesUsers, setRawSalesUsers] = useState([]);
 
     useEffect(() => {
-        api.get('/users/role/sales')
-            .then(res => setRawSalesUsers(res.data))
+        api.get('/users')
+            .then(res => {
+                const eligibleSales = res.data.filter(u => u.role === 'sales' || u.role === 'admin' || u.role === 'manager');
+                setRawSalesUsers(eligibleSales);
+            })
             .catch(() => console.log('Chưa lấy được danh sách tài khoản Sale.'));
     }, []);
 
-    // LOGIC MỚI: Tự động gom tên Sale từ DB và từ CRM
+    // --- THUẬT TOÁN CHUẨN HÓA KHẮC PHỤC LỖI TRÙNG LẶP ---
     const salesTeam = useMemo(() => {
         if (!customers) return [];
 
-        // 1. Quét toàn bộ tên Sale đang được nhập trong bảng CRM
-        const crmSalesNames = customers
-            .map(c => c.saleInCharge?.trim())
-            .filter(name => name);
+        // Hàm khử nhiễu: Ép chữ thường và xóa sạch khoảng trắng dư thừa
+        const normalize = (str) => {
+            return str ? str.toString().trim().replace(/\s+/g, ' ').toLowerCase() : '';
+        };
 
-        // 2. Lấy tên Sale có tài khoản hệ thống
         const dbSalesNames = rawSalesUsers.map(u => u.name || u.username);
-
-        // 3. Gộp 2 danh sách và loại bỏ trùng lặp (Không phân biệt chữ hoa/thường)
-        const allNames = [...dbSalesNames, ...crmSalesNames];
-        const uniqueNames = [];
-        const nameSet = new Set();
-
-        allNames.forEach(name => {
-            if (name && !nameSet.has(name.toLowerCase())) {
-                nameSet.add(name.toLowerCase());
-                uniqueNames.push(name);
+        const crmSalesNames = customers.map(c => c.saleInCharge).filter(Boolean);
+        
+        const nameMap = new Map();
+        
+        [...dbSalesNames, ...crmSalesNames].forEach(rawName => {
+            const normKey = normalize(rawName);
+            if(normKey && !nameMap.has(normKey)) {
+                // Lưu lại tên gốc đã được dọn dẹp khoảng trắng để hiển thị
+                nameMap.set(normKey, rawName.toString().trim().replace(/\s+/g, ' ')); 
             }
         });
+        
+        const uniqueNames = Array.from(nameMap.values());
 
-        // 4. Tính toán doanh số
-        let formatted = uniqueNames.map((salesName, index) => {
-            const myCustomers = customers.filter(c =>
-                c.saleInCharge && c.saleInCharge.toLowerCase().trim() === salesName.toLowerCase().trim()
+        let formatted = uniqueNames.map((saleName, index) => {
+            const normSaleName = normalize(saleName);
+
+            // Dùng tên đã chuẩn hóa để lọc khách hàng, đảm bảo chính xác 100%
+            const myCustomers = customers.filter(c => 
+                normalize(c.saleInCharge) === normSaleName
             );
 
             const closed = myCustomers.filter(c => c.status === 'Đã ĐK').length;
@@ -53,13 +58,19 @@ function SalesRating() {
                 .reduce((sum, c) => sum + (parseInt(c.fee) || 0), 0);
 
             const conversionRate = myCustomers.length > 0 ? Math.round((closed / myCustomers.length) * 100) : 0;
-            const revenueFormatted = totalRevenue >= 1000000
-                ? (totalRevenue / 1000000).toFixed(1) + 'M'
-                : totalRevenue.toLocaleString('vi-VN');
+            
+            let revenueFormatted = '0 đ';
+            if (totalRevenue >= 1000000000) {
+                revenueFormatted = (totalRevenue / 1000000000).toFixed(2) + ' Tỷ';
+            } else if (totalRevenue >= 1000000) {
+                revenueFormatted = (totalRevenue / 1000000).toFixed(1) + 'M';
+            } else {
+                revenueFormatted = totalRevenue.toLocaleString('vi-VN');
+            }
 
             return {
                 id: `sale_${index}`,
-                name: salesName,
+                name: saleName,
                 role: 'Chuyên viên Tư vấn',
                 revenue: revenueFormatted,
                 revenueValue: totalRevenue,
