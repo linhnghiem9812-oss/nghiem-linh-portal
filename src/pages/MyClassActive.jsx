@@ -122,13 +122,17 @@ function MyClassActive() {
         setSelectedSessionNum(1);
     }, [activeClass]);
 
-    const [studentsAttendance, setStudentsAttendance] = useState([]);
 
-    // --- THUẬT TOÁN ĐIỂM DANH MỚI: TỰ ĐỘNG CHỮA LÀNH DỮ LIỆU ---
+    // --- KHÓA AN TOÀN CHỐNG RACE CONDITION Ở FRONTEND ---
+    const [studentsAttendance, setStudentsAttendance] = useState([]);
+    const [isFetchingAttendance, setIsFetchingAttendance] = useState(false);
+
     useEffect(() => {
         if (!activeClass) return;
+        
+        // Bật khóa: Đang lấy dữ liệu, cấm lưu
+        setIsFetchingAttendance(true);
 
-        // BƯỚC 1: Luôn lấy danh sách học viên chuẩn từ hệ thống làm gốc
         const classRoster = allStudents.filter(s => s && s.classCode === activeClass.classCode);
         const defaultStudents = classRoster.map(st => ({
             id: st.id, name: String(st.name || 'Học viên ẩn danh'), status: 'present', flag: false
@@ -138,8 +142,6 @@ function MyClassActive() {
             try {
                 const res = await api.get(`/attendance/${activeClass.id}/${selectedSessionNum}`);
                 if (res.data && res.data.length > 0) {
-                    
-                    // BƯỚC 2: Quét Database để lấy các checkmark điểm danh
                     const dbStatusMap = new Map();
                     res.data.forEach(r => {
                         if (r && r.studentId) {
@@ -147,7 +149,6 @@ function MyClassActive() {
                         }
                     });
 
-                    // BƯỚC 3: Ghép dữ liệu checkmark vào danh sách chuẩn. Bỏ qua các dữ liệu rác/lỗi mã ID.
                     const mergedAttendance = defaultStudents.map(st => {
                         if (dbStatusMap.has(st.id)) {
                             return { ...st, status: dbStatusMap.get(st.id).status, flag: dbStatusMap.get(st.id).flag };
@@ -161,6 +162,9 @@ function MyClassActive() {
                 }
             } catch (error) {
                 setStudentsAttendance(defaultStudents);
+            } finally {
+                // Tắt khóa: Đã tải xong, cho phép lưu
+                setIsFetchingAttendance(false);
             }
         };
         fetchAttendance();
@@ -191,6 +195,9 @@ function MyClassActive() {
     };
 
     const handleSaveAllData = async () => {
+        // Chặn luồng gửi nếu đang tải dữ liệu
+        if (isFetchingAttendance) return;
+
         try {
             await api.post(`/sessions`, { ...currentSession, classId: activeClass.id });
             await api.post(`/attendance/save`, { classId: activeClass.id, sessionNum: selectedSessionNum, records: studentsAttendance });
@@ -418,8 +425,19 @@ function MyClassActive() {
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <button className="btn btn-primary" onClick={handleSaveAllData} style={{ padding: '14px 40px', fontWeight: '700', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontSize: '0.95rem' }}>
-                            <i className="fa-solid fa-floppy-disk" style={{ marginRight: '8px' }}></i> LƯU NHẬT KÝ BUỔI {selectedSessionNum}
+                        <button 
+                            className="btn btn-primary" 
+                            onClick={handleSaveAllData} 
+                            disabled={isFetchingAttendance}
+                            style={{ 
+                                padding: '14px 40px', fontWeight: '700', 
+                                backgroundColor: isFetchingAttendance ? '#94a3b8' : 'var(--primary)', 
+                                color: 'white', borderRadius: '8px', 
+                                cursor: isFetchingAttendance ? 'not-allowed' : 'pointer', fontSize: '0.95rem' 
+                            }}
+                        >
+                            <i className={isFetchingAttendance ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-floppy-disk"} style={{ marginRight: '8px' }}></i> 
+                            {isFetchingAttendance ? 'ĐANG KẾT NỐI MÁY CHỦ...' : `LƯU NHẬT KÝ BUỔI ${selectedSessionNum}`}
                         </button>
                     </div>
                 </>
