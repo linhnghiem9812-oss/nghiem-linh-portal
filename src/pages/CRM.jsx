@@ -16,25 +16,35 @@ function CRM() {
     const [salesUsers, setSalesUsers] = useState([]);
 
     useEffect(() => {
-        api.get('/users') 
-            .then(res => {
-                const eligibleSales = res.data.filter(u => u.role === 'sales' || u.role === 'admin' || u.role === 'manager');
-                setSalesUsers(eligibleSales);
-            })
+        api.get('/users/role/sales')
+            .then(res => setSalesUsers(res.data))
             .catch(() => console.log('Chưa lấy được danh sách Sale.'));
     }, []);
 
-    // --- TẠO DANH SÁCH DROPDOWN CHUẨN XÁC, KHÔNG TRÙNG LẶP ---
+    // --- ĐỒNG BỘ BỘ LỌC ĐỊNH DANH (ALIAS) VỚI BẢNG XẾP HẠNG ---
     const uniqueSalesOptions = useMemo(() => {
-        const normalize = (str) => str ? str.toString().trim().replace(/\s+/g, ' ').toLowerCase() : '';
+        const normalize = (str) => {
+            if (!str) return '';
+            let s = str.toString().trim().replace(/\s+/g, ' ').toLowerCase();
+            if (s === 'nghiêm linh' || s === 'nghiem linh' || s === 'ngoai ngu nghiem linh') {
+                return 'ngoại ngữ nghiêm linh';
+            }
+            return s;
+        };
+
         const dbNames = salesUsers.map(u => u.name || u.username);
         const crmNames = customers ? customers.map(c => c.saleInCharge).filter(Boolean) : [];
         
         const map = new Map();
         [...dbNames, ...crmNames].forEach(n => {
+            if (!n) return;
             const norm = normalize(n);
-            if (norm && !map.has(norm)) {
-                map.set(norm, n.trim().replace(/\s+/g, ' '));
+            if (!map.has(norm)) {
+                if (norm === 'ngoại ngữ nghiêm linh') {
+                    map.set(norm, 'Ngoại Ngữ Nghiêm Linh');
+                } else {
+                    map.set(norm, n.trim().replace(/\s+/g, ' '));
+                }
             }
         });
         return Array.from(map.values());
@@ -173,7 +183,7 @@ function CRM() {
                         <label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGƯỜI SALE TIẾP NHẬN</label>
                         <select name="saleInCharge" className="form-control" value={formData.saleInCharge} onChange={handleInputChange}>
                             <option value="">-- Chọn Sale --</option>
-                            {/* SỬ DỤNG DANH SÁCH ĐÃ ĐƯỢC CHUẨN HÓA VÀ LỌC TRÙNG */}
+                            {/* MENU DROPDOWN ĐÃ ĐƯỢC CHUẨN HÓA SẠCH SẼ */}
                             {uniqueSalesOptions.map((name, idx) => (
                                 <option key={idx} value={name}>{name}</option>
                             ))}
