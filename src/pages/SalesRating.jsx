@@ -11,43 +11,54 @@ function SalesRating() {
     const [rawSalesUsers, setRawSalesUsers] = useState([]);
 
     useEffect(() => {
-        api.get('/users')
-            .then(res => {
-                const eligibleSales = res.data.filter(u => u.role === 'sales' || u.role === 'admin' || u.role === 'manager');
-                setRawSalesUsers(eligibleSales);
-            })
+        api.get('/users/role/sales')
+            .then(res => setRawSalesUsers(res.data))
             .catch(() => console.log('Chưa lấy được danh sách tài khoản Sale.'));
     }, []);
 
-    // --- THUẬT TOÁN CHUẨN HÓA KHẮC PHỤC LỖI TRÙNG LẶP ---
     const salesTeam = useMemo(() => {
         if (!customers) return [];
 
-        // Hàm khử nhiễu: Ép chữ thường và xóa sạch khoảng trắng dư thừa
+        // --- BỘ LỌC ĐỊNH DANH (ALIAS MAPPING) ---
+        // Ép mọi biến thể của "Nghiêm Linh" về chung 1 chuẩn để chống lỗi nhân bản
         const normalize = (str) => {
-            return str ? str.toString().trim().replace(/\s+/g, ' ').toLowerCase() : '';
+            if (!str) return '';
+            let s = str.toString().trim().replace(/\s+/g, ' ').toLowerCase();
+            
+            // Nếu phát hiện gõ tắt, tự động quy về tên gốc
+            if (s === 'nghiêm linh' || s === 'nghiem linh' || s === 'ngoai ngu nghiem linh') {
+                return 'ngoại ngữ nghiêm linh';
+            }
+            return s;
         };
 
+        const crmSalesNames = customers.map(c => c.saleInCharge?.trim()).filter(Boolean);
         const dbSalesNames = rawSalesUsers.map(u => u.name || u.username);
-        const crmSalesNames = customers.map(c => c.saleInCharge).filter(Boolean);
-        
+
+        const allNames = [...dbSalesNames, ...crmSalesNames];
         const nameMap = new Map();
-        
-        [...dbSalesNames, ...crmSalesNames].forEach(rawName => {
+
+        allNames.forEach(rawName => {
+            if (!rawName) return;
             const normKey = normalize(rawName);
-            if(normKey && !nameMap.has(normKey)) {
-                // Lưu lại tên gốc đã được dọn dẹp khoảng trắng để hiển thị
-                nameMap.set(normKey, rawName.toString().trim().replace(/\s+/g, ' ')); 
+            
+            // Chỉ giữ lại 1 tên duy nhất. Ép tên hiển thị đẹp cho Admin
+            if (!nameMap.has(normKey)) {
+                if (normKey === 'ngoại ngữ nghiêm linh') {
+                    nameMap.set(normKey, 'Ngoại Ngữ Nghiêm Linh');
+                } else {
+                    nameMap.set(normKey, rawName.trim().replace(/\s+/g, ' '));
+                }
             }
         });
-        
+
         const uniqueNames = Array.from(nameMap.values());
 
-        let formatted = uniqueNames.map((saleName, index) => {
-            const normSaleName = normalize(saleName);
+        let formatted = uniqueNames.map((salesName, index) => {
+            const normSaleName = normalize(salesName);
 
-            // Dùng tên đã chuẩn hóa để lọc khách hàng, đảm bảo chính xác 100%
-            const myCustomers = customers.filter(c => 
+            // Dùng tên đã chuẩn hóa để gom tất cả khách hàng bị ghi sai tên vào đúng 1 người
+            const myCustomers = customers.filter(c =>
                 normalize(c.saleInCharge) === normSaleName
             );
 
@@ -58,19 +69,13 @@ function SalesRating() {
                 .reduce((sum, c) => sum + (parseInt(c.fee) || 0), 0);
 
             const conversionRate = myCustomers.length > 0 ? Math.round((closed / myCustomers.length) * 100) : 0;
-            
-            let revenueFormatted = '0 đ';
-            if (totalRevenue >= 1000000000) {
-                revenueFormatted = (totalRevenue / 1000000000).toFixed(2) + ' Tỷ';
-            } else if (totalRevenue >= 1000000) {
-                revenueFormatted = (totalRevenue / 1000000).toFixed(1) + 'M';
-            } else {
-                revenueFormatted = totalRevenue.toLocaleString('vi-VN');
-            }
+            const revenueFormatted = totalRevenue >= 1000000
+                ? (totalRevenue / 1000000).toFixed(1) + 'M'
+                : totalRevenue.toLocaleString('vi-VN');
 
             return {
                 id: `sale_${index}`,
-                name: saleName,
+                name: salesName,
                 role: 'Chuyên viên Tư vấn',
                 revenue: revenueFormatted,
                 revenueValue: totalRevenue,
