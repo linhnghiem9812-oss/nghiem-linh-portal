@@ -49,9 +49,13 @@ function StudentCare() {
         api.get('/classes').then(res => setClasses(res.data)).catch(() => console.log('Chưa có dữ liệu lớp.'));
     }, []);
 
+    // --- CẬP NHẬT LOGIC LỌC ĐỂ KHỚP VỚI CÁC THẺ KPI ---
     const filteredStudents = students.filter(s => {
         const matchName = s.name && s.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchStatus = statusFilter === 'all' || s.status === statusFilter;
+        let matchStatus = false;
+        if (statusFilter === 'all') matchStatus = true;
+        else if (statusFilter === 'problem') matchStatus = (s.status === 'Nghỉ học' || s.status === 'Bảo lưu');
+        else matchStatus = s.status === statusFilter;
         return matchName && matchStatus;
     });
 
@@ -76,7 +80,6 @@ function StudentCare() {
         setShowModal(true);
     };
 
-    // --- CẬP NHẬT: Cho phép trạng thái chọn lớp rỗng (Không bắt buộc) ---
     const handleClassChange = (e) => {
         const selectedClassCode = e.target.value;
         if (!selectedClassCode) {
@@ -218,10 +221,24 @@ function StudentCare() {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div className="kpi-row">
-                <div className="card kpi-card-simple"><div><div className="kpi-card-label">Tổng học viên</div><div className="kpi-card-number">{students.length}</div></div><div className="kpi-card-circle-icon purple"><i className="fa-solid fa-graduation-cap"></i></div></div>
-                <div className="card kpi-card-simple"><div><div className="kpi-card-label">Đang học</div><div className="kpi-card-number" style={{ color: 'var(--success)' }}>{students.filter(s => s.status === 'Đang học').length}</div></div><div className="kpi-card-circle-icon success" style={{ backgroundColor: 'var(--success-light)', color: 'var(--success)' }}><i className="fa-solid fa-user-check"></i></div></div>
-                <div className="card kpi-card-simple"><div><div className="kpi-card-label">Có vấn đề (Nghỉ/Bảo lưu)</div><div className="kpi-card-number" style={{ color: 'var(--danger-text)' }}>{students.filter(s => s.status === 'Nghỉ học' || s.status === 'Bảo lưu').length}</div></div><div className="kpi-card-circle-icon danger" style={{ backgroundColor: 'var(--danger-light)', color: 'var(--danger-text)' }}><i className="fa-solid fa-triangle-exclamation"></i></div></div>
+            {/* THẺ KPI ĐƯỢC CHIA LÀM 4 VÀ THÊM TÍNH NĂNG CLICK ĐỂ LỌC */}
+            <div className="kpi-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+                <div className="card kpi-card-simple" onClick={() => setStatusFilter('all')} style={{ cursor: 'pointer', border: statusFilter === 'all' ? '2px solid var(--primary)' : '1px solid transparent', transition: 'all 0.2s', padding: '20px' }}>
+                    <div><div className="kpi-card-label">Tổng học viên</div><div className="kpi-card-number">{students.length}</div></div>
+                    <div className="kpi-card-circle-icon purple"><i className="fa-solid fa-graduation-cap"></i></div>
+                </div>
+                <div className="card kpi-card-simple" onClick={() => setStatusFilter('Đang học')} style={{ cursor: 'pointer', border: statusFilter === 'Đang học' ? '2px solid var(--success)' : '1px solid transparent', transition: 'all 0.2s', padding: '20px' }}>
+                    <div><div className="kpi-card-label">Đang học</div><div className="kpi-card-number" style={{ color: 'var(--success)' }}>{students.filter(s => s.status === 'Đang học').length}</div></div>
+                    <div className="kpi-card-circle-icon success" style={{ backgroundColor: 'var(--success-light)', color: 'var(--success)' }}><i className="fa-solid fa-user-check"></i></div>
+                </div>
+                <div className="card kpi-card-simple" onClick={() => setStatusFilter('Đổi lớp')} style={{ cursor: 'pointer', border: statusFilter === 'Đổi lớp' ? '2px solid #8b5cf6' : '1px solid transparent', transition: 'all 0.2s', padding: '20px' }}>
+                    <div><div className="kpi-card-label">Đổi lớp</div><div className="kpi-card-number" style={{ color: '#8b5cf6' }}>{students.filter(s => s.status === 'Đổi lớp').length}</div></div>
+                    <div className="kpi-card-circle-icon" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6' }}><i className="fa-solid fa-right-left"></i></div>
+                </div>
+                <div className="card kpi-card-simple" onClick={() => setStatusFilter('problem')} style={{ cursor: 'pointer', border: statusFilter === 'problem' ? '2px solid var(--danger-text)' : '1px solid transparent', transition: 'all 0.2s', padding: '20px' }}>
+                    <div><div className="kpi-card-label">Có vấn đề (Nghỉ/Bảo lưu)</div><div className="kpi-card-number" style={{ color: 'var(--danger-text)' }}>{students.filter(s => s.status === 'Nghỉ học' || s.status === 'Bảo lưu').length}</div></div>
+                    <div className="kpi-card-circle-icon danger" style={{ backgroundColor: 'var(--danger-light)', color: 'var(--danger-text)' }}><i className="fa-solid fa-triangle-exclamation"></i></div>
+                </div>
             </div>
 
             <div className="card" style={{ padding: '24px' }}>
@@ -257,6 +274,7 @@ function StudentCare() {
                             <option value="Học lại">Học lại</option>
                             <option value="Đổi lớp">Đổi lớp</option>
                             <option value="Nghỉ học">Nghỉ học</option>
+                            <option value="problem">Nghỉ / Bảo lưu</option>
                         </select>
                         <input type="text" className="form-control" placeholder="🔍 Tìm kiếm tên, SĐT..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '250px' }} />
                     </div>
@@ -451,7 +469,6 @@ function StudentCare() {
                                 {modalMode !== 'view' ? <input className="form-control" value={currentStudent.country || ''} onChange={e => setCurrentStudent({ ...currentStudent, country: e.target.value })} /> : <div style={{ fontWeight: '600', padding: '8px 0' }}>{currentStudent.country || '---'}</div>}
                             </div>
 
-                            {/* --- TỰ ĐỘNG GỠ LỚP CŨ KHI CHỌN "ĐỔI LỚP" --- */}
                             <div style={{ gridColumn: 'span 2', backgroundColor: currentStudent.status === 'Đổi lớp' ? '#fffbeb' : '#f8fafc', padding: '16px', borderRadius: '12px', border: currentStudent.status === 'Đổi lớp' ? '1px dashed #f59e0b' : '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '8px', transition: 'all 0.3s' }}>
                                 <div>
                                     <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Trạng thái học tập</label>
