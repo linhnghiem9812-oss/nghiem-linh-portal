@@ -122,15 +122,12 @@ function MyClassActive() {
         setSelectedSessionNum(1);
     }, [activeClass]);
 
-
-    // --- KHÓA AN TOÀN CHỐNG RACE CONDITION Ở FRONTEND ---
     const [studentsAttendance, setStudentsAttendance] = useState([]);
     const [isFetchingAttendance, setIsFetchingAttendance] = useState(false);
 
     useEffect(() => {
         if (!activeClass) return;
         
-        // Bật khóa: Đang lấy dữ liệu, cấm lưu
         setIsFetchingAttendance(true);
 
         const classRoster = allStudents.filter(s => s && s.classCode === activeClass.classCode);
@@ -163,7 +160,6 @@ function MyClassActive() {
             } catch (error) {
                 setStudentsAttendance(defaultStudents);
             } finally {
-                // Tắt khóa: Đã tải xong, cho phép lưu
                 setIsFetchingAttendance(false);
             }
         };
@@ -195,12 +191,20 @@ function MyClassActive() {
     };
 
     const handleSaveAllData = async () => {
-        // Chặn luồng gửi nếu đang tải dữ liệu
         if (isFetchingAttendance) return;
 
         try {
             await api.post(`/sessions`, { ...currentSession, classId: activeClass.id });
-            await api.post(`/attendance/save`, { classId: activeClass.id, sessionNum: selectedSessionNum, records: studentsAttendance });
+
+            // --- BƯỚC SỬA LỖI QUAN TRỌNG: KHỚP ID ĐỂ BACKEND LƯU ĐÚNG TÊN ---
+            const mappedAttendance = studentsAttendance.map(st => ({
+                studentId: st.id,
+                studentName: st.name,
+                status: st.status,
+                flag: st.flag
+            }));
+
+            await api.post(`/attendance/save`, { classId: activeClass.id, sessionNum: selectedSessionNum, records: mappedAttendance });
             alert(`Hệ thống: Đã tiến hành lưu và cập nhật thành công dữ liệu Tiến độ giảng dạy Buổi ${selectedSessionNum}!`);
 
             const res = await api.get(`/sessions/class/${activeClass.id}`);
@@ -217,7 +221,9 @@ function MyClassActive() {
                 setSessionsData(fullSessions);
             }
         } catch (error) {
-            alert(`Lỗi hệ thống: Không thể lưu tiến độ Buổi ${selectedSessionNum}! Vui lòng thử lại.`);
+            const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message;
+            console.error("🔥 LỖI TỪ BACKEND TRẢ VỀ:", error.response?.data);
+            alert(`Lỗi hệ thống: Không thể lưu tiến độ!\n\nChi tiết lỗi từ máy chủ: ${errorMsg}\n\n(Vui lòng nhấn F12 chuyển sang tab Console để xem thêm chi tiết).`);
         }
     };
 
