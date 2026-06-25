@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext'; 
 
+// Kéo file ảnh từ thư mục assets vào
 import adminAvatarImg from '../assets/admin_avatar.jpg';
 
 function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
@@ -78,10 +79,11 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
                 <p>{currentHeader.subtitle}</p>
             </div>
 
-            {/* ĐƯA TOÀN BỘ NÚT VÀ NGÀY THÁNG VÀO 1 CỤM SÁT NHAU */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {/* CỤM ĐIỀU KHIỂN & NGÀY THÁNG ĐƯỢC XẾP LẠI THỨ TỰ */}
+            <div className="topbar-controls" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                
                 <button className="circular-btn" onClick={toggleTheme} title="Chuyển chế độ Sáng/Tối">
-                    <i className={theme === 'dark' ? "fa-solid fa-sun" : "fa-solid fa-moon"}></i>
+                    <i className={theme === 'dark' ? "fa-solid fa-moon" : "fa-solid fa-sun"}></i>
                 </button>
 
                 <button className="circular-btn" onClick={() => setShowNotif(true)} style={{ position: 'relative' }} title="Thông báo hệ thống">
@@ -89,8 +91,9 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
                     {unreadCount > 0 && <span className="pink-badge">{unreadCount}</span>}
                 </button>
 
+                {/* USER PROFILE DROPDOWN - CHUẨN HÓA ẢNH KHÔNG BỊ MÉO */}
                 <div style={{ position: 'relative' }} ref={profileRef}>
-                    <button className="circular-btn" onClick={() => setShowProfile(!showProfile)} style={{ padding: 0, overflow: 'hidden', border: '2px solid var(--border-color)', display: 'flex', justifyContent: 'center', alignItems: 'center', width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0 }}>
+                    <button className="circular-btn" onClick={() => setShowProfile(!showProfile)} style={{ padding: 0, overflow: 'hidden', border: '2px solid var(--primary)', display: 'flex', justifyContent: 'center', alignItems: 'center', width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0 }}>
                         <img src={adminAvatarImg} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </button>
                     {showProfile && (
@@ -116,17 +119,16 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
                     )}
                 </div>
 
-                {/* DATE PILL ĐƯỢC CHUYỂN VÀO NHÓM NÀY, NẰM NGOÀI CÙNG BÊN PHẢI */}
-                <div style={{ backgroundColor: 'white', padding: '8px 16px', borderRadius: '50px', border: '1px solid var(--border-color)', fontSize: '0.85rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center' }}>
+                {/* DATE PILL ĐẶT RA NGOÀI CÙNG */}
+                <div style={{ backgroundColor: 'white', padding: '8px 16px', borderRadius: '50px', border: '1px solid var(--border-color)', fontSize: '0.85rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', marginLeft: '6px' }}>
                     <span>📅 Hôm nay: <strong style={{ color: 'var(--primary)' }}>{currentDate}</strong></span>
                 </div>
             </div>
 
-            {/* --- MODAL QUẢN LÝ THÔNG BÁO --- */}
-            {/* Sử dụng right/bottom: 0 để căn chuẩn chính giữa màn hình mà không bị đẩy bởi thanh Sidebar */}
+            {/* --- MODAL QUẢN LÝ THÔNG BÁO (FIXED CENTERED) --- */}
             {showNotif && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9998, display: 'flex', justifyContent: 'center', alignItems: 'center', animation: 'fadeIn 0.2s ease-out' }}>
-                    <div style={{ width: '650px', maxWidth: '90%', maxHeight: '85vh', backgroundColor: 'var(--bg-card)', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <div style={{ width: '650px', maxWidth: '90vw', maxHeight: '85vh', backgroundColor: 'var(--bg-card)', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                         
                         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-app)' }}>
                             <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-main)' }}><i className="fa-solid fa-bell" style={{ color: 'var(--primary)', marginRight: '8px' }}></i> Trung tâm Thông báo</h3>
@@ -174,7 +176,6 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
                             )}
                         </div>
 
-                        {/* TOOLBAR XỬ LÝ HÀNG LOẠT */}
                         {isSelectMode && selectedIds.length > 0 && (
                             <div style={{ padding: '16px 24px', backgroundColor: 'var(--bg-app)', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--primary)' }}>Đã chọn: {selectedIds.length}</span>
