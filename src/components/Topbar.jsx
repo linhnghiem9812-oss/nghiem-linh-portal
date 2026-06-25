@@ -68,6 +68,7 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
         'crm': { title: 'Phễu Tuyển sinh & CRM', subtitle: 'Quản lý hành trình khách hàng' },
         'sales': { title: 'Quản lý Sale', subtitle: 'Bảng xếp hạng doanh số' },
         'care': { title: 'Chăm sóc Học viên', subtitle: 'Xử lý khiếu nại, bảo lưu' },
+        'profile': { title: 'Hồ sơ Cá nhân', subtitle: 'Quản lý thông tin bảo mật và tài khoản hệ thống' },
     };
 
     const currentHeader = pageTitles[activeTab] || { title: 'Hệ thống Quản lý', subtitle: 'Chào mừng quay trở lại' };
@@ -79,42 +80,49 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
                 <p>{currentHeader.subtitle}</p>
             </div>
 
-            {/* Đưa Date-pill vào chung container với các nút để không bị rớt dòng */}
             <div className="topbar-controls" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 
-                <div style={{ backgroundColor: 'var(--bg-app)', padding: '8px 16px', borderRadius: '50px', border: '1px solid var(--border-color)', fontSize: '0.85rem', color: 'var(--text-main)' }}>
-                    <span>📅 Hôm nay: <strong style={{ color: 'var(--primary)' }}>{currentDate}</strong></span>
-                </div>
-
-                <button className="circular-btn" onClick={toggleTheme}>
+                <button className="circular-btn" onClick={toggleTheme} title="Chuyển chế độ Sáng/Tối">
                     <i className={theme === 'dark' ? "fa-solid fa-sun" : "fa-solid fa-moon"}></i>
                 </button>
 
-                <button className="circular-btn" onClick={() => setShowNotif(true)} style={{ position: 'relative' }}>
+                <button className="circular-btn" onClick={() => setShowNotif(true)} style={{ position: 'relative' }} title="Thông báo hệ thống">
                     <i className="fa-solid fa-bell"></i>
                     {unreadCount > 0 && <span className="pink-badge">{unreadCount}</span>}
                 </button>
 
                 {/* USER PROFILE DROPDOWN */}
                 <div style={{ position: 'relative' }} ref={profileRef}>
-                    <button className="circular-btn" onClick={() => setShowProfile(!showProfile)} style={{ padding: 0, overflow: 'hidden', border: '2px solid var(--border-color)' }}>
-                        <img src={adminAvatarImg} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button className="circular-btn" onClick={() => setShowProfile(!showProfile)} style={{ padding: 0, overflow: 'hidden', border: '2px solid var(--border-color)', display: 'flex', justifyContent: 'center', alignItems: 'center', width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0 }}>
+                        <img src={adminAvatarImg} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                     </button>
                     {showProfile && (
-                        <div style={{ position: 'absolute', top: '50px', right: 0, width: '220px', backgroundColor: 'var(--bg-card)', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', border: '1px solid var(--border-color)', zIndex: 1000 }}>
-                            <div style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: 'var(--primary-light)', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>
-                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--primary)' }}>
+                        <div style={{ position: 'absolute', top: '50px', right: 0, width: '220px', backgroundColor: 'var(--bg-card)', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', border: '1px solid var(--border-color)', zIndex: 1000, overflow: 'hidden' }}>
+                            <div style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: 'var(--primary-light)', borderBottom: '1px solid var(--border-color)' }}>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--primary)', flexShrink: 0 }}>
                                     <img src={adminAvatarImg} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 </div>
-                                <div>
-                                    <strong style={{ display: 'block', fontSize: '0.9rem', color: 'var(--primary)' }}>{currentUser?.name || 'Người dùng'}</strong>
-                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{currentUser?.role}</span>
+                                <div style={{ overflow: 'hidden' }}>
+                                    <strong style={{ display: 'block', fontSize: '0.9rem', color: 'var(--primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentUser?.name || 'Người dùng'}</strong>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>{currentUser?.role || 'Guest'}</span>
                                 </div>
                             </div>
-                            <button onClick={logout} style={{ width: '100%', padding: '12px', textAlign: 'left', background: 'none', border: 'none', color: '#ef4444', fontWeight: '600', cursor: 'pointer' }}><i className="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất an toàn</button>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <button onClick={() => { setActiveTab('profile'); setShowProfile(false); }} style={{ padding: '12px 16px', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-main)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '10px' }} onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--bg-app)'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                                    <i className="fa-solid fa-pen-to-square" style={{ color: 'var(--primary)' }}></i> Chỉnh sửa Hồ sơ
+                                </button>
+                                <button onClick={logout} style={{ width: '100%', padding: '12px 16px', textAlign: 'left', background: 'none', border: 'none', color: '#ef4444', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#fee2e2'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                                    <i className="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất an toàn
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
+            </div>
+
+            {/* DATE PILL ĐÃ ĐƯỢC CHUYỂN RA NGOÀI CÙNG NHƯ BAN ĐẦU */}
+            <div className="date-pill">
+                <span>📅 Hôm nay: <strong>{currentDate}</strong></span>
             </div>
 
             {/* --- MODAL QUẢN LÝ THÔNG BÁO (CĂN GIỮA TOÀN MÀN HÌNH) --- */}
