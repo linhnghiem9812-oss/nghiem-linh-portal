@@ -14,41 +14,47 @@ export const NotificationProvider = ({ children }) => {
         localStorage.setItem('app_notifications', JSON.stringify(notifications));
     }, [notifications]);
 
-    // Bổ sung tham số targetTab (Trang đích cần nhảy tới khi click)
-    const addNotification = (message, type = 'success', targetTab = null) => {
+    // Thêm tham số "details" là một object chứa các thông tin chi tiết
+    const addNotification = (title, message, type = 'success', targetTab = null, details = null) => {
         const newNotif = {
             id: Date.now(),
-            title: 'Hệ thống Nghiêm Linh',
+            title,
             message,
             type,
-            targetTab, // Lưu lại đích đến
+            targetTab,
+            details, // VD: { 'Trường sửa': 'SĐT', 'Cũ': '090', 'Mới': '091' }
             time: new Date().toLocaleString('vi-VN'),
             isRead: false
         };
 
         setNotifications(prev => {
             const updated = [newNotif, ...prev];
-            return updated.slice(0, 30); // Giữ tối đa 30 thông báo
+            return updated.slice(0, 50); // Lưu tối đa 50 thông báo gần nhất
         });
-
-        // VẪN GIỮ LẠI HỘP THOẠI POPUP HIỆN LÊN GIỮA MÀN HÌNH
-        alert(`Hệ thống: ${message}`);
     };
 
-    const toggleReadStatus = (id) => {
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: !n.isRead } : n));
-    };
+    const markAsRead = (id) => setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+    const markAsUnread = (id) => setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: false } : n));
+    const deleteNotif = (id) => setNotifications(prev => prev.filter(n => n.id !== id));
 
-    const markAllAsRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-    };
-
+    const markAllAsRead = () => setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     const clearAll = () => setNotifications([]);
+
+    // --- CÁC HÀM XỬ LÝ HÀNG LOẠT (BATCH ACTIONS) ---
+    const markMultipleAsRead = (ids) => setNotifications(prev => prev.map(n => ids.includes(n.id) ? { ...n, isRead: true } : n));
+    const markMultipleAsUnread = (ids) => setNotifications(prev => prev.map(n => ids.includes(n.id) ? { ...n, isRead: false } : n));
+    const deleteMultiple = (ids) => setNotifications(prev => prev.filter(n => !ids.includes(n.id)));
 
     const unreadCount = notifications.filter(n => !n.isRead).length;
 
     return (
-        <NotificationContext.Provider value={{ notifications, addNotification, toggleReadStatus, markAllAsRead, clearAll, unreadCount }}>
+        <NotificationContext.Provider value={{
+            notifications, addNotification,
+            markAsRead, markAsUnread, deleteNotif,
+            markAllAsRead, clearAll,
+            markMultipleAsRead, markMultipleAsUnread, deleteMultiple,
+            unreadCount
+        }}>
             {children}
         </NotificationContext.Provider>
     );
