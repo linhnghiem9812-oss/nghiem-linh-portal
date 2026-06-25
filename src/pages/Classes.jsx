@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext'; // Kéo hàm thông báo vào
 import axios from 'axios';
-import { useNotification } from '../context/NotificationContext';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 });
 
 function Classes() {
-    const { addNotification } = useNotification();
-
     const { classes, addClass, teachers, tas } = useData();
     const { currentUser, currentRole } = useAuth();
+    const { addNotification } = useNotification(); // Khởi tạo hàm thông báo
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedClass, setSelectedClass] = useState(null);
@@ -22,8 +21,8 @@ function Classes() {
     const [classStudents, setClassStudents] = useState([]);
 
     const [editingClass, setEditingClass] = useState(null);
+    const [originalClass, setOriginalClass] = useState(null); // Lưu bản gốc để so sánh
 
-    // --- STATE ĐỂ LƯU DỮ LIỆU THẬT CỦA TIẾN ĐỘ VÀ ĐIỂM DANH ---
     const [sessionsData, setSessionsData] = useState([]);
     const [attendanceData, setAttendanceData] = useState([]);
 
@@ -44,8 +43,14 @@ function Classes() {
                     id: `ST-${s.id}`, name: String(s.name || 'Học viên ẩn danh'), classCode: s.classId || s.class
                 }));
 
+                const studentNamesSet = new Set(studentsList.map(s => s.name.trim().toLowerCase()));
+
                 const customersList = (customersRes.data || [])
                     .filter(c => c && c.status === 'Đã ĐK' && c.assignClass)
+                    .filter(c => {
+                        const cName = String(c.name || c.fbName || '').trim().toLowerCase();
+                        return !studentNamesSet.has(cName);
+                    })
                     .map(c => ({
                         id: `CUS-${c.id}`, name: String(c.name || c.fbName || 'Khách hàng ẩn danh'), classCode: c.assignClass
                     }));
@@ -58,13 +63,11 @@ function Classes() {
         fetchAllData();
     }, []);
 
-    // --- KÉO DỮ LIỆU BUỔI HỌC VÀ ĐIỂM DANH THẬT TỪ CSDL ---
     useEffect(() => {
         if (selectedClass) {
             const studentsInThisClass = allStudents.filter(s => s && s.classCode === selectedClass.classCode);
             setClassStudents(studentsInThisClass);
 
-            // Kéo tiến độ buổi học
             api.get(`/sessions/class/${selectedClass.id}`).then(res => {
                 const total = Math.max(1, parseInt(selectedClass.totalSessions) || 19);
                 const fullSessions = Array.from({ length: total }, (_, i) => ({
@@ -82,17 +85,21 @@ function Classes() {
 
     useEffect(() => {
         if (selectedClass && activeSession) {
-            // Kéo điểm danh của buổi học đang chọn
             api.get(`/attendance/${selectedClass.id}/${activeSession}`).then(res => {
-                setAttendanceData(res.data || []);
+                const uniqueRecordsMap = new Map();
+                (res.data || []).forEach(r => {
+                    if (r && r.studentId) {
+                        uniqueRecordsMap.set(r.studentId, r);
+                    }
+                });
+                setAttendanceData(Array.from(uniqueRecordsMap.values()));
             }).catch(() => setAttendanceData([]));
         }
     }, [selectedClass, activeSession]);
 
-    // ... (Giữ nguyên các hàm handleCreateClass, handleSaveEdit, handleDeleteClass)
     const handleCreateClass = async (e) => {
         e.preventDefault();
-        if (!formClass.name) return addNotification('Vui lòng điền Tên lớp học!', 'error', 'classes');
+        if (!formClass.name) return alert('Vui lòng điền Tên lớp học!');
 
         const newClassObj = {
             classCode: formClass.name,
@@ -115,35 +122,67 @@ function Classes() {
         const result = await addClass(newClassObj);
 
         if (result && result.success) {
-            addNotification(`Hệ thống: Khởi tạo thành công lớp học ${formClass.name}!`, 'success', 'classes');
+            // THÔNG BÁO TẠO MỚI CHI TIẾT
+            addNotification('Tạo Lớp Học', `Đã mở mới lớp ${formClass.name}`, 'success', 'classes', {
+                'Mã lớp': formClass.name,
+                'Giáo viên': formClass.teacher || 'Chưa phân công',
+                'Trợ giảng': formClass.ta || 'Không có',
+                'Ngày KG': formClass.startDate || 'Dự kiến',
+                'Học phí / Buổi': formClass.sessionFee + ' VNĐ'
+            });
+
             setFormClass({ name: '', teacher: '', teacherId: '', ta: '', taId: '', padletUrl: '', classType: '', level: '', sessionFee: '', startDate: '', totalSessions: '', scheduleTime: '' });
         } else {
-            addNotification('Lỗi tạo lớp! CSDL từ chối lưu. Chi tiết lỗi: ' + result.message, 'error', 'classes');
+            addNotification('Lỗi', `Cơ sở dữ liệu từ chối lưu: ${result.message}`, 'error');
         }
     };
 
     const handleSaveEdit = async () => {
         try {
             await api.put(`/classes/${editingClass.id}`, editingClass);
-            addNotification('Cập nhật thông tin lớp học thành công!', 'success', 'classes');
-            window.location.reload();
+
+            // TỪ ĐIỂN DỊCH TÊN BIẾN SANG TIẾNG VIỆT
+            const fieldNames = {
+                classCode: 'Mã lớp', sessionFee: 'Học phí/buổi', teacher: 'Giáo viên', ta: 'Trợ giảng',
+                classType: 'Loại hình', level: 'Cấp độ', totalSessions: 'Tổng số buổi',
+                startDate: 'Ngày KG', scheduleTime: 'Giờ học', padletUrl: 'Link tài nguyên'
+            };
+
+            let changes = {};
+            Object.keys(editingClass).forEach(key => {
+                if (fieldNames[key] && editingClass[key] !== originalClass[key]) {
+                    changes[fieldNames[key]] = `Từ "${originalClass[key] || 'Trống'}" thành "${editingClass[key] || 'Trống'}"`;
+                }
+            });
+
+            // THÔNG BÁO SỬA LỚP HỌC
+            addNotification('Cập nhật Lớp học', `Đã thay đổi thông tin lớp ${editingClass.classCode}`, 'warning', 'classes', changes);
+
+            setTimeout(() => window.location.reload(), 1500); // Đợi hiển thị thông báo rồi tải lại
         } catch (error) {
-            addNotification('Lỗi cập nhật! Vui lòng kiểm tra lại kết nối CSDL.', 'error', 'classes');
+            addNotification('Lỗi', 'Lỗi cập nhật CSDL.', 'error');
         }
     };
 
     const handleDeleteClass = async (id) => {
         if (window.confirm('Cảnh báo: Bạn có chắc chắn muốn xóa lớp học này không? Toàn bộ dữ liệu tiến trình sẽ bị mất!')) {
             try {
+                const classToDelete = classes.find(c => c.id === id);
                 await api.delete(`/classes/${id}`);
-                addNotification('Đã xóa lớp học thành công!', 'success', 'classes');
-                window.location.reload();
+
+                // THÔNG BÁO XÓA LỚP
+                addNotification('Xóa Lớp Học', `Đã giải tán lớp ${classToDelete?.classCode}`, 'error', 'classes', {
+                    'Mã lớp bị xóa': classToDelete?.classCode,
+                    'Giáo viên mất lớp': classToDelete?.teacher || 'Không có',
+                    'ID Hệ thống': classToDelete?.id
+                });
+
+                setTimeout(() => window.location.reload(), 1500);
             } catch (error) {
-                addNotification('Lỗi khi xóa lớp học!', 'error', 'classes');
+                addNotification('Lỗi', 'Lỗi khi xóa lớp học!', 'error');
             }
         }
     };
-
 
     let displayClasses = classes ? [...classes] : [];
     if (currentRole === 'teacher') {
@@ -174,14 +213,12 @@ function Classes() {
 
 
     if (selectedClass) {
-        // Lấy bài học hiện tại từ mảng thật
         const currentSession = sessionsData.find(s => s.sessionNum === activeSession) || {};
 
-        // Tạo Lịch sử dạy từ dữ liệu thật
         const completedSessions = sessionsData
             .filter(s => s.status === 'completed' || s.status === 'cancelled')
             .sort((a, b) => b.sessionNum - a.sessionNum)
-            .slice(0, 3); // Lấy 3 buổi gần nhất
+            .slice(0, 3);
 
         return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s ease-out' }}>
@@ -272,7 +309,6 @@ function Classes() {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
                                 {classStudents.length === 0 && <p style={{ gridColumn: 'span 2', textAlign: 'center', color: 'gray' }}>Chưa có học viên.</p>}
                                 {classStudents.map(st => {
-                                    // Tìm trạng thái điểm danh thật của học viên này trong CSDL
                                     const attRecord = attendanceData.find(a => a.studentId === st.id) || {};
                                     const isPresent = attRecord.status === 'present';
                                     const isAbsent = attRecord.status === 'absent';
@@ -423,7 +459,7 @@ function Classes() {
                                 </tr>
 
                                 {groupedClasses[monthLabel].map((c) => {
-                                    const count = allStudents.filter(s => s && s.classCode === c.classCode).length;
+                                    const count = allStudents.filter(s => s.classId === c.classCode).length;
 
                                     return (
                                         <tr key={c.id} style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'white', transition: 'background 0.2s' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-app)'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}>
@@ -445,7 +481,7 @@ function Classes() {
                                             {currentRole !== 'teacher' && (
                                                 <td style={{ padding: '20px 24px', textAlign: 'center' }}>
                                                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                                        <button title="Sửa" onClick={() => setEditingClass(c)} style={{ background: '#f8fafc', border: '1px solid #cbd5e1', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', color: '#475569' }}><i className="fa-solid fa-pen"></i></button>
+                                                        <button title="Sửa" onClick={() => { setOriginalClass({ ...c }); setEditingClass(c); }} style={{ background: '#f8fafc', border: '1px solid #cbd5e1', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', color: '#475569' }}><i className="fa-solid fa-pen"></i></button>
                                                         <button title="Xóa" onClick={() => handleDeleteClass(c.id)} style={{ background: '#f8fafc', border: '1px solid #cbd5e1', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', color: '#1e293b' }}><i className="fa-solid fa-trash"></i></button>
                                                     </div>
                                                 </td>

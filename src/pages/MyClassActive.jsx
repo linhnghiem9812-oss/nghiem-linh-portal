@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
-import { useNotification } from '../context/NotificationContext';
+import { useNotification } from '../context/NotificationContext'; // Kéo hàm thông báo vào
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 });
 
 function MyClassActive() {
-    const { addNotification } = useNotification();
-
     const { currentUser, currentRole } = useAuth();
     const { classes } = useData();
+    const { addNotification } = useNotification(); // Khởi tạo hàm thông báo
 
     const [allStudents, setAllStudents] = useState([]);
 
@@ -177,7 +176,7 @@ function MyClassActive() {
         e.preventDefault();
         const updatedStatus = !currentSession.hasLessonPlan;
         handleUpdateSessionField('hasLessonPlan', updatedStatus);
-        if (updatedStatus) addNotification(`Hệ thống: Đã ghi nhận nộp giáo án thành công cho Buổi ${selectedSessionNum}!`, 'success', 'reports');
+        alert(`Hệ thống: ${updatedStatus ? 'Đã nộp' : 'Đã hủy nộp'} giáo án thành công! Vui lòng ấn "Lưu Nhật Ký" để ghi nhận thay đổi.`);
     };
 
     const handleAttendanceChange = (id, newStatus) => {
@@ -190,7 +189,6 @@ function MyClassActive() {
 
     const markAllPresent = () => {
         setStudentsAttendance(prev => prev.map(s => ({ ...s, status: 'present' })));
-        addNotification('Hệ thống: Ghi nhận cả lớp đi học đầy đủ!', 'success', 'reports');
     };
 
     const handleSaveAllData = async () => {
@@ -199,7 +197,6 @@ function MyClassActive() {
         try {
             await api.post(`/sessions`, { ...currentSession, classId: activeClass.id });
 
-            // --- BƯỚC SỬA LỖI QUAN TRỌNG: KHỚP ID ĐỂ BACKEND LƯU ĐÚNG TÊN ---
             const mappedAttendance = studentsAttendance.map(st => ({
                 studentId: st.id,
                 studentName: st.name,
@@ -208,7 +205,24 @@ function MyClassActive() {
             }));
 
             await api.post(`/attendance/save`, { classId: activeClass.id, sessionNum: selectedSessionNum, records: mappedAttendance });
-            addNotification(`Hệ thống: Đã tiến hành lưu và cập nhật thành công dữ liệu Tiến độ giảng dạy Buổi ${selectedSessionNum}!`, 'success', 'reports');
+
+            // TẠO BÁO CÁO CHI TIẾT KHI GIÁO VIÊN LƯU
+            const presentCount = studentsAttendance.filter(s => s.status === 'present').length;
+            const totalCount = studentsAttendance.length;
+            const statusText = currentSession.status === 'completed' ? 'Đã hoàn thành' : currentSession.status === 'cancelled' ? 'Nghỉ' : 'Chưa diễn ra';
+
+            addNotification(
+                'Lưu Nhật ký Giảng dạy',
+                `Giáo viên ${currentUser.name} đã cập nhật Buổi ${selectedSessionNum} của lớp ${activeClass.classCode}`,
+                'success',
+                'reports', // Bấm vào sẽ bay sang trang Báo Cáo để xem lại
+                {
+                    'Sĩ số điểm danh': `${presentCount} / ${totalCount} có mặt`,
+                    'Trạng thái buổi học': statusText,
+                    'Tình trạng Giáo án': currentSession.hasLessonPlan ? 'Đã nộp' : 'Chưa nộp',
+                    'Bài tập / Ghi chú': currentSession.notes || 'Không có ghi chú'
+                }
+            );
 
             const res = await api.get(`/sessions/class/${activeClass.id}`);
             if (res.data && res.data.length > 0) {
@@ -225,8 +239,7 @@ function MyClassActive() {
             }
         } catch (error) {
             const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message;
-            console.error("🔥 LỖI TỪ BACKEND TRẢ VỀ:", error.response?.data);
-            addNotification(`Lỗi hệ thống: Không thể lưu tiến độ!\n\nChi tiết lỗi từ máy chủ: ${errorMsg}\n\n(Vui lòng nhấn F12 chuyển sang tab Console để xem thêm chi tiết).`, 'error', 'reports');
+            addNotification('Lỗi', `Không thể lưu tiến độ: ${errorMsg}`, 'error');
         }
     };
 

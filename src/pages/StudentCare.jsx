@@ -79,10 +79,15 @@ function StudentCare() {
 
     const openModal = (mode, student = null) => {
         setModalMode(mode);
-        setCurrentStudent(student ? { ...student } : { name: '', phone: '', email: '', course: '', classId: '', teacher: '', status: 'Đang học', birthday: '', province: '', country: 'Việt Nam', notes: '' });
+        if (student) {
+            setCurrentStudent({ ...student });
+            setOriginalStudent({ ...student }); // Lưu bản nháp gốc
+        } else {
+            setCurrentStudent({ name: '', phone: '', email: '', course: '', classId: '', teacher: '', status: 'Đang học', birthday: '', province: '', country: 'Việt Nam', notes: '' });
+            setOriginalStudent(null);
+        }
         setShowModal(true);
     };
-
     const handleClassChange = (e) => {
         const selectedClassCode = e.target.value;
         if (!selectedClassCode) {
@@ -106,32 +111,60 @@ function StudentCare() {
         }
     };
 
+    // Thêm State để lưu lại bản gốc trước khi sửa
+    const [originalStudent, setOriginalStudent] = useState(null);
+
+
+
     const handleSaveStudent = async () => {
         if (modalMode === 'add') {
             try {
                 const res = await api.post('/students', currentStudent);
                 setStudents([res.data, ...students]);
-                addNotification('Thêm học viên mới thành công!', 'success', 'care');
+
+                // THÔNG BÁO TẠO MỚI CHI TIẾT
+                addNotification('Thêm học viên mới', `Đã thêm học viên ${currentStudent.name} vào hệ thống`, 'success', 'care', {
+                    'Họ tên': currentStudent.name,
+                    'SĐT': currentStudent.phone,
+                    'Xếp lớp': currentStudent.classId || 'Đang chờ xếp'
+                });
                 setShowModal(false);
-            } catch (error) { addNotification('Lỗi: CSDL không phản hồi.', 'error', 'care'); }
+            } catch (error) { addNotification('Lỗi', 'CSDL không phản hồi khi thêm học viên.', 'error'); }
         } else if (modalMode === 'edit') {
             try {
                 const res = await api.put(`/students/${currentStudent.id}`, currentStudent);
                 setStudents(students.map(s => s.id === currentStudent.id ? res.data : s));
-                addNotification('Lưu thay đổi thành công!', 'success', 'care');
+
+                // THUẬT TOÁN TÌM SỰ THAY ĐỔI
+                let changes = {};
+                Object.keys(currentStudent).forEach(key => {
+                    if (currentStudent[key] !== originalStudent[key] && key !== 'id') {
+                        // Viết hoa chữ cái đầu của key cho đẹp
+                        const fieldName = key.charAt(0).toUpperCase() + key.slice(1);
+                        changes[fieldName] = `Từ "${originalStudent[key] || 'Trống'}" thành "${currentStudent[key] || 'Trống'}"`;
+                    }
+                });
+
+                addNotification('Cập nhật học viên', `Đã sửa thông tin của học viên ${currentStudent.name}`, 'warning', 'care', changes);
                 setModalMode('view');
-            } catch (error) { addNotification('Lỗi cập nhật CSDL.', 'error', 'care'); }
+            } catch (error) { addNotification('Lỗi', 'Lỗi cập nhật CSDL.', 'error'); }
         }
     };
 
     const handleDelete = async (id) => {
         if (window.confirm('Cảnh báo: Bạn có chắc chắn muốn xóa hồ sơ học viên này?')) {
             try {
+                const studentToDelete = students.find(s => s.id === id);
                 await api.delete(`/students/${id}`);
                 setStudents(students.filter(s => s.id !== id));
+
+                // THÔNG BÁO XÓA CHI TIẾT
+                addNotification('Xóa học viên', `Đã xóa học viên ${studentToDelete.name} khỏi hệ thống`, 'error', 'care', {
+                    'Mã hệ thống': studentToDelete.id,
+                    'SĐT bị xóa': studentToDelete.phone
+                });
                 setShowModal(false);
-                addNotification('Đã xóa học viên thành công!', 'success', 'care');
-            } catch (error) { addNotification('Lỗi xóa CSDL.', 'error', 'care'); }
+            } catch (error) { addNotification('Lỗi', 'Lỗi xóa CSDL.', 'error'); }
         }
     };
 
