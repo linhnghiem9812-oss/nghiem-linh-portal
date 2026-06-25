@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNotification } from '../context/NotificationContext'; // Thêm Hook thông báo
+import { useNotification } from '../context/NotificationContext'; 
 
+// Kéo file ảnh từ thư mục assets vào
 import adminAvatarImg from '../assets/admin_avatar.jpg';
 
 function AccountProfile() {
     const { currentUser, currentRole, updateProfile } = useAuth();
-    const { addNotification } = useNotification(); // Tích hợp thông báo
+    const { addNotification } = useNotification(); 
 
     const [formData, setFormData] = useState({
         name: currentUser.name || '',
@@ -23,7 +24,6 @@ function AccountProfile() {
         e.preventDefault();
         updateProfile(formData);
         
-        // ĐÃ KHẮC PHỤC LỖI TẠO THÔNG BÁO CHO TRANG PROFILE
         addNotification('Cập nhật Hồ sơ', 'Thông tin tài khoản cá nhân đã được lưu thành công!', 'success', 'profile', {
             'Tên hiển thị': formData.name,
             'Số điện thoại': formData.phone || 'Chưa cập nhật',
@@ -40,12 +40,12 @@ function AccountProfile() {
 
                 <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
                     
-                    {/* Cột Avatar - ĐÃ FIX HÌNH ẢNH MẶC ĐỊNH CHUẨN */}
+                    {/* Cột Avatar - DÙNG ẢNH MẶC ĐỊNH CHUẨN */}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
                         <div style={{ width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '4px solid var(--primary)', overflow: 'hidden' }}>
                             <img src={adminAvatarImg} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
-                        <button className="btn" style={{ padding: '6px 12px', fontSize: '0.8rem', backgroundColor: '#e2e8f0', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}>Thay đổi ảnh</button>
+                        <button type="button" className="btn" style={{ padding: '6px 12px', fontSize: '0.8rem', backgroundColor: '#e2e8f0', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}>Thay đổi ảnh</button>
                     </div>
 
                     {/* Cột Form */}
