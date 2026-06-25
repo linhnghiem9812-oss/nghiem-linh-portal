@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext'; // Thêm Hook thông báo
+
+import adminAvatarImg from '../assets/admin_avatar.jpg';
 
 function AccountProfile() {
     const { currentUser, currentRole, updateProfile } = useAuth();
+    const { addNotification } = useNotification(); // Tích hợp thông báo
 
-    // Khởi tạo state bằng dữ liệu của người dùng hiện tại
     const [formData, setFormData] = useState({
         name: currentUser.name || '',
         phone: currentUser.phone || '',
@@ -19,12 +22,14 @@ function AccountProfile() {
     const handleSave = (e) => {
         e.preventDefault();
         updateProfile(formData);
-        alert('Hệ thống: Cập nhật thông tin hồ sơ tài khoản thành công!');
-        addNotification(`Đã thêm mới học viên: ${currentStudent.name}`, 'success');
+        
+        // ĐÃ KHẮC PHỤC LỖI TẠO THÔNG BÁO CHO TRANG PROFILE
+        addNotification('Cập nhật Hồ sơ', 'Thông tin tài khoản cá nhân đã được lưu thành công!', 'success', 'profile', {
+            'Tên hiển thị': formData.name,
+            'Số điện thoại': formData.phone || 'Chưa cập nhật',
+            'Chức vụ': formData.role === 'admin' ? 'Quản trị viên' : formData.role === 'sales' ? 'Chuyên viên Sale' : 'Giáo viên'
+        });
     };
-
-    // Tạo avatar từ 2 chữ cái đầu
-    const userInitials = currentUser?.name ? currentUser.name.split(' ').pop().substring(0, 2).toUpperCase() : 'NL';
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -34,10 +39,11 @@ function AccountProfile() {
                 </h3>
 
                 <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
-                    {/* Cột Avatar */}
+                    
+                    {/* Cột Avatar - ĐÃ FIX HÌNH ẢNH MẶC ĐỊNH CHUẨN */}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '4px solid var(--primary)', fontSize: '2.5rem', fontWeight: '800', color: 'var(--primary)' }}>
-                            {userInitials}
+                        <div style={{ width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '4px solid var(--primary)', overflow: 'hidden' }}>
+                            <img src={adminAvatarImg} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                         <button className="btn" style={{ padding: '6px 12px', fontSize: '0.8rem', backgroundColor: '#e2e8f0', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600' }}>Thay đổi ảnh</button>
                     </div>
@@ -61,6 +67,7 @@ function AccountProfile() {
                             <input type="text" name="address" className="form-control" value={formData.address} onChange={handleInputChange} placeholder="Nhập địa chỉ của bạn" />
                         </div>
 
+                        {/* --- RÚT GỌN 3 VAI TRÒ VÀ TỰ ĐỘNG ẨN VỚI NGƯỜI DÙNG THƯỜNG --- */}
                         <div>
                             <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>CHỨC VỤ HỆ THỐNG</label>
                             <select
@@ -68,14 +75,16 @@ function AccountProfile() {
                                 className="form-control"
                                 value={formData.role}
                                 onChange={handleInputChange}
-                                disabled={currentRole !== 'admin'} // Khóa quyền đổi chức vụ nếu không phải admin
+                                disabled={currentRole !== 'admin'}
                                 style={{ backgroundColor: currentRole !== 'admin' ? '#f1f5f9' : 'white' }}
                             >
-                                <option value="teacher">Giáo viên</option>
                                 <option value="sales">Chuyên viên Sale</option>
-                                <option value="manager">Quản lý</option>
-                                <option value="admin">Quản trị viên (Admin)</option>
+                                <option value="teacher">Giáo viên</option>
+                                
+                                {/* Ẩn hoàn toàn chữ "Quản trị viên" khỏi Dropdown nếu không phải là Admin */}
+                                {currentRole === 'admin' && <option value="admin">Quản trị viên (Admin)</option>}
                             </select>
+                            
                             {currentRole !== 'admin' && <span style={{ fontSize: '0.75rem', color: 'var(--warning-text)', marginTop: '4px', display: 'block' }}>Chỉ Quản trị viên (Admin) mới có quyền thay đổi chức vụ.</span>}
                         </div>
 
