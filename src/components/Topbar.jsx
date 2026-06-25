@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext'; 
 
-// Kéo file ảnh từ thư mục assets vào
 import adminAvatarImg from '../assets/admin_avatar.jpg';
 
 function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
@@ -17,7 +16,6 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
     const [showNotif, setShowNotif] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
 
-    // STATE QUẢN LÝ CHỌN NHIỀU THÔNG BÁO VÀ XEM CHI TIẾT
     const [isSelectMode, setIsSelectMode] = useState(false);
     const [selectedIds, setSelectedIds] = useState([]);
     const [viewingNotif, setViewingNotif] = useState(null); 
@@ -74,14 +72,14 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
     const currentHeader = pageTitles[activeTab] || { title: 'Hệ thống Quản lý', subtitle: 'Chào mừng quay trở lại' };
 
     return (
-        <header className="topbar">
+        <header className="topbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="topbar-left-text">
                 <h2>{currentHeader.title}</h2>
                 <p>{currentHeader.subtitle}</p>
             </div>
 
-            <div className="topbar-controls" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                
+            {/* ĐƯA TOÀN BỘ NÚT VÀ NGÀY THÁNG VÀO 1 CỤM SÁT NHAU */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <button className="circular-btn" onClick={toggleTheme} title="Chuyển chế độ Sáng/Tối">
                     <i className={theme === 'dark' ? "fa-solid fa-sun" : "fa-solid fa-moon"}></i>
                 </button>
@@ -91,10 +89,9 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
                     {unreadCount > 0 && <span className="pink-badge">{unreadCount}</span>}
                 </button>
 
-                {/* USER PROFILE DROPDOWN */}
                 <div style={{ position: 'relative' }} ref={profileRef}>
                     <button className="circular-btn" onClick={() => setShowProfile(!showProfile)} style={{ padding: 0, overflow: 'hidden', border: '2px solid var(--border-color)', display: 'flex', justifyContent: 'center', alignItems: 'center', width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0 }}>
-                        <img src={adminAvatarImg} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                        <img src={adminAvatarImg} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </button>
                     {showProfile && (
                         <div style={{ position: 'absolute', top: '50px', right: 0, width: '220px', backgroundColor: 'var(--bg-card)', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', border: '1px solid var(--border-color)', zIndex: 1000, overflow: 'hidden' }}>
@@ -118,16 +115,17 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
                         </div>
                     )}
                 </div>
+
+                {/* DATE PILL ĐƯỢC CHUYỂN VÀO NHÓM NÀY, NẰM NGOÀI CÙNG BÊN PHẢI */}
+                <div style={{ backgroundColor: 'white', padding: '8px 16px', borderRadius: '50px', border: '1px solid var(--border-color)', fontSize: '0.85rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center' }}>
+                    <span>📅 Hôm nay: <strong style={{ color: 'var(--primary)' }}>{currentDate}</strong></span>
+                </div>
             </div>
 
-            {/* DATE PILL ĐÃ ĐƯỢC CHUYỂN RA NGOÀI CÙNG NHƯ BAN ĐẦU */}
-            <div className="date-pill">
-                <span>📅 Hôm nay: <strong>{currentDate}</strong></span>
-            </div>
-
-            {/* --- MODAL QUẢN LÝ THÔNG BÁO (CĂN GIỮA TOÀN MÀN HÌNH) --- */}
+            {/* --- MODAL QUẢN LÝ THÔNG BÁO --- */}
+            {/* Sử dụng right/bottom: 0 để căn chuẩn chính giữa màn hình mà không bị đẩy bởi thanh Sidebar */}
             {showNotif && (
-                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9998, display: 'flex', justifyContent: 'center', alignItems: 'center', animation: 'fadeIn 0.2s ease-out' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9998, display: 'flex', justifyContent: 'center', alignItems: 'center', animation: 'fadeIn 0.2s ease-out' }}>
                     <div style={{ width: '650px', maxWidth: '90%', maxHeight: '85vh', backgroundColor: 'var(--bg-card)', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                         
                         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-app)' }}>
@@ -193,7 +191,7 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
 
             {/* --- MODAL CHI TIẾT TÓM TẮT THÔNG BÁO --- */}
             {viewingNotif && (
-                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <div className="card" style={{ width: '550px', backgroundColor: 'white', padding: '28px', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
@@ -211,7 +209,6 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
                         <div style={{ padding: '20px', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
                             <p style={{ margin: '0 0 16px 0', fontSize: '0.95rem', color: '#334155', fontWeight: '600', lineHeight: '1.5' }}>{viewingNotif.message}</p>
 
-                            {/* BẢNG TÓM TẮT CHI TIẾT SỰ THAY ĐỔI */}
                             {viewingNotif.details && Object.keys(viewingNotif.details).length > 0 && (
                                 <div style={{ borderTop: '1px dashed #cbd5e1', paddingTop: '16px' }}>
                                     <span style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--primary)', display: 'block', marginBottom: '10px', textTransform: 'uppercase' }}>Bản ghi chi tiết:</span>
