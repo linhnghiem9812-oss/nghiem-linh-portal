@@ -13,7 +13,7 @@ function Sidebar({ activeTab, setActiveTab }) {
         if (!currentUser?.name) {
             return (
                 <>
-                    <span style={{ display: 'block' }}>Ngoại Ngữ</span>
+                    <span style={{ display: 'block' }}>Ngoại ngữ</span>
                     <span style={{ display: 'block', color: 'var(--primary)' }}>Nghiêm Linh</span>
                 </>
             );
@@ -40,7 +40,7 @@ function Sidebar({ activeTab, setActiveTab }) {
                 <div className="hanai-robot-avatar" style={{
                     border: '3px solid var(--primary)',
                     backgroundColor: 'var(--primary-light)',
-                    overflow: 'hidden', 
+                    overflow: 'hidden',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',

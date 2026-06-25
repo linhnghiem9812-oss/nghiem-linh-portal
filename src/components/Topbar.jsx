@@ -1,20 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useAuth } from '../context/AuthContext'; // Gọi AuthContext để định danh user
+import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext'; // Lấy Context thông báo
 
 function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
-    const { currentUser, logout } = useAuth(); // Lấy thông tin user hiện tại để chia thông báo
+    const { currentUser, logout } = useAuth();
     const [currentDate, setCurrentDate] = useState('');
 
-    // --- STATE QUẢN LÝ THÔNG BÁO VÀ DROPDOWN ---
+    // Gọi các state và hàm từ NotificationContext
+    const { notifications, unreadCount, markAllAsRead, clearAll, toggleReadStatus } = useNotification();
+
     const [showNotif, setShowNotif] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
-    const [notifEnabled, setNotifEnabled] = useState(true);
-    const [notifications, setNotifications] = useState([]);
 
     const notifRef = useRef(null);
     const profileRef = useRef(null);
 
-    // Kích hoạt ngày giờ
     useEffect(() => {
         const today = new Date();
         const dd = String(today.getDate()).padStart(2, '0');
@@ -23,27 +23,6 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
         setCurrentDate(`${dd}/${mm}/${yyyy}`);
     }, []);
 
-    // Khởi tạo thông báo từ LocalStorage dựa trên user đăng nhập
-    useEffect(() => {
-        if (!currentUser) return;
-        const savedNotifs = localStorage.getItem(`notifs_${currentUser.username}`);
-        const savedSetting = localStorage.getItem(`notif_setting_${currentUser.username}`);
-
-        if (savedSetting !== null) setNotifEnabled(JSON.parse(savedSetting));
-
-        if (savedNotifs) {
-            setNotifications(JSON.parse(savedNotifs));
-        } else {
-            // Thông báo chào mừng mặc định
-            const defaultNotifs = [
-                { id: Date.now(), title: 'Hệ thống Nghiêm Linh', message: `Xin chào ${currentUser.name || 'bạn'}! Chào mừng quay trở lại hệ thống.`, isRead: false, time: new Date().toLocaleString('vi-VN') }
-            ];
-            setNotifications(defaultNotifs);
-            localStorage.setItem(`notifs_${currentUser.username}`, JSON.stringify(defaultNotifs));
-        }
-    }, [currentUser]);
-
-    // Xử lý click ra ngoài để đóng Dropdown
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (notifRef.current && !notifRef.current.contains(event.target)) setShowNotif(false);
@@ -53,36 +32,19 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // --- CÁC HÀM XỬ LÝ THÔNG BÁO ---
-    const saveNotifs = (newNotifs) => {
-        // Giới hạn tối đa 30 thông báo gần nhất
-        const cappedNotifs = newNotifs.slice(0, 30);
-        setNotifications(cappedNotifs);
-        localStorage.setItem(`notifs_${currentUser.username}`, JSON.stringify(cappedNotifs));
-    };
+    // HÀM XỬ LÝ KHI CLICK VÀO 1 THÔNG BÁO CỤ THỂ
+    const handleNotificationClick = (notif) => {
+        // Đánh dấu đã đọc
+        if (!notif.isRead) {
+            toggleReadStatus(notif.id);
+        }
 
-    const toggleReadStatus = (id) => {
-        const updated = notifications.map(n => n.id === id ? { ...n, isRead: !n.isRead } : n);
-        saveNotifs(updated);
+        // Điều hướng đến Tab tương ứng nếu có
+        if (notif.targetTab) {
+            setActiveTab(notif.targetTab);
+            setShowNotif(false); // Đóng menu thông báo
+        }
     };
-
-    const markAllRead = () => {
-        const updated = notifications.map(n => ({ ...n, isRead: true }));
-        saveNotifs(updated);
-    };
-
-    const deleteNotif = (id) => {
-        const updated = notifications.filter(n => n.id !== id);
-        saveNotifs(updated);
-    };
-
-    const toggleNotifSetting = () => {
-        const newState = !notifEnabled;
-        setNotifEnabled(newState);
-        localStorage.setItem(`notif_setting_${currentUser.username}`, JSON.stringify(newState));
-    };
-
-    const unreadCount = notifications.filter(n => !n.isRead).length;
 
     const pageTitles = {
         'classes': { title: 'Quản lý Lớp học', subtitle: 'Danh sách các lớp học chính thức đang hoạt động tại trung tâm' },
@@ -114,49 +76,58 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
                 {/* --- KHU VỰC THÔNG BÁO (BELL ICON) --- */}
                 <div style={{ position: 'relative' }} ref={notifRef}>
                     <button className="circular-btn" title="Thông báo hệ thống" onClick={() => setShowNotif(!showNotif)}>
-                        <i className={notifEnabled ? "fa-solid fa-bell" : "fa-solid fa-bell-slash"}></i>
-                        {notifEnabled && unreadCount > 0 && <span className="pink-badge">{unreadCount}</span>}
+                        <i className="fa-solid fa-bell"></i>
+                        {unreadCount > 0 && <span className="pink-badge">{unreadCount}</span>}
                     </button>
 
                     {showNotif && (
-                        <div style={{ position: 'absolute', top: '50px', right: '-60px', width: '360px', backgroundColor: 'var(--bg-card)', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', border: '1px solid var(--border-color)', zIndex: 1000, overflow: 'hidden', animation: 'fadeIn 0.2s ease-out' }}>
+                        <div style={{ position: 'absolute', top: '50px', right: '-60px', width: '380px', backgroundColor: 'var(--bg-card)', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', border: '1px solid var(--border-color)', zIndex: 1000, overflow: 'hidden', animation: 'fadeIn 0.2s ease-out' }}>
                             <div style={{ padding: '16px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-app)' }}>
                                 <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '800', color: 'var(--text-main)' }}>Thông báo</h4>
                                 <div style={{ display: 'flex', gap: '12px' }}>
-                                    <button onClick={markAllRead} title="Đánh dấu tất cả đã đọc" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontSize: '0.8rem', fontWeight: '700' }}><i className="fa-solid fa-check-double"></i></button>
-                                    <button onClick={toggleNotifSetting} title={notifEnabled ? "Tắt thông báo" : "Bật thông báo"} style={{ background: 'none', border: 'none', cursor: 'pointer', color: notifEnabled ? 'var(--text-muted)' : '#ef4444', fontSize: '0.8rem' }}>
-                                        <i className={notifEnabled ? "fa-solid fa-bell-slash" : "fa-solid fa-bell"}></i>
-                                    </button>
+                                    <button onClick={markAllAsRead} title="Đánh dấu tất cả đã đọc" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontSize: '0.8rem', fontWeight: '700' }}><i className="fa-solid fa-check-double"></i> Đọc hết</button>
                                 </div>
                             </div>
 
                             <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
-                                {!notifEnabled ? (
-                                    <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                                        <i className="fa-solid fa-bell-slash" style={{ fontSize: '2rem', marginBottom: '10px', opacity: 0.5 }}></i><br />
-                                        Bạn đang tắt thông báo hệ thống.
-                                    </div>
-                                ) : notifications.length === 0 ? (
+                                {notifications.length === 0 ? (
                                     <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                                         Không có thông báo nào.
                                     </div>
                                 ) : (
                                     notifications.map(n => (
-                                        <div key={n.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '12px', backgroundColor: n.isRead ? 'transparent' : 'var(--primary-light)', transition: 'background 0.2s' }}>
-                                            <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => toggleReadStatus(n.id)}>
+                                        <div
+                                            key={n.id}
+                                            onClick={() => handleNotificationClick(n)}
+                                            style={{
+                                                padding: '14px 16px',
+                                                borderBottom: '1px solid var(--border-color)',
+                                                display: 'flex',
+                                                gap: '12px',
+                                                backgroundColor: n.isRead ? 'transparent' : 'var(--primary-light)',
+                                                transition: 'background 0.2s',
+                                                cursor: 'pointer' // Hiệu ứng trỏ chuột có thể bấm được
+                                            }}
+                                            onMouseOver={(e) => { if (n.isRead) e.currentTarget.style.backgroundColor = 'var(--bg-app)' }}
+                                            onMouseOut={(e) => { if (n.isRead) e.currentTarget.style.backgroundColor = 'transparent' }}
+                                        >
+                                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: n.type === 'error' ? '#fee2e2' : 'var(--success-light)', color: n.type === 'error' ? '#ef4444' : 'var(--success)', display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
+                                                <i className={`fa-solid ${n.type === 'error' ? 'fa-triangle-exclamation' : 'fa-check'}`}></i>
+                                            </div>
+                                            <div style={{ flex: 1 }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                                                     <strong style={{ fontSize: '0.85rem', color: n.isRead ? 'var(--text-muted)' : 'var(--text-main)' }}>{n.title}</strong>
-                                                    <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{n.time.split(' ')[1]}</span>
                                                 </div>
                                                 <p style={{ margin: 0, fontSize: '0.8rem', color: n.isRead ? '#94a3b8' : 'var(--text-muted)', lineHeight: '1.4' }}>{n.message}</p>
+                                                <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginTop: '6px' }}><i className="fa-regular fa-clock"></i> {n.time}</span>
                                             </div>
-                                            <button onClick={(e) => { e.stopPropagation(); deleteNotif(n.id); }} style={{ background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer', alignSelf: 'flex-start' }} title="Xóa thông báo">✖</button>
                                         </div>
                                     ))
                                 )}
                             </div>
-                            <div style={{ padding: '10px', textAlign: 'center', borderTop: '1px solid var(--border-color)', fontSize: '0.75rem', color: 'var(--text-muted)', backgroundColor: 'var(--bg-app)' }}>
-                                Hệ thống lưu tối đa 30 thông báo gần nhất.
+                            <div style={{ padding: '10px', textAlign: 'center', borderTop: '1px solid var(--border-color)', fontSize: '0.75rem', color: 'var(--text-muted)', backgroundColor: 'var(--bg-app)', display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Lưu 30 thông báo gần nhất</span>
+                                <span onClick={clearAll} style={{ color: '#ef4444', cursor: 'pointer', fontWeight: '700' }}>Xóa lịch sử</span>
                             </div>
                         </div>
                     )}
