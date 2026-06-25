@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import axios from 'axios';
+import { useNotification } from '../context/NotificationContext';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 });
 
 function CourseSyllabus() {
+    const { addNotification } = useNotification();
+
     const { addCourse } = useData();
     const [courses, setCourses] = useState([]);
     const [showModal, setShowModal] = useState(false);
@@ -25,7 +28,7 @@ function CourseSyllabus() {
     const handleAddCourseSubmit = async (e) => {
         e.preventDefault();
         if (!newCourseData.name || !newCourseData.duration || !newCourseData.price) {
-            alert('Vui lòng hoàn tất biểu mẫu thông tin khóa học!');
+            addNotification('Vui lòng hoàn tất biểu mẫu thông tin khóa học!', 'error', 'classes');
             return;
         }
 
@@ -39,11 +42,11 @@ function CourseSyllabus() {
             const res = await api.post('/courses', newObj);
             setCourses(prev => [...prev, res.data]);
             if (addCourse) addCourse(res.data);
-            alert(`Hệ thống: Bổ sung chương trình đào tạo thành công: ${newCourseData.name}`);
+            addNotification(`Hệ thống: Bổ sung chương trình đào tạo thành công: ${newCourseData.name}`, 'success', 'classes');
             setNewCourseData({ name: '', duration: '', price: '' });
             setShowModal(false);
         } catch (err) {
-            alert('Có lỗi xảy ra khi lưu khóa học vào CSDL.');
+            addNotification('Có lỗi xảy ra khi lưu khóa học vào CSDL.', 'error', 'classes');
         }
     };
 

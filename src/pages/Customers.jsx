@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
+import { useNotification } from '../context/NotificationContext';
 
 function Customers() {
+    const { addNotification } = useNotification();
+
     const { customers, addCustomer } = useData();
 
     // Khởi tạo state dựa trên các yêu cầu sửa đổi
@@ -23,11 +26,11 @@ function Customers() {
     const handleCreateCustomer = (e) => {
         e.preventDefault();
         if (!formData.phone || !formData.status) {
-            alert('Vui lòng nhập ít nhất SĐT và Trạng thái!');
+            addNotification('Vui lòng nhập ít nhất SĐT và Trạng thái!', 'error', 'crm');
             return;
         }
         addCustomer(formData);
-        alert('Lưu thông tin khách hàng thành công!');
+        addNotification('Lưu thông tin khách hàng thành công!', 'success', 'crm');
         // Reset form sau khi lưu
         setFormData({
             fbName: '', receiveDate: '', name: '', phone: '', dob: '', country: 'Việt Nam',

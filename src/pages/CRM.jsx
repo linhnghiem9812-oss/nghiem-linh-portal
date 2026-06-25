@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import axios from 'axios';
+import { useNotification } from '../context/NotificationContext';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 });
 
 function CRM() {
+    const { addNotification } = useNotification();
+
     const { customers, setCustomers } = useData();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -16,35 +19,25 @@ function CRM() {
     const [salesUsers, setSalesUsers] = useState([]);
 
     useEffect(() => {
-        api.get('/users/role/sales')
-            .then(res => setSalesUsers(res.data))
+        api.get('/users')
+            .then(res => {
+                const eligibleSales = res.data.filter(u => u.role === 'sales' || u.role === 'admin' || u.role === 'manager');
+                setSalesUsers(eligibleSales);
+            })
             .catch(() => console.log('Chưa lấy được danh sách Sale.'));
     }, []);
 
-    // --- ĐỒNG BỘ BỘ LỌC ĐỊNH DANH (ALIAS) VỚI BẢNG XẾP HẠNG ---
+    // --- TẠO DANH SÁCH DROPDOWN CHUẨN XÁC, KHÔNG TRÙNG LẶP ---
     const uniqueSalesOptions = useMemo(() => {
-        const normalize = (str) => {
-            if (!str) return '';
-            let s = str.toString().trim().replace(/\s+/g, ' ').toLowerCase();
-            if (s === 'nghiêm linh' || s === 'nghiem linh' || s === 'ngoai ngu nghiem linh') {
-                return 'ngoại ngữ nghiêm linh';
-            }
-            return s;
-        };
-
+        const normalize = (str) => str ? str.toString().trim().replace(/\s+/g, ' ').toLowerCase() : '';
         const dbNames = salesUsers.map(u => u.name || u.username);
         const crmNames = customers ? customers.map(c => c.saleInCharge).filter(Boolean) : [];
-        
+
         const map = new Map();
         [...dbNames, ...crmNames].forEach(n => {
-            if (!n) return;
             const norm = normalize(n);
-            if (!map.has(norm)) {
-                if (norm === 'ngoại ngữ nghiêm linh') {
-                    map.set(norm, 'Ngoại Ngữ Nghiêm Linh');
-                } else {
-                    map.set(norm, n.trim().replace(/\s+/g, ' '));
-                }
+            if (norm && !map.has(norm)) {
+                map.set(norm, n.trim().replace(/\s+/g, ' '));
             }
         });
         return Array.from(map.values());
@@ -101,7 +94,7 @@ function CRM() {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         if (!formData.phone) {
-            alert('Vui lòng nhập Số điện thoại liên hệ!');
+            addNotification('Vui lòng nhập Số điện thoại liên hệ!', 'error', 'crm');
             return;
         }
 
@@ -130,10 +123,10 @@ function CRM() {
         try {
             const res = await api.post('/customers', newRecord);
             setCustomers(prev => [res.data, ...prev]);
-            alert('Thêm khách hàng thành công!');
+            addNotification('Thêm khách hàng thành công!', 'success', 'crm');
             setFormData({ fbName: '', name: '', phone: '', dob: '', language: 'Tiếng Trung', customerType: 'Mới', source: 'Facebook', level: '', potential: 'Trung bình', status: 'Mới', fee: '', totalSessions: '', lastContact: '', notes: '', nextAction: '', assignClass: '', classType: 'Lớp Nhóm', country: 'Việt Nam', receiveDate: defaultDate, saleInCharge: '' });
         } catch (err) {
-            alert('Lỗi khi đẩy khách hàng lên database. Vui lòng kiểm tra lại!');
+            addNotification('Lỗi khi đẩy khách hàng lên database. Vui lòng kiểm tra lại!', 'error', 'crm');
         }
     };
 
@@ -141,11 +134,11 @@ function CRM() {
         try {
             const res = await api.put(`/customers/${selectedCustomer.id}`, selectedCustomer);
             setCustomers(prev => prev.map(c => c.id === res.data.id ? res.data : c));
-            alert('Lưu thay đổi hồ sơ khách hàng thành công!');
+            addNotification('Lưu thay đổi hồ sơ khách hàng thành công!', 'success', 'crm');
             setIsEditing(false);
             setSelectedCustomer(null);
         } catch (error) {
-            alert('Lỗi cập nhật CSDL.');
+            addNotification('Lỗi cập nhật CSDL.', 'error', 'crm');
         }
     };
 
@@ -155,9 +148,9 @@ function CRM() {
                 await api.delete(`/customers/${id}`);
                 setCustomers(prev => prev.filter(c => c.id !== id));
                 setSelectedCustomer(null);
-                alert('Đã xóa hồ sơ khách hàng thành công!');
+                addNotification('Đã xóa hồ sơ khách hàng thành công!', 'success', 'crm');
             } catch (e) {
-                alert('Lỗi xóa khách hàng.');
+                addNotification('Lỗi xóa khách hàng.', 'error', 'crm');
             }
         }
     };
@@ -183,7 +176,7 @@ function CRM() {
                         <label style={{ fontSize: '0.75rem', fontWeight: '700' }}>NGƯỜI SALE TIẾP NHẬN</label>
                         <select name="saleInCharge" className="form-control" value={formData.saleInCharge} onChange={handleInputChange}>
                             <option value="">-- Chọn Sale --</option>
-                            {/* MENU DROPDOWN ĐÃ ĐƯỢC CHUẨN HÓA SẠCH SẼ */}
+                            {/* SỬ DỤNG DANH SÁCH ĐÃ ĐƯỢC CHUẨN HÓA VÀ LỌC TRÙNG */}
                             {uniqueSalesOptions.map((name, idx) => (
                                 <option key={idx} value={name}>{name}</option>
                             ))}

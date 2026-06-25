@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { useNotification } from '../context/NotificationContext';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 });
 
 function Classes() {
+    const { addNotification } = useNotification();
+
     const { classes, addClass, teachers, tas } = useData();
     const { currentUser, currentRole } = useAuth();
 
@@ -89,7 +92,7 @@ function Classes() {
     // ... (Giữ nguyên các hàm handleCreateClass, handleSaveEdit, handleDeleteClass)
     const handleCreateClass = async (e) => {
         e.preventDefault();
-        if (!formClass.name) return alert('Vui lòng điền Tên lớp học!');
+        if (!formClass.name) return addNotification('Vui lòng điền Tên lớp học!', 'error', 'classes');
 
         const newClassObj = {
             classCode: formClass.name,
@@ -112,20 +115,20 @@ function Classes() {
         const result = await addClass(newClassObj);
 
         if (result && result.success) {
-            alert(`Hệ thống: Khởi tạo thành công lớp học ${formClass.name}!`);
+            addNotification(`Hệ thống: Khởi tạo thành công lớp học ${formClass.name}!`, 'success', 'classes');
             setFormClass({ name: '', teacher: '', teacherId: '', ta: '', taId: '', padletUrl: '', classType: '', level: '', sessionFee: '', startDate: '', totalSessions: '', scheduleTime: '' });
         } else {
-            alert('Lỗi tạo lớp! CSDL từ chối lưu. Chi tiết lỗi: ' + result.message);
+            addNotification('Lỗi tạo lớp! CSDL từ chối lưu. Chi tiết lỗi: ' + result.message, 'error', 'classes');
         }
     };
 
     const handleSaveEdit = async () => {
         try {
             await api.put(`/classes/${editingClass.id}`, editingClass);
-            alert('Cập nhật thông tin lớp học thành công!');
+            addNotification('Cập nhật thông tin lớp học thành công!', 'success', 'classes');
             window.location.reload();
         } catch (error) {
-            alert('Lỗi cập nhật! Vui lòng kiểm tra lại kết nối CSDL.');
+            addNotification('Lỗi cập nhật! Vui lòng kiểm tra lại kết nối CSDL.', 'error', 'classes');
         }
     };
 
@@ -133,10 +136,10 @@ function Classes() {
         if (window.confirm('Cảnh báo: Bạn có chắc chắn muốn xóa lớp học này không? Toàn bộ dữ liệu tiến trình sẽ bị mất!')) {
             try {
                 await api.delete(`/classes/${id}`);
-                alert('Đã xóa lớp học thành công!');
+                addNotification('Đã xóa lớp học thành công!', 'success', 'classes');
                 window.location.reload();
             } catch (error) {
-                alert('Lỗi khi xóa lớp học!');
+                addNotification('Lỗi khi xóa lớp học!', 'error', 'classes');
             }
         }
     };

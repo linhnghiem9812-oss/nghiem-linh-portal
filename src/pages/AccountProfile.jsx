@@ -20,6 +20,7 @@ function AccountProfile() {
         e.preventDefault();
         updateProfile(formData);
         alert('Hệ thống: Cập nhật thông tin hồ sơ tài khoản thành công!');
+        addNotification(`Đã thêm mới học viên: ${currentStudent.name}`, 'success');
     };
 
     // Tạo avatar từ 2 chữ cái đầu

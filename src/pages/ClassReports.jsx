@@ -26,7 +26,7 @@ function ClassReports() {
                     api.get('/students').catch(() => ({ data: [] })),
                     api.get('/customers').catch(() => ({ data: [] }))
                 ]);
-                
+
                 const studentsList = (studentsRes.data || []).filter(Boolean).map(s => ({
                     id: `ST-${s.id}`, name: String(s.name || 'Học viên ẩn danh'), classCode: s.classId || s.class
                 }));
@@ -120,13 +120,13 @@ function ClassReports() {
     displayClasses.sort((a, b) => {
         if (!a.startDate) return 1;
         if (!b.startDate) return -1;
-        return new Date(b.startDate) - new Date(a.startDate); 
+        return new Date(b.startDate) - new Date(a.startDate);
     });
 
     const groupedClasses = displayClasses.reduce((acc, c) => {
         const dateObj = c.startDate ? new Date(c.startDate) : null;
         const groupName = dateObj && !isNaN(dateObj.getTime()) ? `Tháng ${dateObj.getMonth() + 1} / ${dateObj.getFullYear()}` : 'Lớp chưa xác định ngày KG';
-        
+
         if (!acc[groupName]) {
             acc[groupName] = [];
         }
@@ -147,7 +147,7 @@ function ClassReports() {
                         <i className="fa-regular fa-calendar" style={{ marginRight: '8px', color: 'var(--primary)' }}></i>
                         {monthLabel}
                     </h3>
-                    
+
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
                         {groupedClasses[monthLabel].map(c => {
                             const count = allStudents.filter(s => s && s.classCode === c.classCode).length;
@@ -170,7 +170,7 @@ function ClassReports() {
                                         {c.ta && (
                                             <span><i className="fa-solid fa-user-graduate" style={{ width: '20px' }}></i> TA: <strong style={{ color: 'var(--text-main)' }}>{c.ta}</strong></span>
                                         )}
-                                        
+
                                         <span><i className="fa-regular fa-calendar-check" style={{ width: '20px' }}></i> Ngày KG: <strong style={{ color: 'var(--text-main)' }}>{c.startDate ? new Date(c.startDate).toLocaleDateString('vi-VN') : 'Chưa có'}</strong></span>
                                         <span><i className="fa-solid fa-clock" style={{ width: '20px' }}></i> Lịch học: <strong style={{ color: 'var(--text-main)' }}>{c.scheduleTime || 'Chưa xếp'}</strong></span>
                                         <span><i className="fa-solid fa-list-check" style={{ width: '20px' }}></i> Tiến độ: <strong style={{ color: 'var(--text-main)' }}>{progressMap[c.id] || 0}/{totalSessSafe} buổi</strong></span>
@@ -188,7 +188,7 @@ function ClassReports() {
             ))}
 
             {selectedReport && (
-                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <div style={{ width: '900px', maxHeight: '90vh', backgroundColor: '#f8fafc', borderRadius: '16px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: 'var(--shadow-lg)' }}>
 
                         <div style={{ padding: '20px 24px', backgroundColor: 'white', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

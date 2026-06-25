@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 
 function Auth() {
+    const { addNotification } = useNotification();
+
     const { login, register, requestPasswordReset, confirmPasswordReset } = useAuth();
 
     // authMode có 4 trạng thái: 'login', 'register', 'forgot_request', 'forgot_verify'
@@ -54,7 +57,7 @@ function Auth() {
 
             const res = await requestPasswordReset(formData.username);
             if (res.success) {
-                alert('Hệ thống đã gửi mã xác thực (OTP) đến Email của bạn. Vui lòng kiểm tra hộp thư!');
+                addNotification('Hệ thống đã gửi mã xác thực (OTP) đến Email của bạn. Vui lòng kiểm tra hộp thư!', 'success', null);
                 setAuthMode('forgot_verify'); // Chuyển sang bước nhập mã
                 setErrorMsg('');
             } else {
@@ -73,7 +76,7 @@ function Auth() {
 
             const res = await confirmPasswordReset(formData.username, formData.otp, formData.password);
             if (res.success) {
-                alert('Khôi phục mật khẩu thành công! Vui lòng đăng nhập lại với mật khẩu mới.');
+                addNotification('Khôi phục mật khẩu thành công! Vui lòng đăng nhập lại với mật khẩu mới.', 'success', null);
                 setAuthMode('login'); // Tự động đưa về trang đăng nhập
                 setFormData({ name: '', username: '', password: '', confirmPassword: '', otp: '', role: 'teacher' });
             } else {
