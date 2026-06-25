@@ -12,7 +12,7 @@ function LandingPage({ onLoginClick }) {
                             <div className="robot-eye" style={{ width: '4px', height: '4px' }}></div>
                         </div>
                     </div>
-                    <h1 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--primary)' }}>Ngoại ngữ Nghiêm Linh</h1>
+                    <h1 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--primary)' }}>Ngoại Ngữ Nghiêm Linh</h1>
                 </div>
                 <button
                     onClick={onLoginClick}

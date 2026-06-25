@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
+import { useNotification } from '../context/NotificationContext';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 });
 
 function MyClassActive() {
+    const { addNotification } = useNotification();
+
     const { currentUser, currentRole } = useAuth();
     const { classes } = useData();
 
@@ -127,7 +130,7 @@ function MyClassActive() {
 
     useEffect(() => {
         if (!activeClass) return;
-        
+
         setIsFetchingAttendance(true);
 
         const classRoster = allStudents.filter(s => s && s.classCode === activeClass.classCode);
@@ -152,7 +155,7 @@ function MyClassActive() {
                         }
                         return st;
                     });
-                    
+
                     setStudentsAttendance(mergedAttendance);
                 } else {
                     setStudentsAttendance(defaultStudents);
@@ -174,7 +177,7 @@ function MyClassActive() {
         e.preventDefault();
         const updatedStatus = !currentSession.hasLessonPlan;
         handleUpdateSessionField('hasLessonPlan', updatedStatus);
-        if (updatedStatus) alert(`Hệ thống: Đã ghi nhận nộp giáo án thành công cho Buổi ${selectedSessionNum}!`);
+        if (updatedStatus) addNotification(`Hệ thống: Đã ghi nhận nộp giáo án thành công cho Buổi ${selectedSessionNum}!`, 'success', 'reports');
     };
 
     const handleAttendanceChange = (id, newStatus) => {
@@ -187,7 +190,7 @@ function MyClassActive() {
 
     const markAllPresent = () => {
         setStudentsAttendance(prev => prev.map(s => ({ ...s, status: 'present' })));
-        alert('Hệ thống: Ghi nhận cả lớp đi học đầy đủ!');
+        addNotification('Hệ thống: Ghi nhận cả lớp đi học đầy đủ!', 'success', 'reports');
     };
 
     const handleSaveAllData = async () => {
@@ -205,7 +208,7 @@ function MyClassActive() {
             }));
 
             await api.post(`/attendance/save`, { classId: activeClass.id, sessionNum: selectedSessionNum, records: mappedAttendance });
-            alert(`Hệ thống: Đã tiến hành lưu và cập nhật thành công dữ liệu Tiến độ giảng dạy Buổi ${selectedSessionNum}!`);
+            addNotification(`Hệ thống: Đã tiến hành lưu và cập nhật thành công dữ liệu Tiến độ giảng dạy Buổi ${selectedSessionNum}!`, 'success', 'reports');
 
             const res = await api.get(`/sessions/class/${activeClass.id}`);
             if (res.data && res.data.length > 0) {
@@ -223,7 +226,7 @@ function MyClassActive() {
         } catch (error) {
             const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message;
             console.error("🔥 LỖI TỪ BACKEND TRẢ VỀ:", error.response?.data);
-            alert(`Lỗi hệ thống: Không thể lưu tiến độ!\n\nChi tiết lỗi từ máy chủ: ${errorMsg}\n\n(Vui lòng nhấn F12 chuyển sang tab Console để xem thêm chi tiết).`);
+            addNotification(`Lỗi hệ thống: Không thể lưu tiến độ!\n\nChi tiết lỗi từ máy chủ: ${errorMsg}\n\n(Vui lòng nhấn F12 chuyển sang tab Console để xem thêm chi tiết).`, 'error', 'reports');
         }
     };
 
@@ -431,18 +434,18 @@ function MyClassActive() {
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <button 
-                            className="btn btn-primary" 
-                            onClick={handleSaveAllData} 
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleSaveAllData}
                             disabled={isFetchingAttendance}
-                            style={{ 
-                                padding: '14px 40px', fontWeight: '700', 
-                                backgroundColor: isFetchingAttendance ? '#94a3b8' : 'var(--primary)', 
-                                color: 'white', borderRadius: '8px', 
-                                cursor: isFetchingAttendance ? 'not-allowed' : 'pointer', fontSize: '0.95rem' 
+                            style={{
+                                padding: '14px 40px', fontWeight: '700',
+                                backgroundColor: isFetchingAttendance ? '#94a3b8' : 'var(--primary)',
+                                color: 'white', borderRadius: '8px',
+                                cursor: isFetchingAttendance ? 'not-allowed' : 'pointer', fontSize: '0.95rem'
                             }}
                         >
-                            <i className={isFetchingAttendance ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-floppy-disk"} style={{ marginRight: '8px' }}></i> 
+                            <i className={isFetchingAttendance ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-floppy-disk"} style={{ marginRight: '8px' }}></i>
                             {isFetchingAttendance ? 'ĐANG KẾT NỐI MÁY CHỦ...' : `LƯU NHẬT KÝ BUỔI ${selectedSessionNum}`}
                         </button>
                     </div>

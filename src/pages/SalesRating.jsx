@@ -24,7 +24,7 @@ function SalesRating() {
         const normalize = (str) => {
             if (!str) return '';
             let s = str.toString().trim().replace(/\s+/g, ' ').toLowerCase();
-            
+
             // Nếu phát hiện gõ tắt, tự động quy về tên gốc
             if (s === 'nghiêm linh' || s === 'nghiem linh' || s === 'ngoai ngu nghiem linh') {
                 return 'ngoại ngữ nghiêm linh';
@@ -41,7 +41,7 @@ function SalesRating() {
         allNames.forEach(rawName => {
             if (!rawName) return;
             const normKey = normalize(rawName);
-            
+
             // Chỉ giữ lại 1 tên duy nhất. Ép tên hiển thị đẹp cho Admin
             if (!nameMap.has(normKey)) {
                 if (normKey === 'ngoại ngữ nghiêm linh') {

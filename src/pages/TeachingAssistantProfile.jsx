@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import axios from 'axios';
+import { useNotification } from '../context/NotificationContext';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 });
 
 function TeachingAssistantProfile() {
+    const { addNotification } = useNotification();
+
     const { tas, setTas } = useData();
 
     // ĐÃ BỔ SUNG TRƯỜNG "notes"
@@ -33,7 +36,7 @@ function TeachingAssistantProfile() {
 
     const handleSaveTA = async (e) => {
         e.preventDefault();
-        if (!formInput.name || !formInput.phone) return alert('Vui lòng nhập Họ tên và Số điện thoại!');
+        if (!formInput.name || !formInput.phone) return addNotification('Vui lòng nhập Họ tên và Số điện thoại!', 'error', 'teachers');
 
         try {
             const res = await api.post('/auth/register', {
@@ -45,23 +48,23 @@ function TeachingAssistantProfile() {
             // SỬ DỤNG DỮ LIỆU CHUẨN TỪ BACKEND TRẢ VỀ (res.data) THAY VÌ HIỂN THỊ ẢO
             setTas(prev => [res.data, ...prev]);
             setFormInput({ name: '', email: '', phone: '', education: '', level: '', notes: '' });
-            alert('Hệ thống: Lưu thông tin hồ sơ Trợ giảng thành công!');
+            addNotification('Hệ thống: Lưu thông tin hồ sơ Trợ giảng thành công!', 'success', 'teachers');
         } catch (error) {
-            alert(`Lỗi: Không thể tạo Trợ giảng. ${error.response?.data?.message || error.message}`);
+            addNotification(`Lỗi: Không thể tạo Trợ giảng. ${error.response?.data?.message || error.message}`, 'error', 'teachers');
         }
     };
 
     const handleSaveEdit = async () => {
-        if (!selectedTA || !selectedTA.id) return alert('Lỗi: Không xác định được ID trợ giảng!');
+        if (!selectedTA || !selectedTA.id) return addNotification('Lỗi: Không xác định được ID trợ giảng!', 'error', 'teachers');
         try {
             const res = await api.put(`/users/${selectedTA.id}`, selectedTA);
             // SỬ DỤNG DỮ LIỆU CHUẨN TỪ BACKEND TRẢ VỀ ĐỂ XÓA BỎ HIỆN TƯỢNG BÓNG MA
             setTas(prev => prev.map(t => t.id === selectedTA.id ? res.data : t));
             setSelectedTA(null);
             setIsEditing(false);
-            alert('Cập nhật thông tin trợ giảng thành công!');
+            addNotification('Cập nhật thông tin trợ giảng thành công!', 'success', 'teachers');
         } catch (err) {
-            alert(`Lỗi cập nhật: ${err.response?.data?.message || err.message}`);
+            addNotification(`Lỗi cập nhật: ${err.response?.data?.message || err.message}`, 'error', 'teachers');
         }
     };
 
@@ -72,9 +75,9 @@ function TeachingAssistantProfile() {
                 await api.delete(`/users/${id}`);
                 setTas(prev => prev.filter(t => t.id !== id));
                 if (selectedTA && selectedTA.id === id) setSelectedTA(null);
-                alert('Đã xóa trợ giảng thành công!');
+                addNotification('Đã xóa trợ giảng thành công!', 'success', 'teachers');
             } catch (err) {
-                alert(`Lỗi xóa dữ liệu: ${err.response?.data?.message || err.message}`);
+                addNotification(`Lỗi xóa dữ liệu: ${err.response?.data?.message || err.message}`, 'error', 'teachers');
             }
         }
     };

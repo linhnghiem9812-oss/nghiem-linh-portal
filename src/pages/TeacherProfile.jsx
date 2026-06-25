@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useData } from '../context/DataContext';
 import axios from 'axios';
+import { useNotification } from '../context/NotificationContext';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 });
 
 function TeacherProfile() {
+    const { addNotification } = useNotification();
+
     const { teachers, setTeachers } = useData();
 
     // Bổ sung notes vào form ban đầu
@@ -37,7 +40,7 @@ function TeacherProfile() {
 
     const handleSaveTeacher = async (e) => {
         e.preventDefault();
-        if (!formInput.name || !formInput.phone) return alert('Vui lòng nhập Họ tên và Số điện thoại!');
+        if (!formInput.name || !formInput.phone) return addNotification('Vui lòng nhập Họ tên và Số điện thoại!', 'error', 'teachers');
         try {
             const payload = {
                 ...formInput,
@@ -48,15 +51,15 @@ function TeacherProfile() {
             };
             const res = await api.post('/auth/register', payload);
             setTeachers(prev => [res.data, ...prev]);
-            alert('Hệ thống: Lưu thông tin hồ sơ giáo viên thành công!');
+            addNotification('Hệ thống: Lưu thông tin hồ sơ giáo viên thành công!', 'success', 'teachers');
             setFormInput({ name: '', email: '', phone: '', experience: '', fee: '', address: '', notes: '', status: 'Đang dạy' });
         } catch (err) {
-            alert('Lỗi tạo giáo viên: ' + (err.response?.data?.message || err.message));
+            addNotification('Lỗi tạo giáo viên: ' + (err.response?.data?.message || err.message), 'error', 'teachers');
         }
     };
 
     const handleSaveEdit = async () => {
-        if (!selectedTeacher || !selectedTeacher.id) return alert('Lỗi: Không xác định được ID giáo viên!');
+        if (!selectedTeacher || !selectedTeacher.id) return addNotification('Lỗi: Không xác định được ID giáo viên!', 'error', 'teachers');
         try {
             const payload = {
                 ...selectedTeacher,
@@ -66,9 +69,9 @@ function TeacherProfile() {
             setTeachers(prev => prev.map(t => t.id === selectedTeacher.id ? res.data : t));
             setSelectedTeacher(null);
             setIsEditing(false);
-            alert('Hệ thống: Cập nhật thông tin thành công!');
+            addNotification('Hệ thống: Cập nhật thông tin thành công!', 'success', 'teachers');
         } catch (err) {
-            alert(`Lỗi cập nhật: ${err.response?.data?.message || err.message}`);
+            addNotification(`Lỗi cập nhật: ${err.response?.data?.message || err.message}`, 'error', 'teachers');
         }
     };
 
@@ -79,9 +82,9 @@ function TeacherProfile() {
                 await api.delete(`/users/${id}`);
                 setTeachers(prev => prev.filter(t => t.id !== id));
                 if (selectedTeacher && selectedTeacher.id === id) setSelectedTeacher(null);
-                alert('Hệ thống: Đã xóa giáo viên thành công!');
+                addNotification('Hệ thống: Đã xóa giáo viên thành công!', 'success', 'teachers');
             } catch (err) {
-                alert(`Lỗi xóa dữ liệu (Mã: ${err.response?.status}): ${err.response?.data?.message || err.message}`);
+                addNotification(`Lỗi xóa dữ liệu (Mã: ${err.response?.status}): ${err.response?.data?.message || err.message}`, 'error', 'teachers');
             }
         }
     };

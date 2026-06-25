@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNotification } from '../context/NotificationContext';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 });
 
 function FinanceLog() {
+    const { addNotification } = useNotification();
+
     const [invoices, setInvoices] = useState([]);
 
     const todayStr = new Date().toISOString().split('T')[0];
@@ -28,7 +31,7 @@ function FinanceLog() {
         e.preventDefault();
 
         if (!formInvoice.studentName || (!formInvoice.amount && !formInvoice.amountJpy && !formInvoice.amountCny)) {
-            alert('Vui lòng điền tên học viên và ít nhất 1 loại tiền (VNĐ, JPY hoặc CNY)!');
+            addNotification('Vui lòng điền tên học viên và ít nhất 1 loại tiền (VNĐ, JPY hoặc CNY)!', 'error', 'finance');
             return;
         }
 
@@ -51,9 +54,9 @@ function FinanceLog() {
             const res = await api.post('/invoices', newInv);
             setInvoices([res.data, ...invoices]);
             setFormInvoice({ date: todayStr, studentName: '', course: 'Khóa học HSK 1', amount: '', amountJpy: '', amountCny: '', method: 'Chuyển khoản ngân hàng', notes: '' });
-            alert('Hệ thống: Ghi nhận hóa đơn thu học phí thành công!');
+            addNotification('Hệ thống: Ghi nhận hóa đơn thu học phí thành công!', 'success', 'finance');
         } catch (error) {
-            alert('Lỗi lưu hóa đơn vào CSDL!');
+            addNotification('Lỗi lưu hóa đơn vào CSDL!', 'error', 'finance');
         }
     };
 
@@ -68,9 +71,9 @@ function FinanceLog() {
             const res = await api.put(`/invoices/${editingInvoice.id}`, payload);
             setInvoices(invoices.map(inv => inv.id === editingInvoice.id ? res.data : inv));
             setEditingInvoice(null);
-            alert('Cập nhật hóa đơn thành công!');
+            addNotification('Cập nhật hóa đơn thành công!', 'success', 'finance');
         } catch (error) {
-            alert('Lỗi cập nhật CSDL!');
+            addNotification('Lỗi cập nhật CSDL!', 'error', 'finance');
         }
     };
 
@@ -79,9 +82,9 @@ function FinanceLog() {
             try {
                 await api.delete(`/invoices/${id}`);
                 setInvoices(invoices.filter(inv => inv.id !== id));
-                alert('Đã xóa hóa đơn!');
+                addNotification('Đã xóa hóa đơn!', 'success', 'finance');
             } catch (error) {
-                alert('Lỗi khi xóa hóa đơn!');
+                addNotification('Lỗi khi xóa hóa đơn!', 'error', 'finance');
             }
         }
     };

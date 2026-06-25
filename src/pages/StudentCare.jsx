@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNotification } from '../context/NotificationContext';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 });
 
 function StudentCare() {
+    const { addNotification } = useNotification();
+
     const [students, setStudents] = useState([]);
     const [tickets, setTickets] = useState([]);
-    const [classes, setClasses] = useState([]); 
-    
+    const [classes, setClasses] = useState([]);
+
     const [newTicket, setNewTicket] = useState({ studentName: '', details: '', priority: 'Tạo mới' });
     const [editingTicket, setEditingTicket] = useState(null);
 
@@ -34,16 +37,16 @@ function StudentCare() {
     const toggleColumn = (columnKey) => setVisibleColumns(prev => ({ ...prev, [columnKey]: !prev[columnKey] }));
 
     const [showModal, setShowModal] = useState(false);
-    const [modalMode, setModalMode] = useState('add'); 
-    
-    const [currentStudent, setCurrentStudent] = useState({ 
-        name: '', phone: '', email: '', course: '', classId: '', teacher: '', status: 'Đang học', birthday: '', province: '', country: 'Việt Nam', notes: '' 
+    const [modalMode, setModalMode] = useState('add');
+
+    const [currentStudent, setCurrentStudent] = useState({
+        name: '', phone: '', email: '', course: '', classId: '', teacher: '', status: 'Đang học', birthday: '', province: '', country: 'Việt Nam', notes: ''
     });
 
     useEffect(() => {
         api.get('/students').then(res => setStudents(res.data)).catch(() => console.log('Chưa có học viên trên CSDL.'));
         api.get('/tickets').then(res => {
-            const sortedTickets = res.data.sort((a,b) => b.id - a.id);
+            const sortedTickets = res.data.sort((a, b) => b.id - a.id);
             setTickets(sortedTickets);
         }).catch(() => console.log('Chưa có ticket trên CSDL.'));
         api.get('/classes').then(res => setClasses(res.data)).catch(() => console.log('Chưa có dữ liệu lớp.'));
@@ -97,8 +100,8 @@ function StudentCare() {
             setCurrentStudent({
                 ...currentStudent,
                 classId: selectedClassCode,
-                course: selectedClassObj.level || 'Chưa rõ',     
-                teacher: selectedClassObj.teacher || 'Chưa phân công' 
+                course: selectedClassObj.level || 'Chưa rõ',
+                teacher: selectedClassObj.teacher || 'Chưa phân công'
             });
         }
     };
@@ -108,16 +111,16 @@ function StudentCare() {
             try {
                 const res = await api.post('/students', currentStudent);
                 setStudents([res.data, ...students]);
-                alert('Thêm học viên mới thành công!');
+                addNotification('Thêm học viên mới thành công!', 'success', 'care');
                 setShowModal(false);
-            } catch (error) { alert('Lỗi: CSDL không phản hồi.'); }
+            } catch (error) { addNotification('Lỗi: CSDL không phản hồi.', 'error', 'care'); }
         } else if (modalMode === 'edit') {
             try {
                 const res = await api.put(`/students/${currentStudent.id}`, currentStudent);
                 setStudents(students.map(s => s.id === currentStudent.id ? res.data : s));
-                alert('Lưu thay đổi thành công!');
-                setModalMode('view'); 
-            } catch (error) { alert('Lỗi cập nhật CSDL.'); }
+                addNotification('Lưu thay đổi thành công!', 'success', 'care');
+                setModalMode('view');
+            } catch (error) { addNotification('Lỗi cập nhật CSDL.', 'error', 'care'); }
         }
     };
 
@@ -127,24 +130,24 @@ function StudentCare() {
                 await api.delete(`/students/${id}`);
                 setStudents(students.filter(s => s.id !== id));
                 setShowModal(false);
-                alert('Đã xóa học viên thành công!');
-            } catch (error) { alert('Lỗi xóa CSDL.'); }
+                addNotification('Đã xóa học viên thành công!', 'success', 'care');
+            } catch (error) { addNotification('Lỗi xóa CSDL.', 'error', 'care'); }
         }
     };
 
     const handleCreateTicket = async (e) => {
         e.preventDefault();
         try {
-            const payload = { 
-                ...newTicket, 
-                status: 'Đang xử lý', 
-                createdAt: new Date().toISOString() 
+            const payload = {
+                ...newTicket,
+                status: 'Đang xử lý',
+                createdAt: new Date().toISOString()
             };
             const res = await api.post('/tickets', payload);
             setTickets([res.data, ...tickets]);
             setNewTicket({ studentName: '', details: '', priority: 'Tạo mới' });
-            alert('Hệ thống: Tạo phản ánh thành công!');
-        } catch (error) { alert('Lỗi tạo phản ánh!'); }
+            addNotification('Hệ thống: Tạo phản ánh thành công!', 'success', 'care');
+        } catch (error) { addNotification('Lỗi tạo phản ánh!', 'error', 'care'); }
     };
 
     const handleResolveTicket = async (ticket) => {
@@ -156,7 +159,7 @@ function StudentCare() {
             };
             const res = await api.put(`/tickets/${ticket.id}`, payload);
             setTickets(tickets.map(t => t.id === ticket.id ? res.data : t));
-        } catch (error) { alert('Lỗi cập nhật trạng thái phản ánh!'); }
+        } catch (error) { addNotification('Lỗi cập nhật trạng thái phản ánh!', 'error', 'care'); }
     };
 
     const handleReopenTicket = async (ticket) => {
@@ -164,20 +167,20 @@ function StudentCare() {
             const payload = {
                 ...ticket,
                 status: 'Đang xử lý',
-                priority: 'Xem xét lại', 
+                priority: 'Xem xét lại',
                 resolvedAt: null
             };
             const res = await api.put(`/tickets/${ticket.id}`, payload);
             setTickets(tickets.map(t => t.id === ticket.id ? res.data : t));
-        } catch (error) { alert('Lỗi khi mở lại phản ánh!'); }
+        } catch (error) { addNotification('Lỗi khi mở lại phản ánh!', 'error', 'care'); }
     };
 
     const handleDeleteTicket = async (id) => {
-        if(window.confirm('Hành động này sẽ xóa vĩnh viễn dữ liệu phản ánh. Xác nhận xóa?')) {
+        if (window.confirm('Hành động này sẽ xóa vĩnh viễn dữ liệu phản ánh. Xác nhận xóa?')) {
             try {
                 await api.delete(`/tickets/${id}`);
                 setTickets(tickets.filter(t => t.id !== id));
-            } catch (error) { alert('Lỗi khi xóa phản ánh!'); }
+            } catch (error) { addNotification('Lỗi khi xóa phản ánh!', 'error', 'care'); }
         }
     };
 
@@ -186,27 +189,27 @@ function StudentCare() {
             const res = await api.put(`/tickets/${editingTicket.id}`, editingTicket);
             setTickets(tickets.map(t => t.id === editingTicket.id ? res.data : t));
             setEditingTicket(null);
-            alert('Cập nhật thông tin phản ánh thành công!');
-        } catch (error) { alert('Lỗi khi cập nhật phản ánh!'); }
+            addNotification('Cập nhật thông tin phản ánh thành công!', 'success', 'care');
+        } catch (error) { addNotification('Lỗi khi cập nhật phản ánh!', 'error', 'care'); }
     };
 
     const parseToLocalDatetime = (isoString) => {
         if (!isoString) return '';
         const d = new Date(isoString);
         if (isNaN(d.getTime())) return '';
-        return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0,16);
+        return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     };
 
     const handleDatetimeChange = (e) => {
         const local = e.target.value;
-        if(local) {
+        if (local) {
             const iso = new Date(local).toISOString();
             setEditingTicket({ ...editingTicket, createdAt: iso });
         }
     };
 
     const getStatusBadge = (status) => {
-        switch(status) {
+        switch (status) {
             case 'Đang học': return { bg: '#dcfce7', color: '#166534' };
             case 'Bảo lưu': return { bg: '#fef3c7', color: '#b45309' };
             case 'Học lại': return { bg: '#e0e7ff', color: '#3730a3' };
@@ -357,7 +360,7 @@ function StudentCare() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                    
+
                     <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', border: '2px solid #fef3c7' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px dashed #fcd34d', paddingBottom: '12px' }}>
                             <h4 style={{ fontSize: '1rem', color: '#b45309', fontWeight: '800', margin: 0 }}>
@@ -365,7 +368,7 @@ function StudentCare() {
                             </h4>
                             <span style={{ backgroundColor: '#f59e0b', color: 'white', padding: '2px 10px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: '800' }}>{pendingTickets.length}</span>
                         </div>
-                        
+
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '550px', overflowY: 'auto', paddingRight: '6px' }}>
                             {pendingTickets.length === 0 && <span style={{ color: '#cbd5e1', fontSize: '0.85rem', textAlign: 'center', marginTop: '20px' }}>Không có yêu cầu nào đang chờ.</span>}
                             {pendingTickets.map(t => (
@@ -382,7 +385,7 @@ function StudentCare() {
                                         </button>
                                     </div>
                                     <p style={{ color: '#78350f', fontSize: '0.85rem', marginBottom: '16px', lineHeight: '1.5' }}>{t.details}</p>
-                                    
+
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #fcd34d', paddingTop: '12px' }}>
                                         <span style={{ fontSize: '0.75rem', color: '#b45309', fontWeight: '600' }}><i className="fa-regular fa-clock"></i> Tạo: {t.createdAt ? new Date(t.createdAt).toLocaleString('vi-VN') : 'Không rõ'}</span>
                                         <div style={{ display: 'flex', gap: '12px' }}>
@@ -402,7 +405,7 @@ function StudentCare() {
                             </h4>
                             <span style={{ backgroundColor: 'var(--primary)', color: 'white', padding: '2px 10px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: '800' }}>{resolvedTickets.length}</span>
                         </div>
-                        
+
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '550px', overflowY: 'auto', paddingRight: '6px' }}>
                             {resolvedTickets.length === 0 && <span style={{ color: '#cbd5e1', fontSize: '0.85rem', textAlign: 'center', marginTop: '20px' }}>Chưa có yêu cầu nào hoàn thành.</span>}
                             {resolvedTickets.map(t => (
@@ -414,7 +417,7 @@ function StudentCare() {
                                         </span>
                                     </div>
                                     <p style={{ color: 'var(--text-main)', fontSize: '0.85rem', marginBottom: '16px', lineHeight: '1.5' }}>{t.details}</p>
-                                    
+
                                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px', backgroundColor: 'white', padding: '10px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
                                         <span><i className="fa-regular fa-clock" style={{ width: '16px' }}></i> Gửi lúc: {t.createdAt ? new Date(t.createdAt).toLocaleString('vi-VN') : 'Không rõ'}</span>
                                         <span style={{ fontWeight: '700', color: 'var(--primary)' }}><i className="fa-solid fa-check" style={{ width: '16px' }}></i> Xong lúc: {t.resolvedAt ? new Date(t.resolvedAt).toLocaleString('vi-VN') : 'Không rõ'}</span>
@@ -436,7 +439,7 @@ function StudentCare() {
                     <div className="card" style={{ width: '680px', backgroundColor: 'white', padding: '24px', borderRadius: '12px', maxHeight: '90vh', overflowY: 'auto' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
                             <h3 style={{ fontWeight: '800', color: 'var(--text-main)' }}>
-                                <i className="fa-solid fa-user-graduate" style={{ color: 'var(--primary)', marginRight: '8px' }}></i> 
+                                <i className="fa-solid fa-user-graduate" style={{ color: 'var(--primary)', marginRight: '8px' }}></i>
                                 {modalMode === 'add' ? "Tiếp nhận học viên mới" : modalMode === 'edit' ? "Chỉnh sửa hồ sơ học viên" : "Hồ sơ học viên chi tiết"}
                             </h3>
                             <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✖</button>
@@ -459,7 +462,7 @@ function StudentCare() {
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Email cá nhân</label>
                                 {modalMode !== 'view' ? <input type="email" className="form-control" value={currentStudent.email || ''} onChange={e => setCurrentStudent({ ...currentStudent, email: e.target.value })} /> : <div style={{ fontWeight: '600', padding: '8px 0' }}>{currentStudent.email || '---'}</div>}
                             </div>
-                            
+
                             <div>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Tỉnh / Thành phố</label>
                                 {modalMode !== 'view' ? <input className="form-control" value={currentStudent.province || ''} onChange={e => setCurrentStudent({ ...currentStudent, province: e.target.value })} placeholder="VD: Hà Nội..." /> : <div style={{ fontWeight: '600', padding: '8px 0' }}>{currentStudent.province || '---'}</div>}
@@ -519,7 +522,7 @@ function StudentCare() {
                                     {modalMode !== 'view' ? <input className="form-control" value={currentStudent.teacher || ''} disabled style={{ backgroundColor: '#e2e8f0', cursor: 'not-allowed' }} placeholder="Tự động hiển thị..." /> : <div style={{ fontWeight: '600', padding: '8px 0' }}>{currentStudent.teacher || '---'}</div>}
                                 </div>
                             </div>
-                            
+
                             <div style={{ gridColumn: 'span 2', marginTop: '8px' }}>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-muted)' }}>Ghi chú / Yêu cầu thêm</label>
                                 {modalMode !== 'view' ? (
@@ -534,7 +537,7 @@ function StudentCare() {
                             {modalMode !== 'add' ? (
                                 <button className="btn" style={{ padding: '10px 20px', backgroundColor: '#ef4444', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' }} onClick={() => handleDelete(currentStudent.id)}><i className="fa-solid fa-trash"></i> Xóa hồ sơ</button>
                             ) : <div></div>}
-                            
+
                             <div style={{ display: 'flex', gap: '12px' }}>
                                 {modalMode === 'view' ? (
                                     <button className="btn" style={{ padding: '10px 20px', backgroundColor: 'var(--warning)', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: '700' }} onClick={() => setModalMode('edit')}><i className="fa-solid fa-pen"></i> Sửa thông tin</button>
