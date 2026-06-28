@@ -135,6 +135,14 @@ function Sidebar({ activeTab, setActiveTab }) {
               <i className="fa-solid fa-wallet"></i>
               <span>Tài chính & Doanh thu</span>
             </div>
+
+            <div
+              className={`menu-item ${activeTab === "payroll" ? "active" : ""}`}
+              onClick={() => setActiveTab("payroll")}
+            >
+              <i className="fa-solid fa-file-invoice-dollar"></i>
+              <span>Quản lý Lương</span>
+            </div>
           </>
         )}
       </nav>

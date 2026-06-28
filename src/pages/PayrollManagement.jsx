@@ -9,13 +9,13 @@ const api = axios.create({
 
 function PayrollManagement() {
     const { addNotification } = useNotification();
-    
+
     // States
     const [activeTab, setActiveTab] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [payrolls, setPayrolls] = useState([]);
-    
+
     // Form State
     const [formData, setFormData] = useState({
         staffName: '',
@@ -47,7 +47,7 @@ function PayrollManagement() {
     // 2. GỌI API LƯU HÓA ĐƠN MỚI LÊN DATABASE
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         try {
             const payload = {
                 ...formData,
@@ -55,10 +55,10 @@ function PayrollManagement() {
             };
 
             const res = await api.post('/payroll', payload);
-            
+
             // Cập nhật lại danh sách trên giao diện
             setPayrolls([res.data, ...payrolls]);
-            
+
             // Gửi thông báo
             addNotification('Thanh toán lương', `Đã ghi nhận phiếu lương cho ${formData.staffName}`, 'success', 'payroll', {
                 'Người nhận': formData.staffName,
@@ -78,8 +78,8 @@ function PayrollManagement() {
     // Filters
     const filteredPayrolls = payrolls.filter(p => {
         const matchTab = activeTab === 'all' || p.role === activeTab;
-        const matchSearch = p.staffName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            p.notes?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchSearch = p.staffName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.notes?.toLowerCase().includes(searchTerm.toLowerCase());
         return matchTab && matchSearch;
     });
 
@@ -88,7 +88,7 @@ function PayrollManagement() {
 
     return (
         <div className="payroll-container">
-            
+
             {/* KPI Cards */}
             <div className="payroll-kpi-grid">
                 <div className="payroll-kpi-card">
@@ -127,13 +127,13 @@ function PayrollManagement() {
                         <i className="fa-solid fa-file-invoice-dollar" style={{ color: 'var(--primary)', marginRight: '8px' }}></i>
                         Danh sách Hóa đơn Thanh toán Lương
                     </h3>
-                    <input 
-                        type="text" 
-                        className="form-control" 
-                        placeholder="🔍 Tìm kiếm tên nhân sự, ghi chú..." 
-                        value={searchTerm} 
-                        onChange={(e) => setSearchTerm(e.target.value)} 
-                        style={{ width: '280px' }} 
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="🔍 Tìm kiếm tên nhân sự, ghi chú..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ width: '280px' }}
                     />
                 </div>
 
@@ -214,7 +214,7 @@ function PayrollManagement() {
                                     <label className="payroll-form-label">Tên nhân sự (*)</label>
                                     <input type="text" className="form-control" name="staffName" value={formData.staffName} onChange={handleInputChange} required placeholder="Nhập tên người nhận..." />
                                 </div>
-                                
+
                                 <div className="payroll-form-group">
                                     <label className="payroll-form-label" style={{ color: 'var(--primary)' }}>Số tiền thanh toán (VNĐ) (*)</label>
                                     <input type="number" className="form-control" name="amount" value={formData.amount} onChange={handleInputChange} required placeholder="VD: 5000000" style={{ border: '1px solid var(--primary)' }} />
