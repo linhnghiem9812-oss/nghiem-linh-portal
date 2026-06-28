@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
-import './PayrollManagement.css';
+import '../styles/pages/PayrollManagement.css';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
