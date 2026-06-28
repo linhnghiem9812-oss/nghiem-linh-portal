@@ -22,7 +22,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
     transition: transform 0.2s;
 }
 
@@ -104,15 +104,41 @@
     font-weight: 800;
 }
 
-.status-paid {
-    background-color: #dcfce7;
-    color: #166534;
-}
+.status-paid { background-color: #dcfce7; color: #166534; }
+.status-pending { background-color: #fef3c7; color: #b45309; }
 
-.status-pending {
-    background-color: #fef3c7;
-    color: #b45309;
+/* Adjustment Badges (Thưởng, Phạt, Thêm, Tăng) */
+.adj-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-top: 6px;
 }
+.adj-thuong { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.adj-phat { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+.adj-them { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+.adj-tang { background-color: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+
+/* Table Actions */
+.payroll-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #cbd5e1;
+    background-color: #f8fafc;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+}
+.payroll-action-btn:hover { background-color: #e2e8f0; }
+.btn-edit { color: #0369a1; }
+.btn-delete { color: #b91c1c; }
 
 /* Modal Form */
 .payroll-modal-overlay {
@@ -121,19 +147,22 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
+    background-color: rgba(0,0,0,0.6);
+    z-index: 10000;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .payroll-modal-content {
-    width: 600px;
+    width: 700px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
     background-color: white;
     padding: 28px;
     border-radius: 16px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
 }
 
 .payroll-form-grid {
