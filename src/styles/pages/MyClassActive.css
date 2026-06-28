@@ -1,0 +1,321 @@
+.MyClassActive-style-1 {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.MyClassActive-style-2 {
+  padding: 24px;
+}
+
+.MyClassActive-style-3 {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.MyClassActive-style-4 {
+  margin-bottom: 8px;
+  display: inline-block;
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.MyClassActive-style-5 {
+  color: var(--primary);
+}
+
+.MyClassActive-style-6 {
+  color: var(--text-main);
+}
+
+.MyClassActive-style-7 {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+
+.MyClassActive-style-8 {
+  margin-right: 6px;
+}
+
+.MyClassActive-style-9 {
+  margin-left: 12px;
+  margin-right: 6px;
+}
+
+.MyClassActive-style-10 {
+  margin-left: 12px;
+  margin-right: 6px;
+}
+
+.MyClassActive-style-11 {
+  text-align: right;
+  padding: 12px 20px;
+  background-color: var(--bg-app);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.MyClassActive-style-12 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  text-transform: uppercase;
+}
+
+.MyClassActive-style-13 {
+  font-size: 1.2rem;
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.MyClassActive-style-14 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  background-color: white;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.MyClassActive-style-15 {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--bg-app);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.MyClassActive-style-16 {
+  font-size: 2.5rem;
+  color: #cbd5e1;
+}
+
+.MyClassActive-style-17 {
+  font-size: 1.3rem;
+  color: var(--text-main);
+  font-weight: 800;
+}
+
+.MyClassActive-style-18 {
+  color: var(--text-muted);
+  margin-top: 8px;
+  max-width: 400px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.MyClassActive-style-19 {
+  padding: 24px;
+}
+
+.MyClassActive-style-20 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.MyClassActive-style-21 {
+  margin-right: 8px;
+  color: var(--primary);
+}
+
+.MyClassActive-style-22 {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.MyClassActive-style-23 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 14px;
+}
+
+.MyClassActive-style-24 {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 2px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.MyClassActive-style-25 {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  width: 100%;
+  margin-top: auto;
+}
+
+.MyClassActive-style-26 {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #10b981;
+  background-color: #dcfce7;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.MyClassActive-style-27 {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #ef4444;
+  background-color: #fee2e2;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.MyClassActive-style-28 {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #2563eb;
+  background-color: #e0e7ff;
+  padding: 1px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.MyClassActive-style-29 {
+  font-size: 0.6rem;
+}
+
+.MyClassActive-style-30 {
+  grid-template-columns: 1.2fr 1fr;
+}
+
+.MyClassActive-style-31 {
+  padding: 24px;
+}
+
+.MyClassActive-style-32 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--primary);
+}
+
+.MyClassActive-style-33 {
+  margin-right: 6px;
+}
+
+.MyClassActive-style-34 {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.MyClassActive-style-35 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.MyClassActive-style-36 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.MyClassActive-style-37 {
+  padding: 16px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.MyClassActive-style-38 {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #1e3a8a;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.MyClassActive-style-39 {
+  margin-right: 6px;
+}
+
+.MyClassActive-style-40 {
+  display: flex;
+  gap: 10px;
+}
+
+.MyClassActive-style-41 {
+  flex: 1;
+  background-color: white;
+}
+
+.MyClassActive-style-42 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.MyClassActive-style-43 {
+  resize: none;
+}
+
+.MyClassActive-style-44 {
+  padding: 24px;
+}
+
+.MyClassActive-style-45 {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.MyClassActive-style-46 {
+  color: var(--primary);
+  margin-right: 6px;
+}
+
+.MyClassActive-style-47 {
+  grid-template-columns: 1fr;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.MyClassActive-style-48 {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.MyClassActive-style-49 {
+  padding: 12px;
+}
+
+.MyClassActive-style-50 {
+  font-size: 0.85rem;
+}
+
+.MyClassActive-style-51 {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.MyClassActive-style-52 {
+  margin-right: 8px;
+}

@@ -1,0 +1,210 @@
+.Auth-style-1 {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-app);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.Auth-style-2 {
+  width: 100%;
+  max-width: 440px;
+  padding: 40px;
+  box-shadow: var(--shadow-lg);
+  background-color: white;
+  border-radius: 16px;
+}
+
+.Auth-style-3 {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.Auth-style-4 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary);
+  font-family: var(--font-heading);
+}
+
+.Auth-style-5 {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+
+.Auth-style-6 {
+  text-align: center;
+  padding: 30px 10px;
+}
+
+.Auth-style-7 {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--success-light);
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 16px;
+}
+
+.Auth-style-8 {
+  font-size: 1.2rem;
+  color: var(--success);
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.Auth-style-9 {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.Auth-style-10 {
+  color: var(--primary);
+  font-weight: 700;
+  margin-top: 16px;
+}
+
+.Auth-style-11 {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.Auth-style-12 {
+  background-color: var(--danger-light);
+  color: var(--danger-text);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.Auth-style-13 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.Auth-style-14 {
+  font-weight: 600;
+}
+
+.Auth-style-15 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.Auth-style-16 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.Auth-style-17 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.Auth-style-18 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.Auth-style-19 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.Auth-style-20 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.Auth-style-21 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.Auth-style-22 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.Auth-style-23 {
+  font-size: 0.75rem;
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.Auth-style-24 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+  margin-top: 6px;
+}
+
+.Auth-style-25 {
+  padding: 14px;
+  margin-top: 10px;
+  background-color: var(--primary);
+  color: white;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+
+.Auth-style-26 {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+}
+
+.Auth-style-27 {
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.Auth-style-28 {
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 700;
+}

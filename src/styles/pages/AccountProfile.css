@@ -1,0 +1,129 @@
+.AccountProfile-style-1 {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.AccountProfile-style-2 {
+  padding: 32px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.AccountProfile-style-3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+}
+
+.AccountProfile-style-4 {
+  color: var(--primary);
+  margin-right: 8px;
+}
+
+.AccountProfile-style-5 {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.AccountProfile-style-6 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.AccountProfile-style-7 {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: var(--primary-light);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 4px solid var(--primary);
+  overflow: hidden;
+}
+
+.AccountProfile-style-8 {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.AccountProfile-style-9 {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  background-color: #e2e8f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.AccountProfile-style-10 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.AccountProfile-style-11 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.AccountProfile-style-12 {
+  background-color: #f1f5f9;
+}
+
+.AccountProfile-style-13 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.AccountProfile-style-14 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.AccountProfile-style-15 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.AccountProfile-style-16 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.AccountProfile-style-17 {
+  font-size: 0.75rem;
+  color: var(--warning-text);
+  margin-top: 4px;
+  display: block;
+}
+
+.AccountProfile-style-18 {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.AccountProfile-style-19 {
+  padding: 12px 32px;
+  background-color: var(--primary);
+  color: white;
+  border-radius: 8px;
+  font-weight: 800;
+  cursor: pointer;
+}

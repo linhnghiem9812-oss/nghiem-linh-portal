@@ -1,0 +1,55 @@
+.Sidebar-style-1 {
+  display: block;
+}
+
+.Sidebar-style-2 {
+  display: block;
+  color: var(--primary);
+}
+
+.Sidebar-style-3 {
+  display: block;
+}
+
+.Sidebar-style-4 {
+  display: block;
+}
+
+.Sidebar-style-5 {
+  padding-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.Sidebar-style-6 {
+  border: 3px solid var(--primary);
+  background-color: var(--primary-light);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+
+.Sidebar-style-7 {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.Sidebar-style-8 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-top: 12px;
+  padding: 0 8px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.Sidebar-style-9 {
+  margin-top: 8px;
+}
