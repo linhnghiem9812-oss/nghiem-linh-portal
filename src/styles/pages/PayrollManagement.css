@@ -22,7 +22,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s;
 }
 
@@ -85,18 +85,7 @@
     color: var(--primary);
 }
 
-.payroll-tab-btn.active::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background-color: var(--primary);
-    border-radius: 3px 3px 0 0;
-}
-
-/* Status Badges */
+/* Table Badges & Status */
 .status-badge {
     padding: 4px 10px;
     border-radius: 50px;
@@ -104,24 +93,56 @@
     font-weight: 800;
 }
 
-.status-paid { background-color: #dcfce7; color: #166534; }
-.status-pending { background-color: #fef3c7; color: #b45309; }
+.status-paid {
+    background-color: #dcfce7;
+    color: #166534;
+}
 
-/* Adjustment Badges (Thưởng, Phạt, Thêm, Tăng) */
+.status-pending {
+    background-color: #fef3c7;
+    color: #b45309;
+}
+
+.adj-badge-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+}
+
 .adj-badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
     padding: 2px 8px;
     border-radius: 4px;
     font-size: 0.7rem;
     font-weight: 700;
-    margin-top: 6px;
+    width: fit-content;
 }
-.adj-thuong { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-.adj-phat { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
-.adj-them { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
-.adj-tang { background-color: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+
+.adj-thuong {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.adj-phat {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.adj-them {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}
+
+.adj-tang {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+    border: 1px solid #e9d5ff;
+}
 
 /* Table Actions */
 .payroll-action-btn {
@@ -136,18 +157,27 @@
     align-items: center;
     transition: all 0.2s;
 }
-.payroll-action-btn:hover { background-color: #e2e8f0; }
-.btn-edit { color: #0369a1; }
-.btn-delete { color: #b91c1c; }
 
-/* Modal Form */
+.payroll-action-btn:hover {
+    background-color: #e2e8f0;
+}
+
+.btn-edit {
+    color: #0369a1;
+}
+
+.btn-delete {
+    color: #b91c1c;
+}
+
+/* Modal Form Base Layout */
 .payroll-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0,0,0,0.6);
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
     z-index: 10000;
     display: flex;
     justify-content: center;
@@ -155,14 +185,14 @@
 }
 
 .payroll-modal-content {
-    width: 700px;
+    width: 720px;
     max-width: 95vw;
     max-height: 90vh;
     overflow-y: auto;
     background-color: white;
     padding: 28px;
     border-radius: 16px;
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .payroll-form-grid {
@@ -186,4 +216,48 @@
     font-size: 0.8rem;
     font-weight: 700;
     color: var(--text-muted);
+}
+
+/* Khu vực nét đứt cho Phụ phí / Điều chỉnh */
+.payroll-adj-section {
+    grid-column: span 2;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 16px;
+    background-color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.payroll-adj-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr auto;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+/* Đổi màu viền và nền động khi chọn phụ phí (Bỏ nút tròn) */
+.form-control.control-thuong {
+    border: 2px solid #10b981 !important;
+    background-color: #f0fdf4 !important;
+    color: #14532d !important;
+}
+
+.form-control.control-phat {
+    border: 2px solid #ef4444 !important;
+    background-color: #fef2f2 !important;
+    color: #7f1d1d !important;
+}
+
+.form-control.control-them {
+    border: 2px solid #0284c7 !important;
+    background-color: #f0f9ff !important;
+    color: #0c4a6e !important;
+}
+
+.form-control.control-tang {
+    border: 2px solid #8b5cf6 !important;
+    background-color: #faf5ff !important;
+    color: #581c87 !important;
 }
