@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
-import '../styles/pages/PayrollManagement.css'; // Import file CSS đã bóc tách
+import './PayrollManagement.css';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
@@ -9,13 +9,13 @@ const api = axios.create({
 
 function PayrollManagement() {
     const { addNotification } = useNotification();
-
+    
     // States
     const [activeTab, setActiveTab] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [payrolls, setPayrolls] = useState([]);
-
+    
     // Form State
     const [formData, setFormData] = useState({
         staffName: '',
@@ -26,60 +26,69 @@ function PayrollManagement() {
         status: 'Đã thanh toán'
     });
 
-    // Dữ liệu giả lập (Mock Data) để hiển thị trong khi chờ thiết kế Backend
+    // 1. GỌI API LẤY DỮ LIỆU THẬT TỪ DATABASE
     useEffect(() => {
-        const mockData = [
-            { id: 1, staffName: 'Mai Hồng Nhung', role: 'teacher', amount: 4500000, paymentDate: '2026-06-25', status: 'Đã thanh toán', notes: 'Lương tháng 5 - Lớp HSK1' },
-            { id: 2, staffName: 'Ngoại Ngữ Nghiêm Linh', role: 'sales', amount: 1200000, paymentDate: '2026-06-26', status: 'Chờ thanh toán', notes: 'Hoa hồng 3 học viên mới' },
-            { id: 3, staffName: 'Trần Thị Thu', role: 'ta', amount: 800000, paymentDate: '2026-06-25', status: 'Đã thanh toán', notes: 'Trợ giảng 10 buổi' },
-        ];
-        setPayrolls(mockData);
-
-        // Đoạn code thật khi có Backend:
-        // api.get('/payroll').then(res => setPayrolls(res.data)).catch(err => console.log(err));
+        const fetchPayrolls = async () => {
+            try {
+                const res = await api.get('/payroll');
+                setPayrolls(res.data || []);
+            } catch (err) {
+                console.error("Lỗi tải dữ liệu lương: ", err);
+                addNotification('Lỗi', 'Không thể kết nối đến máy chủ để tải dữ liệu lương.', 'error');
+            }
+        };
+        fetchPayrolls();
     }, []);
 
-    // Handlers
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // 2. GỌI API LƯU HÓA ĐƠN MỚI LÊN DATABASE
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        try {
+            const payload = {
+                ...formData,
+                amount: parseInt(formData.amount) || 0
+            };
 
-        const newRecord = {
-            ...formData,
-            id: Date.now(), // Fake ID
-            amount: parseInt(formData.amount)
-        };
+            const res = await api.post('/payroll', payload);
+            
+            // Cập nhật lại danh sách trên giao diện
+            setPayrolls([res.data, ...payrolls]);
+            
+            // Gửi thông báo
+            addNotification('Thanh toán lương', `Đã ghi nhận phiếu lương cho ${formData.staffName}`, 'success', 'payroll', {
+                'Người nhận': formData.staffName,
+                'Số tiền': `${Number(formData.amount).toLocaleString('vi-VN')} VNĐ`,
+                'Ngày trả': formData.paymentDate,
+                'Trạng thái': formData.status
+            });
 
-        // Giả lập lưu thành công
-        setPayrolls([newRecord, ...payrolls]);
-
-        addNotification('Thanh toán lương', `Đã ghi nhận phiếu lương cho ${formData.staffName}`, 'success', 'finance', {
-            'Người nhận': formData.staffName,
-            'Số tiền': `${Number(formData.amount).toLocaleString('vi-VN')} VNĐ`,
-            'Ngày trả': formData.paymentDate,
-            'Trạng thái': formData.status
-        });
-
-        setShowModal(false);
-        setFormData({ staffName: '', role: 'teacher', amount: '', paymentDate: new Date().toISOString().split('T')[0], notes: '', status: 'Đã thanh toán' });
+            setShowModal(false);
+            setFormData({ staffName: '', role: 'teacher', amount: '', paymentDate: new Date().toISOString().split('T')[0], notes: '', status: 'Đã thanh toán' });
+        } catch (error) {
+            console.error("Lỗi lưu hóa đơn: ", error);
+            addNotification('Lỗi', 'Không thể lưu hóa đơn lương lên hệ thống.', 'error');
+        }
     };
 
     // Filters
     const filteredPayrolls = payrolls.filter(p => {
         const matchTab = activeTab === 'all' || p.role === activeTab;
-        const matchSearch = p.staffName.toLowerCase().includes(searchTerm.toLowerCase()) || p.notes.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchSearch = p.staffName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            p.notes?.toLowerCase().includes(searchTerm.toLowerCase());
         return matchTab && matchSearch;
     });
 
-    const totalPaid = payrolls.filter(p => p.status === 'Đã thanh toán').reduce((sum, p) => sum + p.amount, 0);
-    const totalPending = payrolls.filter(p => p.status === 'Chờ thanh toán').reduce((sum, p) => sum + p.amount, 0);
+    const totalPaid = payrolls.filter(p => p.status === 'Đã thanh toán').reduce((sum, p) => sum + (p.amount || 0), 0);
+    const totalPending = payrolls.filter(p => p.status === 'Chờ thanh toán').reduce((sum, p) => sum + (p.amount || 0), 0);
 
     return (
         <div className="payroll-container">
-
+            
             {/* KPI Cards */}
             <div className="payroll-kpi-grid">
                 <div className="payroll-kpi-card">
@@ -118,13 +127,13 @@ function PayrollManagement() {
                         <i className="fa-solid fa-file-invoice-dollar" style={{ color: 'var(--primary)', marginRight: '8px' }}></i>
                         Danh sách Hóa đơn Thanh toán Lương
                     </h3>
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="🔍 Tìm kiếm tên nhân sự, ghi chú..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ width: '280px' }}
+                    <input 
+                        type="text" 
+                        className="form-control" 
+                        placeholder="🔍 Tìm kiếm tên nhân sự, ghi chú..." 
+                        value={searchTerm} 
+                        onChange={(e) => setSearchTerm(e.target.value)} 
+                        style={{ width: '280px' }} 
                     />
                 </div>
 
@@ -163,7 +172,7 @@ function PayrollManagement() {
                                         {p.role === 'teacher' ? 'Giáo viên' : p.role === 'ta' ? 'Trợ giảng' : 'Sale'}
                                     </td>
                                     <td style={{ padding: '16px', fontWeight: '800', color: 'var(--text-main)' }}>
-                                        {p.amount.toLocaleString('vi-VN')} đ
+                                        {(p.amount || 0).toLocaleString('vi-VN')} đ
                                     </td>
                                     <td style={{ padding: '16px', color: 'var(--text-muted)', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={p.notes}>
                                         {p.notes || '---'}
@@ -205,7 +214,7 @@ function PayrollManagement() {
                                     <label className="payroll-form-label">Tên nhân sự (*)</label>
                                     <input type="text" className="form-control" name="staffName" value={formData.staffName} onChange={handleInputChange} required placeholder="Nhập tên người nhận..." />
                                 </div>
-
+                                
                                 <div className="payroll-form-group">
                                     <label className="payroll-form-label" style={{ color: 'var(--primary)' }}>Số tiền thanh toán (VNĐ) (*)</label>
                                     <input type="number" className="form-control" name="amount" value={formData.amount} onChange={handleInputChange} required placeholder="VD: 5000000" style={{ border: '1px solid var(--primary)' }} />
