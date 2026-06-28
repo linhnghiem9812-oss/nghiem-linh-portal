@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
-import { useData } from '../context/DataContext'; 
-import '../styles/pages/PayrollManagement.css'; 
+import { useData } from '../context/DataContext';
+import '../styles/pages/PayrollManagement.css';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
@@ -10,16 +10,14 @@ const api = axios.create({
 
 function PayrollManagement() {
     const { addNotification } = useNotification();
-    const { teachers, tas, classes, customers } = useData() || {}; 
-    
-    // States
+    const { teachers, tas, classes, customers } = useData() || {};
+
     const [activeTab, setActiveTab] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [payrolls, setPayrolls] = useState([]);
 
-    // Khởi tạo cấu trúc mẫu phiếu lương với mảng đa dòng adjustments
     const initialForm = {
         id: null,
         staffName: '',
@@ -38,7 +36,6 @@ function PayrollManagement() {
 
     const [formData, setFormData] = useState(initialForm);
 
-    // 1. Tải lịch sử hóa đơn lương từ Backend
     useEffect(() => {
         const fetchPayrolls = async () => {
             try {
@@ -51,40 +48,38 @@ function PayrollManagement() {
         fetchPayrolls();
     }, []);
 
-    // 2. MÀNG LỌC 1: Lọc danh sách tên nhân sự theo vị trí được chọn
     const filteredStaffSuggestions = useMemo(() => {
         if (formData.role === 'teacher') {
-            return teachers ? teachers.map(t => t.name) : [];
+            return teachers ? [...new Set(teachers.map(t => t.name?.trim()).filter(Boolean))] : [];
         }
         if (formData.role === 'ta') {
-            return tas ? tas.map(t => t.name) : [];
+            return tas ? [...new Set(tas.map(t => t.name?.trim()).filter(Boolean))] : [];
         }
         if (formData.role === 'sales') {
-            // Quét lấy danh sách Sale hoạt động từ hệ thống tài khoản và phân hệ CRM
-            const dbSales = []; 
+            const normalize = (str) => {
+                if (!str) return '';
+                let s = str.toString().trim().replace(/\s+/g, ' ');
+                if (s.toLowerCase() === 'nghiêm linh' || s.toLowerCase() === 'ngoai ngu nghiem linh') return 'Ngoại Ngữ Nghiêm Linh';
+                return s;
+            };
             const crmSales = customers ? customers.map(c => c.saleInCharge).filter(Boolean) : [];
-            return [...new Set([...dbSales, ...crmSales])];
+            const normalizedSales = crmSales.map(name => normalize(name));
+            return [...new Set(normalizedSales)];
         }
         return [];
     }, [formData.role, teachers, tas, customers]);
 
-    // 3. MÀNG LỌC 2: Rà soát danh sách lớp học tương ứng của Giáo viên / Trợ giảng được chọn
     const filteredClassSuggestions = useMemo(() => {
         if (!formData.staffName || !classes) return [];
         const nameLower = formData.staffName.toLowerCase().trim();
-        
+
         return classes.filter(c => {
-            if (formData.role === 'teacher') {
-                return c.teacher && c.teacher.toLowerCase().includes(nameLower);
-            }
-            if (formData.role === 'ta') {
-                return c.ta && c.ta.toLowerCase().includes(nameLower);
-            }
+            if (formData.role === 'teacher') return c.teacher && c.teacher.toLowerCase().includes(nameLower);
+            if (formData.role === 'ta') return c.ta && c.ta.toLowerCase().includes(nameLower);
             return false;
         }).map(c => c.classCode);
     }, [formData.staffName, formData.role, classes]);
 
-    // Thuật toán tính toán TỔNG LƯƠNG từ mảng đa dòng điều chỉnh
     const calculateTotal = (formState) => {
         const base = parseInt(formState.baseSalary) || 0;
         let totalAdj = 0;
@@ -106,7 +101,6 @@ function PayrollManagement() {
         const { name, value } = e.target;
         setFormData(prev => {
             const updated = { ...prev, [name]: value };
-            // Nếu đổi vai trò, tự động làm sạch tên nhân sự cũ để tránh râu ông nọ cắm cằm bà kia
             if (name === 'role') {
                 updated.staffName = '';
                 updated.courseName = '';
@@ -115,7 +109,6 @@ function PayrollManagement() {
         });
     };
 
-    // Quản lý đa dòng Phụ phí
     const handleAdjChange = (index, field, value) => {
         const updatedAdjustments = [...formData.adjustments];
         updatedAdjustments[index][field] = value;
@@ -137,7 +130,6 @@ function PayrollManagement() {
         setFormData({ ...formData, adjustments: updatedAdjustments });
     };
 
-    // Lấy màu sắc điều chỉnh cho ô nhập liệu dựa trên hình ảnh image_3f3e02.png
     const getControlClassName = (type) => {
         if (type === 'Thưởng') return 'control-thuong';
         if (type === 'Phạt') return 'control-phat';
@@ -153,11 +145,19 @@ function PayrollManagement() {
     };
 
     const openEditModal = (record) => {
-        // Hỗ trợ tương thích ngược nếu dữ liệu cũ trong DB chưa có mảng adjustments
-        const adjustments = record.adjustments || [
-            { type: record.adjustmentType || 'Không', amount: record.adjustmentAmount || '' }
-        ];
-        setFormData({ ...record, adjustments });
+        const adjustments = (record.adjustments && record.adjustments.length > 0)
+            ? record.adjustments
+            : [{ type: 'Không', amount: '' }];
+
+        setFormData({
+            ...record,
+            courseName: record.courseName || '',
+            sessionsCount: record.sessionsCount || '',
+            currency: record.currency || 'VNĐ',
+            baseSalary: record.baseSalary || '',
+            notes: record.notes || '',
+            adjustments: adjustments
+        });
         setIsEditing(true);
         setShowModal(true);
     };
@@ -165,10 +165,25 @@ function PayrollManagement() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            finalTotal = calculateTotal(formData);
+            const finalTotal = calculateTotal(formData);
+
+            // Gửi dữ liệu sạch lên API, không dùng JSON.stringify
             const payload = {
-                ...formData,
-                amount: finalTotal
+                id: formData.id,
+                staffName: formData.staffName.trim(),
+                role: formData.role,
+                courseName: formData.courseName,
+                sessionsCount: parseInt(formData.sessionsCount) || null,
+                baseSalary: parseInt(formData.baseSalary) || 0,
+                currency: formData.currency,
+                amount: finalTotal,
+                paymentDate: formData.paymentDate,
+                status: formData.status,
+                notes: formData.notes,
+                adjustments: formData.adjustments.map(adj => ({
+                    type: adj.type,
+                    amount: parseInt(adj.amount) || 0
+                }))
             };
 
             if (isEditing) {
@@ -182,6 +197,7 @@ function PayrollManagement() {
             }
             setShowModal(false);
         } catch (error) {
+            console.error(error);
             addNotification('Lỗi', 'Không thể lưu hóa đơn lương.', 'error');
         }
     };
@@ -200,8 +216,9 @@ function PayrollManagement() {
 
     const filteredPayrolls = payrolls.filter(p => {
         const matchTab = activeTab === 'all' || p.role === activeTab;
-        const matchSearch = p.staffName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            p.courseName?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchSearch = p.staffName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.courseName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.notes?.toLowerCase().includes(searchTerm.toLowerCase());
         return matchTab && matchSearch;
     });
 
@@ -210,8 +227,6 @@ function PayrollManagement() {
 
     return (
         <div className="payroll-container">
-            
-            {/* KPI Cards - ĐÃ BỎ CHỮ THAO TÁC NHANH */}
             <div className="payroll-kpi-grid">
                 <div className="payroll-kpi-card">
                     <div className="payroll-kpi-info">
@@ -242,20 +257,19 @@ function PayrollManagement() {
                 </div>
             </div>
 
-            {/* Main Content */}
             <div className="card" style={{ padding: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '20px' }}>
                     <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
                         <i className="fa-solid fa-file-invoice-dollar" style={{ color: 'var(--primary)', marginRight: '8px' }}></i>
                         Danh sách Hóa đơn Thanh toán
                     </h3>
-                    <input 
-                        type="text" 
-                        className="form-control" 
-                        placeholder="🔍 Tìm nhân sự, khóa học..." 
-                        value={searchTerm} 
-                        onChange={(e) => setSearchTerm(e.target.value)} 
-                        style={{ width: '280px' }} 
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="🔍 Tìm nhân sự, khóa học..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ width: '280px' }}
                     />
                 </div>
 
@@ -288,7 +302,7 @@ function PayrollManagement() {
                                         <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.9rem' }}>#PR-{p.id.toString().slice(-4)}</strong>
                                         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(p.paymentDate).toLocaleDateString('vi-VN')}</span>
                                     </td>
-                                    
+
                                     <td style={{ padding: '16px' }}>
                                         <strong style={{ display: 'block', color: 'var(--primary)', fontSize: '0.95rem', marginBottom: '4px' }}>{p.staffName}</strong>
                                         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>Vị trí: {p.role === 'teacher' ? 'Giáo viên' : p.role === 'ta' ? 'Trợ giảng' : 'Sale'}</span>
@@ -297,7 +311,7 @@ function PayrollManagement() {
 
                                     <td style={{ padding: '16px' }}>
                                         <div style={{ fontSize: '0.85rem', color: 'var(--text-main)' }}>
-                                            Cứng: <strong>{(parseInt(p.baseSalary) || 0).toLocaleString('vi-VN')} đ</strong>
+                                            Cứng: <strong style={{ color: '#475569' }}>{(parseInt(p.baseSalary) || 0).toLocaleString('vi-VN')} đ</strong>
                                         </div>
                                         <div className="adj-badge-list">
                                             {p.adjustments && p.adjustments.map((adj, i) => (
@@ -313,9 +327,9 @@ function PayrollManagement() {
                                     <td style={{ padding: '16px', fontWeight: '800', color: 'var(--primary)', fontSize: '1.1rem' }}>
                                         {(p.amount || 0).toLocaleString('vi-VN')} {p.currency || 'đ'}
                                     </td>
-                                    
+
                                     <td style={{ padding: '16px' }}>
-                                        <span className={`status-badge ${p.status === 'Đã thanh toán' ? 'status-paid' : 'status-pending' || p.status === 'Chờ duyệt' ? 'status-pending' : 'status-paid'}`}>
+                                        <span className={`status-badge ${p.status === 'Đã thanh toán' ? 'status-paid' : 'status-pending'}`}>
                                             {p.status}
                                         </span>
                                     </td>
@@ -333,27 +347,24 @@ function PayrollManagement() {
                 </div>
             </div>
 
-            {/* Modal Ghi Hóa Đơn Lương - ĐÃ ĐỔI TÊN TIÊU ĐỀ THEO YÊU CẦU */}
             {showModal && (
                 <div className="payroll-modal-overlay">
                     <div className="payroll-modal-content">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '24px' }}>
                             <h3 style={{ margin: 0, color: 'var(--primary)', fontWeight: '800' }}>
-                                <i className="fa-solid fa-file-signature" style={{ marginRight: '8px' }}></i> 
+                                <i className="fa-solid fa-file-signature" style={{ marginRight: '8px' }}></i>
                                 {isEditing ? 'Chỉnh sửa hóa đơn trả lương' : 'Tạo hóa đơn trả lương'}
                             </h3>
                             <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: 'var(--text-muted)', cursor: 'pointer' }}>✖</button>
                         </div>
 
                         <form onSubmit={handleSubmit}>
-                            {/* Datalist rà soát nhân sự tự động hóa theo Vai trò */}
                             <datalist id="filtered-staff-list">
                                 {filteredStaffSuggestions.map((name, idx) => (
                                     <option key={idx} value={name} />
                                 ))}
                             </datalist>
 
-                            {/* Datalist rà soát mã lớp học của giáo viên được chọn */}
                             <datalist id="filtered-class-list">
                                 {filteredClassSuggestions.map((code, idx) => (
                                     <option key={idx} value={code} />
@@ -373,7 +384,7 @@ function PayrollManagement() {
                                     <label className="payroll-form-label">Tên nhân sự (*)</label>
                                     <input type="text" list="filtered-staff-list" className="form-control" name="staffName" value={formData.staffName} onChange={handleInputChange} required placeholder="Nhập hoặc chọn tên..." autoComplete="off" />
                                 </div>
-                                
+
                                 <div className="payroll-form-group">
                                     <label className="payroll-form-label">Khóa học (Nếu có)</label>
                                     <input type="text" list="filtered-class-list" className="form-control" name="courseName" value={formData.courseName || ''} onChange={handleInputChange} placeholder="Nhập hoặc chọn lớp..." autoComplete="off" />
@@ -394,7 +405,6 @@ function PayrollManagement() {
                                     </select>
                                 </div>
 
-                                {/* KHU VỰC NÉT ĐỨT PHỤ PHÍ / ĐIỀU CHỈNH ĐA DÒNG - ĐÃ BỎ NÚT TRÒN MÀU */}
                                 <div className="payroll-adj-section">
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <span style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-main)' }}>Khu vực Phụ phí / Điều chỉnh</span>
@@ -402,14 +412,14 @@ function PayrollManagement() {
                                             <i className="fa-solid fa-plus"></i> Thêm dòng điều chỉnh
                                         </button>
                                     </div>
-                                    
+
                                     {formData.adjustments.map((adj, index) => (
                                         <div className="payroll-adj-row" key={index}>
                                             <div className="payroll-form-group" style={{ marginBottom: 0 }}>
                                                 <label className="payroll-form-label">Loại điều chỉnh</label>
-                                                <select 
+                                                <select
                                                     className={`form-control ${getControlClassName(adj.type)}`}
-                                                    value={adj.type} 
+                                                    value={adj.type}
                                                     onChange={(e) => handleAdjChange(index, 'type', e.target.value)}
                                                 >
                                                     <option value="Không">Không áp dụng</option>
@@ -421,13 +431,13 @@ function PayrollManagement() {
                                             </div>
                                             <div className="payroll-form-group" style={{ marginBottom: 0 }}>
                                                 <label className="payroll-form-label">Số tiền điều chỉnh</label>
-                                                <input 
-                                                    type="number" 
+                                                <input
+                                                    type="number"
                                                     className={`form-control ${getControlClassName(adj.type)}`}
-                                                    value={adj.amount} 
+                                                    value={adj.amount}
                                                     onChange={(e) => handleAdjChange(index, 'amount', e.target.value)}
-                                                    disabled={adj.type === 'Không'} 
-                                                    placeholder={adj.type === 'Không' ? 'Trống...' : 'Nhập số tiền...'} 
+                                                    disabled={adj.type === 'Không'}
+                                                    placeholder={adj.type === 'Không' ? 'Trống...' : 'Nhập số tiền...'}
                                                 />
                                             </div>
                                             {formData.adjustments.length > 1 && (
@@ -451,7 +461,6 @@ function PayrollManagement() {
                                     <input type="date" className="form-control" name="paymentDate" value={formData.paymentDate} onChange={handleInputChange} required />
                                 </div>
 
-                                {/* ĐỔI TÊN LƯU NHÁP THÀNH CHỜ DUYỆT */}
                                 <div className="payroll-form-group">
                                     <label className="payroll-form-label">Trạng thái</label>
                                     <select className="form-control" name="status" value={formData.status} onChange={handleInputChange}>
