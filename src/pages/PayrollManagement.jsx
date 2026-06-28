@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 import { useData } from '../context/DataContext'; 
-import '../styles/pages/PayrollManagement.css'; // Đường dẫn chuẩn theo yêu cầu
+import '../styles/pages/PayrollManagement.css'; 
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
@@ -10,7 +10,7 @@ const api = axios.create({
 
 function PayrollManagement() {
     const { addNotification } = useNotification();
-    const { teachers, tas } = useData() || {}; // Lấy dữ liệu GV, TA để đưa vào dropdown
+    const { teachers, tas, classes, customers } = useData() || {}; 
     
     // States
     const [activeTab, setActiveTab] = useState('all');
@@ -18,10 +18,8 @@ function PayrollManagement() {
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [payrolls, setPayrolls] = useState([]);
-    
-    const [staffSuggestions, setStaffSuggestions] = useState([]);
 
-    // Khởi tạo Form chuẩn với các trường mới
+    // Khởi tạo cấu trúc mẫu phiếu lương với mảng đa dòng adjustments
     const initialForm = {
         id: null,
         staffName: '',
@@ -30,8 +28,9 @@ function PayrollManagement() {
         sessionsCount: '',
         currency: 'VNĐ',
         baseSalary: '',
-        adjustmentType: 'Không', // Không, Thưởng, Phạt, Phụ cấp thêm, Tăng lương
-        adjustmentAmount: '',
+        adjustments: [
+            { type: 'Không', amount: '' }
+        ],
         paymentDate: new Date().toISOString().split('T')[0],
         notes: '',
         status: 'Đã thanh toán'
@@ -39,7 +38,7 @@ function PayrollManagement() {
 
     const [formData, setFormData] = useState(initialForm);
 
-    // 1. Tải dữ liệu hóa đơn và gom danh sách nhân sự cho Dropdown
+    // 1. Tải lịch sử hóa đơn lương từ Backend
     useEffect(() => {
         const fetchPayrolls = async () => {
             try {
@@ -50,80 +49,143 @@ function PayrollManagement() {
             }
         };
         fetchPayrolls();
+    }, []);
 
-        // Gom danh sách nhân sự làm Suggestions
-        const combinedStaff = [];
-        if (teachers) teachers.forEach(t => combinedStaff.push(t.name));
-        if (tas) tas.forEach(t => combinedStaff.push(t.name));
-        // Loại bỏ trùng lặp
-        setStaffSuggestions([...new Set(combinedStaff)]);
-    }, [teachers, tas]);
+    // 2. MÀNG LỌC 1: Lọc danh sách tên nhân sự theo vị trí được chọn
+    const filteredStaffSuggestions = useMemo(() => {
+        if (formData.role === 'teacher') {
+            return teachers ? teachers.map(t => t.name) : [];
+        }
+        if (formData.role === 'ta') {
+            return tas ? tas.map(t => t.name) : [];
+        }
+        if (formData.role === 'sales') {
+            // Quét lấy danh sách Sale hoạt động từ hệ thống tài khoản và phân hệ CRM
+            const dbSales = []; 
+            const crmSales = customers ? customers.map(c => c.saleInCharge).filter(Boolean) : [];
+            return [...new Set([...dbSales, ...crmSales])];
+        }
+        return [];
+    }, [formData.role, teachers, tas, customers]);
 
-    // Tính toán TỔNG TIỀN tự động
-    const calculateTotal = () => {
-        const base = parseInt(formData.baseSalary) || 0;
-        const adj = parseInt(formData.adjustmentAmount) || 0;
-        if (formData.adjustmentType === 'Phạt') return base - adj;
-        if (formData.adjustmentType !== 'Không') return base + adj;
-        return base;
+    // 3. MÀNG LỌC 2: Rà soát danh sách lớp học tương ứng của Giáo viên / Trợ giảng được chọn
+    const filteredClassSuggestions = useMemo(() => {
+        if (!formData.staffName || !classes) return [];
+        const nameLower = formData.staffName.toLowerCase().trim();
+        
+        return classes.filter(c => {
+            if (formData.role === 'teacher') {
+                return c.teacher && c.teacher.toLowerCase().includes(nameLower);
+            }
+            if (formData.role === 'ta') {
+                return c.ta && c.ta.toLowerCase().includes(nameLower);
+            }
+            return false;
+        }).map(c => c.classCode);
+    }, [formData.staffName, formData.role, classes]);
+
+    // Thuật toán tính toán TỔNG LƯƠNG từ mảng đa dòng điều chỉnh
+    const calculateTotal = (formState) => {
+        const base = parseInt(formState.baseSalary) || 0;
+        let totalAdj = 0;
+
+        if (formState.adjustments && formState.adjustments.length > 0) {
+            formState.adjustments.forEach(adj => {
+                const amt = parseInt(adj.amount) || 0;
+                if (adj.type === 'Phạt') {
+                    totalAdj -= amt;
+                } else if (adj.type !== 'Không') {
+                    totalAdj += amt;
+                }
+            });
+        }
+        return base + totalAdj;
     };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => {
             const updated = { ...prev, [name]: value };
-            // Reset tiền điều chỉnh nếu chọn "Không"
-            if (name === 'adjustmentType' && value === 'Không') {
-                updated.adjustmentAmount = '';
+            // Nếu đổi vai trò, tự động làm sạch tên nhân sự cũ để tránh râu ông nọ cắm cằm bà kia
+            if (name === 'role') {
+                updated.staffName = '';
+                updated.courseName = '';
             }
             return updated;
         });
     };
 
-    // Mở Form Thêm Mới
+    // Quản lý đa dòng Phụ phí
+    const handleAdjChange = (index, field, value) => {
+        const updatedAdjustments = [...formData.adjustments];
+        updatedAdjustments[index][field] = value;
+        if (field === 'type' && value === 'Không') {
+            updatedAdjustments[index].amount = '';
+        }
+        setFormData({ ...formData, adjustments: updatedAdjustments });
+    };
+
+    const addAdjRow = () => {
+        setFormData({
+            ...formData,
+            adjustments: [...formData.adjustments, { type: 'Không', amount: '' }]
+        });
+    };
+
+    const removeAdjRow = (index) => {
+        const updatedAdjustments = formData.adjustments.filter((_, i) => i !== index);
+        setFormData({ ...formData, adjustments: updatedAdjustments });
+    };
+
+    // Lấy màu sắc điều chỉnh cho ô nhập liệu dựa trên hình ảnh image_3f3e02.png
+    const getControlClassName = (type) => {
+        if (type === 'Thưởng') return 'control-thuong';
+        if (type === 'Phạt') return 'control-phat';
+        if (type === 'Phụ cấp thêm') return 'control-them';
+        if (type === 'Tăng lương') return 'control-tang';
+        return '';
+    };
+
     const openAddModal = () => {
         setFormData(initialForm);
         setIsEditing(false);
         setShowModal(true);
     };
 
-    // Mở Form Chỉnh Sửa
     const openEditModal = (record) => {
-        setFormData({ ...record });
+        // Hỗ trợ tương thích ngược nếu dữ liệu cũ trong DB chưa có mảng adjustments
+        const adjustments = record.adjustments || [
+            { type: record.adjustmentType || 'Không', amount: record.adjustmentAmount || '' }
+        ];
+        setFormData({ ...record, adjustments });
         setIsEditing(true);
         setShowModal(true);
     };
 
-    // Lưu Dữ Liệu (Thêm/Sửa)
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
         try {
-            const finalTotal = calculateTotal();
+            finalTotal = calculateTotal(formData);
             const payload = {
                 ...formData,
-                amount: finalTotal // Lưu tổng tiền vào database
+                amount: finalTotal
             };
 
             if (isEditing) {
-                // API Sửa
                 const res = await api.put(`/payroll/${formData.id}`, payload);
                 setPayrolls(payrolls.map(p => p.id === formData.id ? res.data : p));
                 addNotification('Sửa Hóa Đơn', `Đã cập nhật hóa đơn lương của ${formData.staffName}`, 'warning', 'payroll');
             } else {
-                // API Thêm mới
                 const res = await api.post('/payroll', payload);
                 setPayrolls([res.data, ...payrolls]);
                 addNotification('Thanh toán lương', `Đã ghi nhận phiếu lương mới cho ${formData.staffName}`, 'success', 'payroll');
             }
-
             setShowModal(false);
         } catch (error) {
-            addNotification('Lỗi', 'Không thể lưu hóa đơn lương lên hệ thống.', 'error');
+            addNotification('Lỗi', 'Không thể lưu hóa đơn lương.', 'error');
         }
     };
 
-    // Xóa Dữ Liệu
     const handleDelete = async (id, name) => {
         if (window.confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn hóa đơn trả lương của ${name} không?`)) {
             try {
@@ -136,7 +198,6 @@ function PayrollManagement() {
         }
     };
 
-    // Bộ lọc
     const filteredPayrolls = payrolls.filter(p => {
         const matchTab = activeTab === 'all' || p.role === activeTab;
         const matchSearch = p.staffName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -145,12 +206,12 @@ function PayrollManagement() {
     });
 
     const totalPaid = payrolls.filter(p => p.status === 'Đã thanh toán').reduce((sum, p) => sum + (p.amount || 0), 0);
-    const totalPending = payrolls.filter(p => p.status === 'Chờ thanh toán').reduce((sum, p) => sum + (p.amount || 0), 0);
+    const totalPending = payrolls.filter(p => p.status === 'Chờ duyệt').reduce((sum, p) => sum + (p.amount || 0), 0);
 
     return (
         <div className="payroll-container">
             
-            {/* KPI Cards */}
+            {/* KPI Cards - ĐÃ BỎ CHỮ THAO TÁC NHANH */}
             <div className="payroll-kpi-grid">
                 <div className="payroll-kpi-card">
                     <div className="payroll-kpi-info">
@@ -163,7 +224,7 @@ function PayrollManagement() {
                 </div>
                 <div className="payroll-kpi-card">
                     <div className="payroll-kpi-info">
-                        <span>Đang chờ thanh toán</span>
+                        <span>Đang chờ duyệt</span>
                         <strong style={{ color: '#d97706' }}>{totalPending.toLocaleString('vi-VN')} đ</strong>
                     </div>
                     <div className="payroll-kpi-icon" style={{ backgroundColor: '#fef3c7', color: '#d97706' }}>
@@ -172,8 +233,8 @@ function PayrollManagement() {
                 </div>
                 <div className="payroll-kpi-card" style={{ cursor: 'pointer', backgroundColor: 'var(--primary)', color: 'white' }} onClick={openAddModal}>
                     <div className="payroll-kpi-info">
-                        <span style={{ color: 'rgba(255,255,255,0.8)' }}>Thao tác nhanh</span>
-                        <strong style={{ color: 'white' }}>Tạo hóa đơn lương</strong>
+                        <span style={{ color: 'rgba(255,255,255,0.8)' }}>Quản lý chi phí</span>
+                        <strong style={{ color: 'white' }}>Tạo hóa đơn trả lương</strong>
                     </div>
                     <div className="payroll-kpi-icon" style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }}>
                         <i className="fa-solid fa-plus"></i>
@@ -236,13 +297,17 @@ function PayrollManagement() {
 
                                     <td style={{ padding: '16px' }}>
                                         <div style={{ fontSize: '0.85rem', color: 'var(--text-main)' }}>
-                                            Cứng: <strong style={{color: '#475569'}}>{(parseInt(p.baseSalary) || 0).toLocaleString('vi-VN')} đ</strong>
+                                            Cứng: <strong>{(parseInt(p.baseSalary) || 0).toLocaleString('vi-VN')} đ</strong>
                                         </div>
-                                        {p.adjustmentType !== 'Không' && p.adjustmentAmount > 0 && (
-                                            <div className={`adj-badge adj-${p.adjustmentType === 'Thưởng' ? 'thuong' : p.adjustmentType === 'Phạt' ? 'phat' : p.adjustmentType === 'Tăng lương' ? 'tang' : 'them'}`}>
-                                                {p.adjustmentType}: {p.adjustmentType === 'Phạt' ? '-' : '+'}{(parseInt(p.adjustmentAmount) || 0).toLocaleString('vi-VN')} đ
-                                            </div>
-                                        )}
+                                        <div className="adj-badge-list">
+                                            {p.adjustments && p.adjustments.map((adj, i) => (
+                                                adj.type !== 'Không' && (
+                                                    <div key={i} className={`adj-badge adj-${adj.type === 'Thưởng' ? 'thuong' : adj.type === 'Phạt' ? 'phat' : adj.type === 'Tăng lương' ? 'tang' : 'them'}`}>
+                                                        {adj.type}: {adj.type === 'Phạt' ? '-' : '+'}{(parseInt(adj.amount) || 0).toLocaleString('vi-VN')} đ
+                                                    </div>
+                                                )
+                                            ))}
+                                        </div>
                                     </td>
 
                                     <td style={{ padding: '16px', fontWeight: '800', color: 'var(--primary)', fontSize: '1.1rem' }}>
@@ -250,7 +315,7 @@ function PayrollManagement() {
                                     </td>
                                     
                                     <td style={{ padding: '16px' }}>
-                                        <span className={`status-badge ${p.status === 'Đã thanh toán' ? 'status-paid' : 'status-pending'}`}>
+                                        <span className={`status-badge ${p.status === 'Đã thanh toán' ? 'status-paid' : 'status-pending' || p.status === 'Chờ duyệt' ? 'status-pending' : 'status-paid'}`}>
                                             {p.status}
                                         </span>
                                     </td>
@@ -268,23 +333,30 @@ function PayrollManagement() {
                 </div>
             </div>
 
-            {/* Modal Ghi Hóa Đơn Lương */}
+            {/* Modal Ghi Hóa Đơn Lương - ĐÃ ĐỔI TÊN TIÊU ĐỀ THEO YÊU CẦU */}
             {showModal && (
                 <div className="payroll-modal-overlay">
                     <div className="payroll-modal-content">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '24px' }}>
                             <h3 style={{ margin: 0, color: 'var(--primary)', fontWeight: '800' }}>
                                 <i className="fa-solid fa-file-signature" style={{ marginRight: '8px' }}></i> 
-                                {isEditing ? 'Chỉnh Sửa Hóa Đơn Lương' : 'Tạo Hóa Đơn Trả Lương'}
+                                {isEditing ? 'Chỉnh sửa hóa đơn trả lương' : 'Tạo hóa đơn trả lương'}
                             </h3>
                             <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: 'var(--text-muted)', cursor: 'pointer' }}>✖</button>
                         </div>
 
                         <form onSubmit={handleSubmit}>
-                            {/* Datalist hỗ trợ tìm kiếm nhân sự */}
-                            <datalist id="staff-list">
-                                {staffSuggestions.map((name, idx) => (
+                            {/* Datalist rà soát nhân sự tự động hóa theo Vai trò */}
+                            <datalist id="filtered-staff-list">
+                                {filteredStaffSuggestions.map((name, idx) => (
                                     <option key={idx} value={name} />
+                                ))}
+                            </datalist>
+
+                            {/* Datalist rà soát mã lớp học của giáo viên được chọn */}
+                            <datalist id="filtered-class-list">
+                                {filteredClassSuggestions.map((code, idx) => (
+                                    <option key={idx} value={code} />
                                 ))}
                             </datalist>
 
@@ -299,12 +371,12 @@ function PayrollManagement() {
                                 </div>
                                 <div className="payroll-form-group">
                                     <label className="payroll-form-label">Tên nhân sự (*)</label>
-                                    <input type="text" list="staff-list" className="form-control" name="staffName" value={formData.staffName} onChange={handleInputChange} required placeholder="Nhập hoặc chọn tên..." autoComplete="off" />
+                                    <input type="text" list="filtered-staff-list" className="form-control" name="staffName" value={formData.staffName} onChange={handleInputChange} required placeholder="Nhập hoặc chọn tên..." autoComplete="off" />
                                 </div>
                                 
                                 <div className="payroll-form-group">
                                     <label className="payroll-form-label">Khóa học (Nếu có)</label>
-                                    <input type="text" className="form-control" name="courseName" value={formData.courseName || ''} onChange={handleInputChange} placeholder="VD: 20/5 HSK 1..." />
+                                    <input type="text" list="filtered-class-list" className="form-control" name="courseName" value={formData.courseName || ''} onChange={handleInputChange} placeholder="Nhập hoặc chọn lớp..." autoComplete="off" />
                                 </div>
                                 <div className="payroll-form-group">
                                     <label className="payroll-form-label">Tổng số buổi</label>
@@ -318,30 +390,59 @@ function PayrollManagement() {
                                 <div className="payroll-form-group">
                                     <label className="payroll-form-label">Đơn vị tiền tệ</label>
                                     <select className="form-control" name="currency" value={formData.currency} onChange={handleInputChange}>
-                                        <option value="VNĐ">VNĐ (Việt Nam Đồng)</option>
+                                        <option value="VNĐ">VNĐ</option>
                                     </select>
                                 </div>
 
-                                {/* KHU VỰC THƯỞNG PHẠT */}
-                                <div className="payroll-form-group">
-                                    <label className="payroll-form-label">Phụ phí / Điều chỉnh</label>
-                                    <select className="form-control" name="adjustmentType" value={formData.adjustmentType} onChange={handleInputChange} style={{ backgroundColor: '#f8fafc' }}>
-                                        <option value="Không">Không áp dụng</option>
-                                        <option value="Thưởng">🟢 Thưởng</option>
-                                        <option value="Phạt">🔴 Phạt</option>
-                                        <option value="Phụ cấp thêm">🔵 Phụ cấp thêm</option>
-                                        <option value="Tăng lương">🟣 Tăng lương</option>
-                                    </select>
-                                </div>
-                                <div className="payroll-form-group">
-                                    <label className="payroll-form-label">Số tiền điều chỉnh</label>
-                                    <input type="number" className="form-control" name="adjustmentAmount" value={formData.adjustmentAmount || ''} onChange={handleInputChange} disabled={formData.adjustmentType === 'Không'} placeholder={formData.adjustmentType === 'Không' ? 'Vui lòng chọn loại điều chỉnh...' : 'Nhập số tiền...'} style={{ backgroundColor: formData.adjustmentType === 'Không' ? '#e2e8f0' : 'white' }} />
+                                {/* KHU VỰC NÉT ĐỨT PHỤ PHÍ / ĐIỀU CHỈNH ĐA DÒNG - ĐÃ BỎ NÚT TRÒN MÀU */}
+                                <div className="payroll-adj-section">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--text-main)' }}>Khu vực Phụ phí / Điều chỉnh</span>
+                                        <button type="button" className="btn" onClick={addAdjRow} style={{ padding: '4px 12px', fontSize: '0.75rem', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '4px', cursor: 'pointer', fontWeight: '700' }}>
+                                            <i className="fa-solid fa-plus"></i> Thêm dòng điều chỉnh
+                                        </button>
+                                    </div>
+                                    
+                                    {formData.adjustments.map((adj, index) => (
+                                        <div className="payroll-adj-row" key={index}>
+                                            <div className="payroll-form-group" style={{ marginBottom: 0 }}>
+                                                <label className="payroll-form-label">Loại điều chỉnh</label>
+                                                <select 
+                                                    className={`form-control ${getControlClassName(adj.type)}`}
+                                                    value={adj.type} 
+                                                    onChange={(e) => handleAdjChange(index, 'type', e.target.value)}
+                                                >
+                                                    <option value="Không">Không áp dụng</option>
+                                                    <option value="Thưởng">Thưởng</option>
+                                                    <option value="Phạt">Phạt</option>
+                                                    <option value="Phụ cấp thêm">Phụ cấp thêm</option>
+                                                    <option value="Tăng lương">Tăng lương</option>
+                                                </select>
+                                            </div>
+                                            <div className="payroll-form-group" style={{ marginBottom: 0 }}>
+                                                <label className="payroll-form-label">Số tiền điều chỉnh</label>
+                                                <input 
+                                                    type="number" 
+                                                    className={`form-control ${getControlClassName(adj.type)}`}
+                                                    value={adj.amount} 
+                                                    onChange={(e) => handleAdjChange(index, 'amount', e.target.value)}
+                                                    disabled={adj.type === 'Không'} 
+                                                    placeholder={adj.type === 'Không' ? 'Trống...' : 'Nhập số tiền...'} 
+                                                />
+                                            </div>
+                                            {formData.adjustments.length > 1 && (
+                                                <button type="button" onClick={() => removeAdjRow(index)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', paddingBottom: '10px', fontSize: '1.1rem' }} title="Xóa dòng này">
+                                                    <i className="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
 
                                 <div className="payroll-form-group full-width" style={{ backgroundColor: '#f1f5f9', padding: '12px', borderRadius: '8px', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', border: '1px dashed #cbd5e1' }}>
                                     <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-muted)' }}>TỔNG THANH TOÁN:</span>
                                     <strong style={{ fontSize: '1.4rem', color: 'var(--primary)' }}>
-                                        {calculateTotal().toLocaleString('vi-VN')} {formData.currency}
+                                        {calculateTotal(formData).toLocaleString('vi-VN')} {formData.currency}
                                     </strong>
                                 </div>
 
@@ -350,17 +451,18 @@ function PayrollManagement() {
                                     <input type="date" className="form-control" name="paymentDate" value={formData.paymentDate} onChange={handleInputChange} required />
                                 </div>
 
+                                {/* ĐỔI TÊN LƯU NHÁP THÀNH CHỜ DUYỆT */}
                                 <div className="payroll-form-group">
                                     <label className="payroll-form-label">Trạng thái</label>
                                     <select className="form-control" name="status" value={formData.status} onChange={handleInputChange}>
                                         <option value="Đã thanh toán">✅ Đã chuyển khoản / Tiền mặt</option>
-                                        <option value="Chờ thanh toán">⏳ Lưu nháp chờ duyệt</option>
+                                        <option value="Chờ duyệt">⏳ Chờ duyệt</option>
                                     </select>
                                 </div>
 
                                 <div className="payroll-form-group full-width">
                                     <label className="payroll-form-label">Ghi chú chi tiết</label>
-                                    <textarea className="form-control" name="notes" rows="2" value={formData.notes} onChange={handleInputChange} placeholder="Mô tả lý do thưởng/phạt hoặc chi tiết lương..." style={{ resize: 'none' }}></textarea>
+                                    <textarea className="form-control" name="notes" rows="2" value={formData.notes} onChange={handleInputChange} placeholder="Mô tả lý do..." style={{ resize: 'none' }}></textarea>
                                 </div>
                             </div>
 
