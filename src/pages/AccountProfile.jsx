@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNotification } from '../context/NotificationContext'; 
+import { useNotification } from '../context/NotificationContext';
 
 // Kéo file ảnh từ thư mục assets vào
 import adminAvatarImg from '../assets/admin_avatar.jpg';
 
 function AccountProfile() {
     const { currentUser, currentRole, updateProfile } = useAuth();
-    const { addNotification } = useNotification(); 
+    const { addNotification } = useNotification();
 
     const [formData, setFormData] = useState({
         name: currentUser.name || '',
@@ -23,7 +23,7 @@ function AccountProfile() {
     const handleSave = (e) => {
         e.preventDefault();
         updateProfile(formData);
-        
+
         addNotification('Cập nhật Hồ sơ', 'Thông tin tài khoản cá nhân đã được lưu thành công!', 'success', 'profile', {
             'Tên hiển thị': formData.name,
             'Số điện thoại': formData.phone || 'Chưa cập nhật',
@@ -39,7 +39,7 @@ function AccountProfile() {
                 </h3>
 
                 <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
-                    
+
                     {/* Cột Avatar - DÙNG ẢNH MẶC ĐỊNH CHUẨN */}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
                         <div style={{ width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'var(--primary-light)', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '4px solid var(--primary)', overflow: 'hidden' }}>
@@ -80,11 +80,11 @@ function AccountProfile() {
                             >
                                 <option value="sales">Chuyên viên Sale</option>
                                 <option value="teacher">Giáo viên</option>
-                                
+
                                 {/* Ẩn hoàn toàn chữ "Quản trị viên" khỏi Dropdown nếu không phải là Admin */}
                                 {currentRole === 'admin' && <option value="admin">Quản trị viên (Admin)</option>}
                             </select>
-                            
+
                             {currentRole !== 'admin' && <span style={{ fontSize: '0.75rem', color: 'var(--warning-text)', marginTop: '4px', display: 'block' }}>Chỉ Quản trị viên (Admin) mới có quyền thay đổi chức vụ.</span>}
                         </div>
 
