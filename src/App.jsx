@@ -17,6 +17,7 @@ import FinanceLog from "./pages/FinanceLog";
 import MyClassActive from "./pages/MyClassActive";
 import TeachingAssistantProfile from "./pages/TeachingAssistantProfile";
 import AccountProfile from "./pages/AccountProfile"; // Trang cấu hình tài khoản mới
+import PayrollManagement from "./pages/PayrollManagement";
 import "./styles/globals.css";
 
 function App() {
@@ -90,6 +91,9 @@ function App() {
           )}
           {activeTab === "finance" && currentRole !== "teacher" && (
             <FinanceLog />
+          )}
+          {activeTab === "payroll" && currentRole === "admin" && (
+            <PayrollManagement />
           )}
         </main>
       </div>
