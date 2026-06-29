@@ -18,29 +18,28 @@ function MyClassActive() {
     const fetchAllData = async () => {
       try {
         const [studentsRes, customersRes] = await Promise.all([
-          api.get("/students").catch(() => ({
-            data: [],
-          })),
-          api.get("/customers").catch(() => ({
-            data: [],
-          })),
+          api.get("/students").catch(() => ({ data: [] })),
+          api.get("/customers").catch(() => ({ data: [] })),
         ]);
-        const studentsList = (studentsRes.data || [])
-          .filter(Boolean)
-          .map((s) => ({
-            id: `ST-${s.id}`,
-            name: String(s.name || "Học viên ẩn danh"),
-            classCode: s.classId || s.class,
-          }));
+
+        // Hàm Regex siêu việt: Xóa mọi khoảng trắng thừa và chuẩn hóa chuỗi
+        const normalizeStr = (str) => String(str || "").trim().toLowerCase().replace(/\s+/g, ' ');
+
+        const studentsList = (studentsRes.data || []).filter(Boolean).map((s) => ({
+          id: `ST-${s.id}`,
+          name: String(s.name || "Học viên ẩn danh"),
+          classCode: s.classId || s.class,
+        }));
+
+        // Áp dụng chuẩn hóa Regex vào lưới bảo vệ
         const studentNamesSet = new Set(
-          studentsList.map((s) => s.name.trim().toLowerCase()),
+          studentsList.map((s) => normalizeStr(s.name))
         );
+
         const customersList = (customersRes.data || [])
           .filter((c) => c && c.status === "Đã ĐK" && c.assignClass)
           .filter((c) => {
-            const cName = String(c.name || c.fbName || "")
-              .trim()
-              .toLowerCase();
+            const cName = normalizeStr(c.name || c.fbName);
             return !studentNamesSet.has(cName);
           })
           .map((c) => ({
@@ -48,9 +47,10 @@ function MyClassActive() {
             name: String(c.name || c.fbName || "Khách hàng ẩn danh"),
             classCode: c.assignClass,
           }));
+
         setAllStudents([...studentsList, ...customersList]);
       } catch (error) {
-        console.log("Lỗi đồng bộ dữ liệu học viên");
+        console.log("Lỗi đồng bộ dữ liệu");
       }
     };
     fetchAllData();
@@ -219,9 +219,9 @@ function MyClassActive() {
       prev.map((s) =>
         s.sessionNum === selectedSessionNum
           ? {
-              ...s,
-              [field]: value,
-            }
+            ...s,
+            [field]: value,
+          }
           : s,
       ),
     );
@@ -239,9 +239,9 @@ function MyClassActive() {
       prev.map((s) =>
         s.id === id
           ? {
-              ...s,
-              status: newStatus,
-            }
+            ...s,
+            status: newStatus,
+          }
           : s,
       ),
     );
@@ -251,9 +251,9 @@ function MyClassActive() {
       prev.map((s) =>
         s.id === id
           ? {
-              ...s,
-              flag: !s.flag,
-            }
+            ...s,
+            flag: !s.flag,
+          }
           : s,
       ),
     );
@@ -273,17 +273,21 @@ function MyClassActive() {
         ...currentSession,
         classId: activeClass.id,
       });
+
+
       const mappedAttendance = studentsAttendance.map((st) => ({
-        studentId: st.id,
-        studentName: st.name,
+        id: st.id,         // Đổi từ studentId -> id
+        name: st.name,     // Đổi từ studentName -> name
         status: st.status,
         flag: st.flag,
       }));
+
       await api.post(`/attendance/save`, {
         classId: activeClass.id,
         sessionNum: selectedSessionNum,
         records: mappedAttendance,
       });
+
 
       // TẠO BÁO CÁO CHI TIẾT KHI GIÁO VIÊN LƯU
       const presentCount = studentsAttendance.filter(

@@ -378,7 +378,6 @@ function PayrollManagement() {
                                         <option value="teacher">Giáo viên</option>
                                         <option value="ta">Trợ giảng</option>
                                         <option value="sales">Chuyên viên Sale</option>
-                                        <option value="other">Khác</option>
                                     </select>
                                 </div>
                                 <div className="payroll-form-group">

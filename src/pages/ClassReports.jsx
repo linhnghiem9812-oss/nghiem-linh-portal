@@ -19,31 +19,28 @@ function ClassReports() {
     const fetchAllData = async () => {
       try {
         const [studentsRes, customersRes] = await Promise.all([
-          api.get("/students").catch(() => ({
-            data: [],
-          })),
-          api.get("/customers").catch(() => ({
-            data: [],
-          })),
+          api.get("/students").catch(() => ({ data: [] })),
+          api.get("/customers").catch(() => ({ data: [] })),
         ]);
-        const studentsList = (studentsRes.data || [])
-          .filter(Boolean)
-          .map((s) => ({
-            id: `ST-${s.id}`,
-            name: String(s.name || "Học viên ẩn danh"),
-            classCode: s.classId || s.class,
-          }));
 
-        // LƯỚI BẢO VỆ 1: Chặn học viên trùng lặp giữa CRM và Danh sách chính thức
+        // Hàm Regex siêu việt: Xóa mọi khoảng trắng thừa và chuẩn hóa chuỗi
+        const normalizeStr = (str) => String(str || "").trim().toLowerCase().replace(/\s+/g, ' ');
+
+        const studentsList = (studentsRes.data || []).filter(Boolean).map((s) => ({
+          id: `ST-${s.id}`,
+          name: String(s.name || "Học viên ẩn danh"),
+          classCode: s.classId || s.class,
+        }));
+
+        // Áp dụng chuẩn hóa Regex vào lưới bảo vệ
         const studentNamesSet = new Set(
-          studentsList.map((s) => s.name.trim().toLowerCase()),
+          studentsList.map((s) => normalizeStr(s.name))
         );
+
         const customersList = (customersRes.data || [])
           .filter((c) => c && c.status === "Đã ĐK" && c.assignClass)
           .filter((c) => {
-            const cName = String(c.name || c.fbName || "")
-              .trim()
-              .toLowerCase();
+            const cName = normalizeStr(c.name || c.fbName);
             return !studentNamesSet.has(cName);
           })
           .map((c) => ({
@@ -51,6 +48,7 @@ function ClassReports() {
             name: String(c.name || c.fbName || "Khách hàng ẩn danh"),
             classCode: c.assignClass,
           }));
+
         setAllStudents([...studentsList, ...customersList]);
       } catch (error) {
         console.log("Lỗi đồng bộ dữ liệu");
@@ -79,7 +77,7 @@ function ClassReports() {
               [c.id]: completedCount,
             }));
           })
-          .catch(() => {});
+          .catch(() => { });
       });
     }
   }, [classes]);
@@ -122,7 +120,7 @@ function ClassReports() {
                     [session.sessionNum]: presentIds.size,
                   }));
                 })
-                .catch(() => {});
+                .catch(() => { });
             }
           });
         })
@@ -343,10 +341,10 @@ function ClassReports() {
                       s &&
                       (s.status === "completed" || s.status === "cancelled"),
                   ).length === 0 && (
-                    <p className="ClassReports-style-60">
-                      Chưa có lịch sử dạy được ghi nhận từ Giáo viên.
-                    </p>
-                  )}
+                      <p className="ClassReports-style-60">
+                        Chưa có lịch sử dạy được ghi nhận từ Giáo viên.
+                      </p>
+                    )}
 
                   {reportSessions
                     .filter(

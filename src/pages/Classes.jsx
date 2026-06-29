@@ -40,29 +40,28 @@ function Classes() {
     const fetchAllData = async () => {
       try {
         const [studentsRes, customersRes] = await Promise.all([
-          api.get("/students").catch(() => ({
-            data: [],
-          })),
-          api.get("/customers").catch(() => ({
-            data: [],
-          })),
+          api.get("/students").catch(() => ({ data: [] })),
+          api.get("/customers").catch(() => ({ data: [] })),
         ]);
-        const studentsList = (studentsRes.data || [])
-          .filter(Boolean)
-          .map((s) => ({
-            id: `ST-${s.id}`,
-            name: String(s.name || "Học viên ẩn danh"),
-            classCode: s.classId || s.class,
-          }));
+
+        // Hàm Regex siêu việt: Xóa mọi khoảng trắng thừa và chuẩn hóa chuỗi
+        const normalizeStr = (str) => String(str || "").trim().toLowerCase().replace(/\s+/g, ' ');
+
+        const studentsList = (studentsRes.data || []).filter(Boolean).map((s) => ({
+          id: `ST-${s.id}`,
+          name: String(s.name || "Học viên ẩn danh"),
+          classCode: s.classId || s.class,
+        }));
+
+        // Áp dụng chuẩn hóa Regex vào lưới bảo vệ
         const studentNamesSet = new Set(
-          studentsList.map((s) => s.name.trim().toLowerCase()),
+          studentsList.map((s) => normalizeStr(s.name))
         );
+
         const customersList = (customersRes.data || [])
           .filter((c) => c && c.status === "Đã ĐK" && c.assignClass)
           .filter((c) => {
-            const cName = String(c.name || c.fbName || "")
-              .trim()
-              .toLowerCase();
+            const cName = normalizeStr(c.name || c.fbName);
             return !studentNamesSet.has(cName);
           })
           .map((c) => ({
@@ -70,6 +69,7 @@ function Classes() {
             name: String(c.name || c.fbName || "Khách hàng ẩn danh"),
             classCode: c.assignClass,
           }));
+
         setAllStudents([...studentsList, ...customersList]);
       } catch (error) {
         console.log("Lỗi đồng bộ dữ liệu");
@@ -810,8 +810,8 @@ function Classes() {
                       key={c.id}
                       className="Classes-style-91"
                       onMouseOver={(e) =>
-                        (e.currentTarget.style.backgroundColor =
-                          "var(--bg-app)")
+                      (e.currentTarget.style.backgroundColor =
+                        "var(--bg-app)")
                       }
                       onMouseOut={(e) =>
                         (e.currentTarget.style.backgroundColor = "white")
