@@ -1004,8 +1004,8 @@ function StudentCare() {
                   <div className="StudentCare-style-114">
                     {currentStudent.birthday
                       ? new Date(currentStudent.birthday).toLocaleDateString(
-                          "vi-VN",
-                        )
+                        "vi-VN",
+                      )
                       : "---"}
                   </div>
                 )}
@@ -1091,55 +1091,55 @@ function StudentCare() {
                   transition: "all 0.3s",
                 }}
               >
-                <div>
-                  <label className="StudentCare-style-121">
-                    Trạng thái học tập
-                  </label>
-                  {modalMode !== "view" ? (
-                    <select
-                      className="form-control"
-                      value={currentStudent.status || "Đang học"}
-                      onChange={(e) => {
-                        const newStatus = e.target.value;
-                        if (newStatus === "Đổi lớp") {
-                          setCurrentStudent({
-                            ...currentStudent,
-                            status: newStatus,
-                            classId: "",
-                            course: "Đang chờ xếp lớp",
-                            teacher: "Chưa phân công",
-                          });
-                        } else {
-                          setCurrentStudent({
-                            ...currentStudent,
-                            status: newStatus,
-                          });
-                        }
+                <label className="StudentCare-style-121">
+                  Trạng thái học tập
+                </label>
+                {modalMode !== "view" ? (
+                  <select
+                    className="form-control"
+                    value={currentStudent.status || "Đang học"}
+                    onChange={(e) => {
+                      const newStatus = e.target.value;
+
+                      // LOGIC MỚI: Nếu chọn Nghỉ học, Bảo lưu hoặc Đổi lớp -> Lập tức xóa mã lớp cũ
+                      if (newStatus === "Đổi lớp" || newStatus === "Nghỉ học" || newStatus === "Bảo lưu") {
+                        setCurrentStudent({
+                          ...currentStudent,
+                          status: newStatus,
+                          classId: "", // Xóa trắng mã lớp
+                          course: newStatus === "Đổi lớp" ? "Đang chờ xếp lớp" : "Đã ngừng học",
+                          teacher: "Chưa phân công",
+                        });
+                      } else {
+                        setCurrentStudent({
+                          ...currentStudent,
+                          status: newStatus,
+                        });
+                      }
+                    }}
+                  >
+                    {/* Giữ nguyên toàn bộ option value như bạn yêu cầu */}
+                    <option value="Đang học">Đang học</option>
+                    <option value="Bảo lưu">Bảo lưu</option>
+                    <option value="Học lại">Học lại</option>
+                    <option value="Đổi lớp">Đổi lớp</option>
+                    <option value="Nghỉ học">Nghỉ học</option>
+                  </select>
+                ) : (
+                  <div className="StudentCare-style-122">
+                    <span
+                      style={{
+                        backgroundColor: getStatusBadge(currentStudent.status).bg,
+                        color: getStatusBadge(currentStudent.status).color,
+                        padding: "4px 10px",
+                        borderRadius: "4px",
+                        fontSize: "0.75rem",
                       }}
                     >
-                      <option value="Đang học">Đang học</option>
-                      <option value="Bảo lưu">Bảo lưu</option>
-                      <option value="Học lại">Học lại</option>
-                      <option value="Đổi lớp">Đổi lớp</option>
-                      <option value="Nghỉ học">Nghỉ học</option>
-                    </select>
-                  ) : (
-                    <div className="StudentCare-style-122">
-                      <span
-                        style={{
-                          backgroundColor: getStatusBadge(currentStudent.status)
-                            .bg,
-                          color: getStatusBadge(currentStudent.status).color,
-                          padding: "4px 10px",
-                          borderRadius: "4px",
-                          fontSize: "0.75rem",
-                        }}
-                      >
-                        {currentStudent.status || "---"}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                      {currentStudent.status || "---"}
+                    </span>
+                  </div>
+                )}
 
                 <div>
                   <label
