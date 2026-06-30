@@ -19,13 +19,13 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
     markMultipleAsUnread,
     deleteMultiple,
   } = useNotification();
-  
+
   const [showNotif, setShowNotif] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [viewingNotif, setViewingNotif] = useState(null);
-  
+
   const notifRef = useRef(null);
   const profileRef = useRef(null);
 
@@ -58,13 +58,13 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
   // 2. THUẬT TOÁN TỰ ĐỘNG BẬT POPUP KHI CÓ THÔNG BÁO MỚI
   useEffect(() => {
     if (notifications && notifications.length > 0) {
-      const newestNotif = notifications[0]; 
+      const newestNotif = notifications[0];
 
       // Mở popup nếu không phải lần tải trang đầu và ID thông báo khác với lần trước
       if (!isInitialMount.current && newestNotif.id !== lastNotifIdRef.current) {
         setViewingNotif(newestNotif);
       }
-      
+
       lastNotifIdRef.current = newestNotif.id;
     }
     isInitialMount.current = false;
@@ -125,9 +125,9 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
       title: "Hồ sơ Cá nhân",
       subtitle: "Quản lý thông tin bảo mật và tài khoản hệ thống",
     },
-    payroll: { 
-      title: 'Thanh toán Lương', 
-      subtitle: 'Quản lý chi phí và lập hóa đơn lương nhân sự' 
+    payroll: {
+      title: 'Thanh toán Lương',
+      subtitle: 'Quản lý chi phí và lập hóa đơn lương nhân sự'
     },
   };
 
@@ -434,16 +434,15 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
       </div>
 
       {/* 3. MODAL CHI TIẾT TÓM TẮT THÔNG BÁO - ĐÃ KHẮC PHỤC LỆCH MÀN HÌNH VÀ THÊM CLICK OUTSIDE */}
+      {/* 3. MODAL CHI TIẾT TÓM TẮT THÔNG BÁO - CHUẨN HÓA VỊ TRÍ VÀ KÍCH THƯỚC */}
       {viewingNotif && (
-        <div 
-          className="Topbar-style-40" 
-          onClick={() => setViewingNotif(null)} 
-          style={{ width: '100%', height: '100%', padding: '20px' }} 
+        <div
+          className="Topbar-style-40"
+          onClick={() => setViewingNotif(null)}
         >
-          <div 
-            className="card Topbar-style-41" 
-            onClick={(e) => e.stopPropagation()} 
-            style={{ padding: '32px' }} 
+          <div
+            className="card Topbar-style-41"
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="Topbar-style-42">
               <div className="Topbar-style-43">
@@ -468,6 +467,7 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
                     justifyContent: "center",
                     alignItems: "center",
                     fontSize: "1.6rem",
+                    flexShrink: 0
                   }}
                 >
                   <i

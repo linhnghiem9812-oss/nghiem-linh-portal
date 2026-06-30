@@ -298,24 +298,35 @@
   color: var(--primary);
 }
 
+/* LỚP PHỦ ĐEN (OVERLAY) */
 .Topbar-style-40 {
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  width: 100vw;
-  height: 100vh;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  /* Ép dãn sát lề phải màn hình */
+  bottom: 0 !important;
+  /* Ép dãn sát lề dưới màn hình */
+  width: auto !important;
+  height: auto !important;
   background-color: rgba(0, 0, 0, 0.75);
-  z-index: 99999;
+  z-index: 999999 !important;
+  /* Đảm bảo layer luôn ở trên cùng, đè lên cả Sidebar */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+/* KHUNG THÔNG BÁO CHÍNH (MODAL) */
 .Topbar-style-41 {
   width: 550px;
   max-width: 95vw;
+  max-height: 85vh;
+  /* Giới hạn chiều cao tối đa bằng 85% màn hình để không bị trôi lên trên */
+  overflow-y: auto;
+  /* Tự động sinh thanh cuộn dọc nếu nội dung quá dài */
   background-color: white;
-  padding: 28px;
+  padding: 32px;
   border-radius: 16px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
