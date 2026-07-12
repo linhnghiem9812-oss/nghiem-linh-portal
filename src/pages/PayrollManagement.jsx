@@ -48,6 +48,7 @@ function PayrollManagement() {
         fetchPayrolls();
     }, []);
 
+    // TODO: MOVE_TO_BACKEND
     const filteredStaffSuggestions = useMemo(() => {
         if (formData.role === 'teacher') {
             return teachers ? [...new Set(teachers.map(t => t.name?.trim()).filter(Boolean))] : [];
@@ -80,6 +81,7 @@ function PayrollManagement() {
         }).map(c => c.classCode);
     }, [formData.staffName, formData.role, classes]);
 
+    // TODO: MOVE_TO_BACKEND
     const calculateTotal = (formState) => {
         const base = parseInt(formState.baseSalary) || 0;
         let totalAdj = 0;

@@ -27,6 +27,7 @@ function CRM() {
       .catch(() => console.log("Chưa lấy được danh sách Sale."));
   }, []);
 
+  // TODO: MOVE_TO_BACKEND
   // --- TẠO DANH SÁCH DROPDOWN CHUẨN XÁC, KHÔNG TRÙNG LẶP ---
   const uniqueSalesOptions = useMemo(() => {
     const normalize = (str) =>
@@ -149,6 +150,7 @@ function CRM() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  // TODO: MOVE_TO_BACKEND
   const formatToStandardDate = (str) => {
     if (!str) return "";
     const parts = str.split(/[-/.]/);

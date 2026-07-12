@@ -142,6 +142,7 @@ function StudentCare() {
       }
     } else if (modalMode === "edit") {
       try {
+        // TODO: MOVE_TO_BACKEND
         // KIỂM TRA LOGIC TỐT NGHIỆP: NẾU VỪA CHỌN "LÊN KHÓA MỚI" -> ĐẨY LỊCH SỬ VÀO DATABASE MỚI
         if (currentStudent.status === "Lên khóa mới" && originalStudent.status !== "Lên khóa mới") {
             if (originalStudent.course && originalStudent.course !== "Chờ xếp lớp trình độ mới") {

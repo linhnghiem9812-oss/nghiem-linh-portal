@@ -44,6 +44,7 @@ function Classes() {
           api.get("/customers").catch(() => ({ data: [] })),
         ]);
 
+        // TODO: MOVE_TO_BACKEND
         // Hàm Regex siêu việt: Xóa mọi khoảng trắng thừa và chuẩn hóa chuỗi
         const normalizeStr = (str) => String(str || "").trim().toLowerCase().replace(/\s+/g, ' ');
 
@@ -90,6 +91,7 @@ function Classes() {
             1,
             parseInt(selectedClass.totalSessions) || 19,
           );
+          // TODO: MOVE_TO_BACKEND
           const fullSessions = Array.from(
             {
               length: total,
@@ -126,6 +128,7 @@ function Classes() {
       api
         .get(`/attendance/${selectedClass.id}/${activeSession}`)
         .then((res) => {
+          // TODO: MOVE_TO_BACKEND
           const uniqueRecordsMap = new Map();
           (res.data || []).forEach((r) => {
             if (r && r.studentId) {
