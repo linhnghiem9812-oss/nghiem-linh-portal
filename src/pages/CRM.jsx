@@ -13,38 +13,23 @@ function CRM() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
-  const [salesUsers, setSalesUsers] = useState([]);
-  useEffect(() => {
-    api
-      .get("/users")
-      .then((res) => {
-        const eligibleSales = res.data.filter(
-          (u) =>
-            u.role === "sales" || u.role === "admin" || u.role === "manager",
-        );
-        setSalesUsers(eligibleSales);
-      })
-      .catch(() => console.log("Chưa lấy được danh sách Sale."));
-  }, []);
+  const [uniqueSalesOptions, setUniqueSalesOptions] = useState([]);
+  const [isLoadingSales, setIsLoadingSales] = useState(false);
 
-  // TODO: MOVE_TO_BACKEND
-  // --- TẠO DANH SÁCH DROPDOWN CHUẨN XÁC, KHÔNG TRÙNG LẶP ---
-  const uniqueSalesOptions = useMemo(() => {
-    const normalize = (str) =>
-      str ? str.toString().trim().replace(/\s+/g, " ").toLowerCase() : "";
-    const dbNames = salesUsers.map((u) => u.name || u.username);
-    const crmNames = customers
-      ? customers.map((c) => c.saleInCharge).filter(Boolean)
-      : [];
-    const map = new Map();
-    [...dbNames, ...crmNames].forEach((n) => {
-      const norm = normalize(n);
-      if (norm && !map.has(norm)) {
-        map.set(norm, n.trim().replace(/\s+/g, " "));
+  useEffect(() => {
+    const fetchSales = async () => {
+      setIsLoadingSales(true);
+      try {
+        const res = await api.get('/users/suggestions?role=sales');
+        setUniqueSalesOptions(res.data || []);
+      } catch (err) {
+        console.error("Lỗi lấy danh sách Sale", err);
+      } finally {
+        setIsLoadingSales(false);
       }
-    });
-    return Array.from(map.values());
-  }, [salesUsers, customers]);
+    };
+    fetchSales();
+  }, []);
   const [visibleColumns, setVisibleColumns] = useState({
     receiveDate: false,
     saleInCharge: false,
@@ -150,19 +135,7 @@ function CRM() {
       ...formData,
       [e.target.name]: e.target.value,
     });
-  // TODO: MOVE_TO_BACKEND
-  const formatToStandardDate = (str) => {
-    if (!str) return "";
-    const parts = str.split(/[-/.]/);
-    if (parts.length === 3) {
-      let [d, m, y] = parts;
-      d = d.padStart(2, "0");
-      m = m.padStart(2, "0");
-      if (y.length === 2) y = parseInt(y) > 30 ? `19${y}` : `20${y}`;
-      return `${d}/${m}/${y}`;
-    }
-    return str;
-  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!formData.phone) {
@@ -173,7 +146,7 @@ function CRM() {
       fbName: formData.fbName,
       name: formData.name,
       phone: formData.phone,
-      dob: formatToStandardDate(formData.dob),
+      dob: formData.dob,
       language: formData.language,
       customerType: formData.customerType,
       source: formData.source,
@@ -189,7 +162,7 @@ function CRM() {
       nextAction: formData.nextAction,
       assignClass: formData.assignClass,
       country: formData.country,
-      receiveDate: formatToStandardDate(formData.receiveDate),
+      receiveDate: formData.receiveDate,
       saleInCharge: formData.saleInCharge,
     };
     try {
@@ -302,7 +275,7 @@ function CRM() {
           </div>
 
           <div>
-            <label className="CRM-style-8">NGƯỜI SALE TIẾP NHẬN</label>
+            <label className="CRM-style-8">NGƯỜI SALE TIẾP NHẬN {isLoadingSales && <i className="fa-solid fa-spinner fa-spin"></i>}</label>
             <select
               name="saleInCharge"
               className="form-control"

@@ -64,6 +64,7 @@ function StudentCare() {
     notes: "",
   });
   const [originalStudent, setOriginalStudent] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     api.get("/students").then((res) => setStudents(res.data)).catch(() => console.log("Chưa có dữ liệu học viên."));
@@ -131,6 +132,7 @@ function StudentCare() {
   };
 
   const handleSaveStudent = async () => {
+    setIsSaving(true);
     if (modalMode === "add") {
       try {
         const res = await api.post("/students", currentStudent);
@@ -139,21 +141,11 @@ function StudentCare() {
         setShowModal(false);
       } catch (error) {
         addNotification("Lỗi", "CSDL không phản hồi.", "error");
+      } finally {
+        setIsSaving(false);
       }
     } else if (modalMode === "edit") {
       try {
-        // TODO: MOVE_TO_BACKEND
-        // KIỂM TRA LOGIC TỐT NGHIỆP: NẾU VỪA CHỌN "LÊN KHÓA MỚI" -> ĐẨY LỊCH SỬ VÀO DATABASE MỚI
-        if (currentStudent.status === "Lên khóa mới" && originalStudent.status !== "Lên khóa mới") {
-            if (originalStudent.course && originalStudent.course !== "Chờ xếp lớp trình độ mới") {
-                await api.post("/student-history", {
-                    studentId: currentStudent.id,
-                    oldCourse: originalStudent.course,
-                    oldClass: originalStudent.classId || "Chưa có mã lớp"
-                });
-            }
-        }
-
         const res = await api.put(`/students/${currentStudent.id}`, currentStudent);
         setStudents(students.map((s) => (s.id === currentStudent.id ? res.data : s)));
         
@@ -165,6 +157,8 @@ function StudentCare() {
         setModalMode("view");
       } catch (error) {
         addNotification("Lỗi", "Lỗi cập nhật CSDL.", "error");
+      } finally {
+        setIsSaving(false);
       }
     }
   };
@@ -613,7 +607,9 @@ function StudentCare() {
                 {modalMode === "view" ? (
                   <button className="btn StudentCare-style-139" onClick={() => setModalMode("edit")}><i className="fa-solid fa-pen"></i> Sửa thông tin</button>
                 ) : (
-                  <button className="btn StudentCare-style-140" onClick={handleSaveStudent}><i className="fa-solid fa-floppy-disk"></i> Lưu hồ sơ</button>
+                  <button className="btn StudentCare-style-140" onClick={handleSaveStudent} disabled={isSaving}>
+                    {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-floppy-disk"></i>} Lưu hồ sơ
+                  </button>
                 )}
               </div>
             </div>

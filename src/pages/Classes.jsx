@@ -22,6 +22,10 @@ function Classes() {
 
   const [sessionsData, setSessionsData] = useState([]);
   const [attendanceData, setAttendanceData] = useState([]);
+  
+  const [isLoadingStudents, setIsLoadingStudents] = useState(false);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(false);
+  const [isLoadingAttendance, setIsLoadingAttendance] = useState(false);
   const [formClass, setFormClass] = useState({
     name: "",
     teacher: "",
@@ -38,42 +42,15 @@ function Classes() {
   });
   useEffect(() => {
     const fetchAllData = async () => {
+      setIsLoadingStudents(true);
       try {
-        const [studentsRes, customersRes] = await Promise.all([
-          api.get("/students").catch(() => ({ data: [] })),
-          api.get("/customers").catch(() => ({ data: [] })),
-        ]);
-
-        // TODO: MOVE_TO_BACKEND
-        // Hàm Regex siêu việt: Xóa mọi khoảng trắng thừa và chuẩn hóa chuỗi
-        const normalizeStr = (str) => String(str || "").trim().toLowerCase().replace(/\s+/g, ' ');
-
-        const studentsList = (studentsRes.data || []).filter(Boolean).map((s) => ({
-          id: `ST-${s.id}`,
-          name: String(s.name || "Học viên ẩn danh"),
-          classCode: s.classId || s.class,
-        }));
-
-        // Áp dụng chuẩn hóa Regex vào lưới bảo vệ
-        const studentNamesSet = new Set(
-          studentsList.map((s) => normalizeStr(s.name))
-        );
-
-        const customersList = (customersRes.data || [])
-          .filter((c) => c && c.status === "Đã ĐK" && c.assignClass)
-          .filter((c) => {
-            const cName = normalizeStr(c.name || c.fbName);
-            return !studentNamesSet.has(cName);
-          })
-          .map((c) => ({
-            id: `CUS-${c.id}`,
-            name: String(c.name || c.fbName || "Khách hàng ẩn danh"),
-            classCode: c.assignClass,
-          }));
-
-        setAllStudents([...studentsList, ...customersList]);
+        const res = await api.get("/students/eligible-for-class");
+        setAllStudents(res.data || []);
       } catch (error) {
-        console.log("Lỗi đồng bộ dữ liệu");
+        console.log("Lỗi đồng bộ dữ liệu", error);
+        addNotification("Lỗi", "Không thể lấy danh sách học viên hợp lệ.", "error");
+      } finally {
+        setIsLoadingStudents(false);
       }
     };
     fetchAllData();
@@ -84,60 +61,32 @@ function Classes() {
         (s) => s && s.classCode === selectedClass.classCode,
       );
       setClassStudents(studentsInThisClass);
+      setIsLoadingSessions(true);
       api
-        .get(`/sessions/class/${selectedClass.id}`)
+        .get(`/sessions/class/${selectedClass.id}/full`)
         .then((res) => {
-          const total = Math.max(
-            1,
-            parseInt(selectedClass.totalSessions) || 19,
-          );
-          // TODO: MOVE_TO_BACKEND
-          const fullSessions = Array.from(
-            {
-              length: total,
-            },
-            (_, i) => ({
-              classId: selectedClass.id,
-              sessionNum: i + 1,
-              title: `BÀI ${i + 1}`,
-              status: "draft",
-              notes: "",
-              hasLessonPlan: false,
-            }),
-          );
-          (res.data || []).forEach((dbS) => {
-            if (
-              dbS &&
-              dbS.sessionNum &&
-              dbS.sessionNum >= 1 &&
-              dbS.sessionNum <= total
-            ) {
-              fullSessions[dbS.sessionNum - 1] = {
-                ...fullSessions[dbS.sessionNum - 1],
-                ...dbS,
-              };
-            }
-          });
-          setSessionsData(fullSessions);
+          setSessionsData(res.data || []);
         })
-        .catch(() => setSessionsData([]));
+        .catch(() => {
+            setSessionsData([]);
+            addNotification("Lỗi", "Không thể lấy danh sách buổi học.", "error");
+        })
+        .finally(() => setIsLoadingSessions(false));
     }
   }, [selectedClass, allStudents]);
   useEffect(() => {
     if (selectedClass && activeSession) {
+      setIsLoadingAttendance(true);
       api
         .get(`/attendance/${selectedClass.id}/${activeSession}`)
         .then((res) => {
-          // TODO: MOVE_TO_BACKEND
-          const uniqueRecordsMap = new Map();
-          (res.data || []).forEach((r) => {
-            if (r && r.studentId) {
-              uniqueRecordsMap.set(r.studentId, r);
-            }
-          });
-          setAttendanceData(Array.from(uniqueRecordsMap.values()));
+          setAttendanceData(res.data || []);
         })
-        .catch(() => setAttendanceData([]));
+        .catch(() => {
+            setAttendanceData([]);
+            addNotification("Lỗi", "Không thể lấy dữ liệu điểm danh.", "error");
+        })
+        .finally(() => setIsLoadingAttendance(false));
     }
   }, [selectedClass, activeSession]);
   const handleCreateClass = async (e) => {
@@ -328,7 +277,7 @@ function Classes() {
           <div className="Classes-style-7">
             <div className="Classes-style-8">
               <h4 className="Classes-style-9">
-                DANH SÁCH LỚP ({classStudents.length})
+                DANH SÁCH LỚP ({classStudents.length}) {isLoadingStudents && <i className="fa-solid fa-spinner fa-spin"></i>}
               </h4>
               <div className="Classes-style-10">
                 {classStudents.length === 0 && (
@@ -407,6 +356,7 @@ function Classes() {
 
           <div className="Classes-style-25">
             <div className="card Classes-style-26">
+              {isLoadingSessions ? <div style={{textAlign: 'center', padding: '20px'}}><i className="fa-solid fa-spinner fa-spin fa-2x"></i></div> : (
               <div className="session-grid-container Classes-style-27">
                 {sessionsData.map((sess) => {
                   const num = sess.sessionNum;
@@ -450,6 +400,7 @@ function Classes() {
                   );
                 })}
               </div>
+              )}
             </div>
 
             <div className="card Classes-style-32">
@@ -465,10 +416,11 @@ function Classes() {
               </div>
 
               <div className="Classes-style-36">
-                {classStudents.length === 0 && (
+                {isLoadingAttendance && <div style={{textAlign: 'center', padding: '20px'}}><i className="fa-solid fa-spinner fa-spin fa-2x"></i></div>}
+                {!isLoadingAttendance && classStudents.length === 0 && (
                   <p className="Classes-style-37">Chưa có học viên.</p>
                 )}
-                {classStudents.map((st) => {
+                {!isLoadingAttendance && classStudents.map((st) => {
                   const attRecord =
                     attendanceData.find((a) => a.studentId === st.id) || {};
                   const isPresent = attRecord.status === "present";

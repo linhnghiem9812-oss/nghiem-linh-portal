@@ -17,6 +17,11 @@ function PayrollManagement() {
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [payrolls, setPayrolls] = useState([]);
+    
+    const [staffSuggestions, setStaffSuggestions] = useState([]);
+    const [isLoadingStaff, setIsLoadingStaff] = useState(false);
+    const [isCalculating, setIsCalculating] = useState(false);
+    const [calculatedTotal, setCalculatedTotal] = useState(0);
 
     const initialForm = {
         id: null,
@@ -48,27 +53,21 @@ function PayrollManagement() {
         fetchPayrolls();
     }, []);
 
-    // TODO: MOVE_TO_BACKEND
-    const filteredStaffSuggestions = useMemo(() => {
-        if (formData.role === 'teacher') {
-            return teachers ? [...new Set(teachers.map(t => t.name?.trim()).filter(Boolean))] : [];
-        }
-        if (formData.role === 'ta') {
-            return tas ? [...new Set(tas.map(t => t.name?.trim()).filter(Boolean))] : [];
-        }
-        if (formData.role === 'sales') {
-            const normalize = (str) => {
-                if (!str) return '';
-                let s = str.toString().trim().replace(/\s+/g, ' ');
-                if (s.toLowerCase() === 'nghiêm linh' || s.toLowerCase() === 'ngoai ngu nghiem linh') return 'Ngoại Ngữ Nghiêm Linh';
-                return s;
-            };
-            const crmSales = customers ? customers.map(c => c.saleInCharge).filter(Boolean) : [];
-            const normalizedSales = crmSales.map(name => normalize(name));
-            return [...new Set(normalizedSales)];
-        }
-        return [];
-    }, [formData.role, teachers, tas, customers]);
+    useEffect(() => {
+        const fetchSuggestions = async () => {
+            if (!formData.role) return;
+            setIsLoadingStaff(true);
+            try {
+                const res = await api.get(`/users/suggestions?role=${formData.role}`);
+                setStaffSuggestions(res.data || []);
+            } catch (err) {
+                console.error("Lỗi lấy danh sách nhân sự", err);
+            } finally {
+                setIsLoadingStaff(false);
+            }
+        };
+        fetchSuggestions();
+    }, [formData.role]);
 
     const filteredClassSuggestions = useMemo(() => {
         if (!formData.staffName || !classes) return [];
@@ -81,23 +80,28 @@ function PayrollManagement() {
         }).map(c => c.classCode);
     }, [formData.staffName, formData.role, classes]);
 
-    // TODO: MOVE_TO_BACKEND
-    const calculateTotal = (formState) => {
-        const base = parseInt(formState.baseSalary) || 0;
-        let totalAdj = 0;
-
-        if (formState.adjustments && formState.adjustments.length > 0) {
-            formState.adjustments.forEach(adj => {
-                const amt = parseInt(adj.amount) || 0;
-                if (adj.type === 'Phạt') {
-                    totalAdj -= amt;
-                } else if (adj.type !== 'Không') {
-                    totalAdj += amt;
-                }
-            });
-        }
-        return base + totalAdj;
-    };
+    useEffect(() => {
+        const calcTotal = async () => {
+            setIsCalculating(true);
+            try {
+                const payload = {
+                    baseSalary: parseInt(formData.baseSalary) || 0,
+                    adjustments: formData.adjustments.map(adj => ({
+                        type: adj.type,
+                        amount: parseInt(adj.amount) || 0
+                    }))
+                };
+                const res = await api.post('/payroll/calculate', payload);
+                setCalculatedTotal(res.data.finalAmount || 0);
+            } catch (error) {
+                console.error("Lỗi tính lương: ", error);
+                setCalculatedTotal(0);
+            } finally {
+                setIsCalculating(false);
+            }
+        };
+        calcTotal();
+    }, [formData.baseSalary, formData.adjustments]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -167,7 +171,7 @@ function PayrollManagement() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const finalTotal = calculateTotal(formData);
+            const finalTotal = calculatedTotal;
 
             // Gửi dữ liệu sạch lên API, không dùng JSON.stringify
             const payload = {
@@ -362,7 +366,7 @@ function PayrollManagement() {
 
                         <form onSubmit={handleSubmit}>
                             <datalist id="filtered-staff-list">
-                                {filteredStaffSuggestions.map((name, idx) => (
+                                {staffSuggestions.map((name, idx) => (
                                     <option key={idx} value={name} />
                                 ))}
                             </datalist>
@@ -384,8 +388,8 @@ function PayrollManagement() {
                                     </select>
                                 </div>
                                 <div className="payroll-form-group">
-                                    <label className="payroll-form-label">Tên nhân sự (*)</label>
-                                    <input type="text" list="filtered-staff-list" className="form-control" name="staffName" value={formData.staffName} onChange={handleInputChange} required placeholder="Nhập hoặc chọn tên..." autoComplete="off" />
+                                    <label className="payroll-form-label">Tên nhân sự (*) {isLoadingStaff && <i className="fa-solid fa-spinner fa-spin" style={{marginLeft: '8px'}}></i>}</label>
+                                    <input type="text" list="filtered-staff-list" className="form-control" name="staffName" value={formData.staffName} onChange={handleInputChange} required placeholder="Nhập hoặc chọn tên..." autoComplete="off" disabled={isLoadingStaff} />
                                 </div>
 
                                 <div className="payroll-form-group">
@@ -455,7 +459,7 @@ function PayrollManagement() {
                                 <div className="payroll-form-group full-width" style={{ backgroundColor: '#f1f5f9', padding: '12px', borderRadius: '8px', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', border: '1px dashed #cbd5e1' }}>
                                     <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-muted)' }}>TỔNG THANH TOÁN:</span>
                                     <strong style={{ fontSize: '1.4rem', color: 'var(--primary)' }}>
-                                        {calculateTotal(formData).toLocaleString('vi-VN')} {formData.currency}
+                                        {isCalculating ? <i className="fa-solid fa-spinner fa-spin"></i> : `${calculatedTotal.toLocaleString('vi-VN')} ${formData.currency}`}
                                     </strong>
                                 </div>
 
