@@ -225,6 +225,15 @@ function MyClassActive() {
           : s,
       ),
     );
+
+    if (field === "status" && value === "cancelled") {
+      setStudentsAttendance((prev) =>
+        prev.map((s) => ({
+          ...s,
+          status: "absent",
+        }))
+      );
+    }
   };
   const handleToggleLessonPlan = (e) => {
     e.preventDefault();
