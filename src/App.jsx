@@ -25,6 +25,7 @@ function App() {
 
   // viewMode: 'landing' (Trang chủ) | 'auth' (Đăng nhập/Đăng ký)
   const [viewMode, setViewMode] = useState("landing");
+  const [isCollapsed, setIsCollapsed] = useState(false); // Thêm state thu gọn sidebar
   // 1. Lấy tab từ bộ nhớ, nếu mới đăng nhập (chưa có) thì để rỗng '' (Trang trắng)
   const [activeTab, setActiveTab] = useState(() => {
     const savedTab = localStorage.getItem("current_tab");
@@ -52,14 +53,16 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+    <div className={`app-container ${isCollapsed ? "sidebar-collapsed" : ""}`}>
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       <div
+        className="main-layout-wrapper"
         style={{
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          marginLeft: "260px",
+          marginLeft: isCollapsed ? "80px" : "260px",
+          transition: "margin-left 0.25s ease"
         }}
       >
         <Topbar
@@ -67,6 +70,7 @@ function App() {
           toggleTheme={toggleTheme}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          isCollapsed={isCollapsed}
         />
 
         <main

@@ -5,7 +5,7 @@ import { useNotification } from "../context/NotificationContext";
 
 import adminAvatarImg from "../assets/admin_avatar.jpg";
 
-function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
+function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
   const { currentUser, logout } = useAuth();
   const [currentDate, setCurrentDate] = useState("");
   const {
@@ -114,7 +114,13 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme }) {
   // SỬ DỤNG REACT FRAGMENT (<>) ĐỂ TÁCH MODAL RA KHỎI HEADER
   return (
     <>
-      <header className="topbar Topbar-style-1">
+      <header 
+        className="topbar" 
+        style={{ 
+          left: isCollapsed ? "80px" : "260px",
+          transition: "left 0.25s ease"
+        }}
+      >
         <div className="topbar-left-text">
           <h2>{currentHeader.title}</h2>
           <p>{currentHeader.subtitle}</p>

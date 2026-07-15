@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 
 // Kéo file ảnh từ thư mục assets vào
 import adminAvatarImg from "../assets/admin_avatar.jpg";
-function Sidebar({ activeTab, setActiveTab }) {
+function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
   const { currentUser, currentRole, logout } = useAuth();
   const isTeacher = currentRole === "teacher";
 
@@ -36,7 +36,7 @@ function Sidebar({ activeTab, setActiveTab }) {
     return currentUser.name;
   };
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
       <div className="sidebar-brand-container Sidebar-style-5">
         <div className="hanai-robot-avatar Sidebar-style-6">
           <img
@@ -47,20 +47,24 @@ function Sidebar({ activeTab, setActiveTab }) {
         </div>
 
         {/* GỌI HÀM HIỂN THỊ TÊN ĐÃ ĐƯỢC CHIA DÒNG */}
-        <div className="robot-brand-text Sidebar-style-8">
-          {renderUserName()}
-        </div>
+        {!isCollapsed && (
+          <>
+            <div className="robot-brand-text Sidebar-style-8">
+              {renderUserName()}
+            </div>
 
-        <div className="user-title-badge Sidebar-style-9">
-          {currentRole === "admin" && "Quản trị viên"}
-          {currentRole === "manager" && "Quản lý"}
-          {currentRole === "sales" && "Chuyên viên Sale"}
-          {currentRole === "teacher" && "Giáo viên"}
-        </div>
+            <div className="user-title-badge Sidebar-style-9">
+              {currentRole === "admin" && "Quản trị viên"}
+              {currentRole === "manager" && "Quản lý"}
+              {currentRole === "sales" && "Chuyên viên Sale"}
+              {currentRole === "teacher" && "Giáo viên"}
+            </div>
+          </>
+        )}
       </div>
 
       <nav className="sidebar-menu">
-        <div className="menu-label">Giảng dạy</div>
+        {isCollapsed ? <div className="menu-divider" /> : <div className="menu-label">Giảng dạy</div>}
 
         {currentRole !== "teacher" && (
           <div
@@ -89,7 +93,7 @@ function Sidebar({ activeTab, setActiveTab }) {
 
         {!isTeacher && (
           <>
-            <div className="menu-label">Quản lý trung tâm</div>
+            {isCollapsed ? <div className="menu-divider" /> : <div className="menu-label">Quản lý trung tâm</div>}
 
             <div
               className={`menu-item ${activeTab === "crm" ? "active" : ""}`}
@@ -147,9 +151,14 @@ function Sidebar({ activeTab, setActiveTab }) {
         )}
       </nav>
 
-      <div className="sidebar-logout" onClick={logout}>
-        <i className="fa-solid fa-arrow-right-from-bracket"></i>
-        <span>Đăng xuất</span>
+      <div className="sidebar-footer">
+        <div className="sidebar-logout" onClick={logout}>
+          <i className="fa-solid fa-arrow-right-from-bracket"></i>
+          {!isCollapsed && <span>Đăng xuất</span>}
+        </div>
+        <div className="sidebar-toggle" onClick={() => setIsCollapsed(!isCollapsed)}>
+          <i className={`fa-solid ${isCollapsed ? "fa-angles-right" : "fa-angles-left"}`}></i>
+        </div>
       </div>
     </aside>
   );
