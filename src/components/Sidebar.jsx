@@ -70,6 +70,7 @@ function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
           <div
             className={`menu-item ${activeTab === "classes" ? "active" : ""}`}
             onClick={() => setActiveTab("classes")}
+            title={isCollapsed ? "Quản lý Lớp học" : ""}
           >
             <i className="fa-solid fa-school"></i>
             <span>Quản lý Lớp học</span>
@@ -79,6 +80,7 @@ function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
         <div
           className={`menu-item ${activeTab === "reports" ? "active" : ""}`}
           onClick={() => setActiveTab("reports")}
+          title={isCollapsed ? "Báo cáo Lớp học" : ""}
         >
           <i className="fa-solid fa-square-poll-vertical"></i>
           <span>Báo cáo Lớp học</span>
@@ -86,6 +88,7 @@ function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
         <div
           className={`menu-item ${activeTab === "my-class" ? "active" : ""}`}
           onClick={() => setActiveTab("my-class")}
+          title={isCollapsed ? "Lớp của tôi" : ""}
         >
           <i className="fa-solid fa-chalkboard-user"></i>
           <span>Lớp của tôi</span>
@@ -98,6 +101,7 @@ function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
             <div
               className={`menu-item ${activeTab === "crm" ? "active" : ""}`}
               onClick={() => setActiveTab("crm")}
+              title={isCollapsed ? "CRM & Khách hàng" : ""}
             >
               <i className="fa-solid fa-user-group"></i>
               <span>CRM & Khách hàng</span>
@@ -105,6 +109,7 @@ function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
             <div
               className={`menu-item ${activeTab === "sales" ? "active" : ""}`}
               onClick={() => setActiveTab("sales")}
+              title={isCollapsed ? "Quản lý Sale" : ""}
             >
               <i className="fa-solid fa-chart-line"></i>
               <span>Quản lý Sale</span>
@@ -112,6 +117,7 @@ function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
             <div
               className={`menu-item ${activeTab === "care" ? "active" : ""}`}
               onClick={() => setActiveTab("care")}
+              title={isCollapsed ? "Chăm sóc Học viên" : ""}
             >
               <i className="fa-solid fa-heart-pulse"></i>
               <span>Chăm sóc Học viên</span>
@@ -119,6 +125,7 @@ function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
             <div
               className={`menu-item ${activeTab === "teachers" ? "active" : ""}`}
               onClick={() => setActiveTab("teachers")}
+              title={isCollapsed ? "Thông tin Giáo viên" : ""}
             >
               <i className="fa-solid fa-user-tie"></i>
               <span>Thông tin Giáo viên</span>
@@ -127,6 +134,7 @@ function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
             <div
               className={`menu-item ${activeTab === "tas" ? "active" : ""}`}
               onClick={() => setActiveTab("tas")}
+              title={isCollapsed ? "Thông tin Trợ giảng" : ""}
             >
               <i className="fa-solid fa-user-graduate"></i>
               <span>Thông tin Trợ giảng</span>
@@ -135,6 +143,7 @@ function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
             <div
               className={`menu-item ${activeTab === "finance" ? "active" : ""}`}
               onClick={() => setActiveTab("finance")}
+              title={isCollapsed ? "Tài chính & Doanh thu" : ""}
             >
               <i className="fa-solid fa-wallet"></i>
               <span>Tài chính & Doanh thu</span>
@@ -143,6 +152,7 @@ function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
             <div
               className={`menu-item ${activeTab === "payroll" ? "active" : ""}`}
               onClick={() => setActiveTab("payroll")}
+              title={isCollapsed ? "Quản lý Lương" : ""}
             >
               <i className="fa-solid fa-file-invoice-dollar"></i>
               <span>Quản lý Lương</span>

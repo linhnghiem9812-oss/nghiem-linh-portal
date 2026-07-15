@@ -391,11 +391,12 @@ input:checked + .slider:before {
   border-top: 1px solid var(--border-color);
   margin-top: auto;
   padding: 16px;
+  gap: 12px;
 }
 
 .sidebar.collapsed .sidebar-footer {
   flex-direction: column-reverse;
-  gap: 16px;
+  gap: 12px;
   padding: 16px 8px;
 }
 
