@@ -6,7 +6,7 @@ import { useNotification } from "../context/NotificationContext";
 import adminAvatarImg from "../assets/admin_avatar.jpg";
 
 function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, currentRole, logout } = useAuth();
   const [currentDate, setCurrentDate] = useState("");
   const {
     notifications,
@@ -121,9 +121,27 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
           transition: "left 0.25s ease"
         }}
       >
-        <div className="topbar-left-text">
-          <h2>{currentHeader.title}</h2>
-          <p>{currentHeader.subtitle}</p>
+        <div className="topbar-left-section">
+          <div className="topbar-left-text desktop-only">
+            <h2>{currentHeader.title}</h2>
+            <p>{currentHeader.subtitle}</p>
+          </div>
+          <div 
+            className="mobile-profile-header mobile-only"
+            onClick={() => setActiveTab("profile")}
+            title="Bấm để chỉnh sửa hồ sơ"
+          >
+            <img src={adminAvatarImg} alt="Avatar" className="mobile-avatar-img" />
+            <div className="mobile-user-info">
+              <strong className="mobile-user-name">{currentUser?.name || "Người dùng"}</strong>
+              <span className="mobile-user-role">
+                {currentRole === "admin" && "Quản trị viên"}
+                {currentRole === "manager" && "Quản lý"}
+                {currentRole === "sales" && "Chuyên viên Sale"}
+                {currentRole === "teacher" && "Giáo viên"}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="topbar-controls Topbar-style-2">
@@ -305,7 +323,16 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
             )}
           </div>
 
-          <div className="Topbar-style-24" ref={profileRef}>
+          <button 
+            className="circular-btn mobile-only text-red-500 hover:bg-red-50" 
+            onClick={logout} 
+            title="Đăng xuất"
+            style={{ color: '#ef4444' }}
+          >
+            <i className="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+
+          <div className="Topbar-style-24 desktop-only" ref={profileRef}>
             <button
               className="circular-btn Topbar-style-25"
               onClick={() => setShowProfile(!showProfile)}
@@ -346,7 +373,8 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
           </div>
 
           <div className="Topbar-style-38">
-            <span>📅 Hôm nay: <strong className="Topbar-style-39">{currentDate}</strong></span>
+            <span className="desktop-only">📅 Hôm nay: </span>
+            <strong className="Topbar-style-39">{currentDate}</strong>
           </div>
         </div>
       </header>

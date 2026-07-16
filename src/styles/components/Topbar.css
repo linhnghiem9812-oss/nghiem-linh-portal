@@ -462,38 +462,97 @@
   margin-left: 8px;
 }
 
-/* ---------------------------------------------------
-   TỐI ƯU PWA MOBILE: THU GỌN TOPBAR & NỚI LỀ
---------------------------------------------------- */
+/* =========================================================
+   2. TỐI ƯU TOPBAR CHO ĐIỆN THOẠI (AVATAR TRÁI - NÚT PHÁI)
+========================================================= */
+/* Mặc định trên Desktop: Ẩn các phần tử chuyên cho Mobile */
+.mobile-only {
+  display: none !important;
+}
+
 @media (max-width: 768px) {
-  .topbar {
-    left: 0 !important;
-    /* Xóa khoảng trống của Sidebar bên trái */
-    padding: 10px 16px !important;
-    height: auto !important;
-  }
-
-  /* Ẩn các thành phần không quan trọng trên Header mobile */
-  .Topbar-style-38,
-  /* Ngày tháng năm */
-  .Topbar-style-24
-
-  /* Nút Avatar profile trên Header (vì đã có ở Bottom Nav) */
-    {
+  /* Ẩn các phần tử chuyên cho Desktop */
+  .desktop-only {
     display: none !important;
   }
 
-  .topbar-left-text h2 {
-    font-size: 1.1rem !important;
-    margin-bottom: 2px !important;
+  /* Hiện các phần tử Mobile */
+  .mobile-only {
+    display: flex !important;
   }
 
-  .topbar-left-text p {
+  /* Ép Topbar sát lề màn hình, xóa khoảng trống của Sidebar cũ */
+  .topbar {
+    left: 0 !important;
+    width: 100vw !important;
+    padding: 10px 12px !important;
+    height: auto !important;
+    min-height: 60px !important;
+    box-sizing: border-box !important;
+    gap: 8px !important;
+  }
+
+  /* Khối Avatar + Tên bên trái */
+  .mobile-profile-header {
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 50px;
+    background-color: var(--primary-light, #eff6ff);
+    border: 1px solid var(--primary, #3b82f6);
+    max-width: 55vw; /* Không cho chiếm hết chỗ của nút bên phải */
+  }
+
+  .mobile-avatar-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .mobile-user-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .mobile-user-name {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--primary, #1d4ed8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+
+  .mobile-user-role {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-muted, #64748b);
+    text-transform: uppercase;
+  }
+
+  /* Khối nút bấm bên phải */
+  .Topbar-style-2 {
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .circular-btn {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* Ngày tháng thu nhỏ lại chỉ hiện số (vd: 17/07/2026) */
+  .Topbar-style-38 {
+    padding: 4px 8px !important;
     font-size: 0.75rem !important;
-  }
-
-  /* Đẩy nội dung chính bên dưới xuống và tránh bị Bottom Nav che mất ở đáy */
-  body {
-    padding-bottom: 80px !important;
+    margin-left: 0 !important;
+    background: transparent !important;
+    border: none !important;
   }
 }
