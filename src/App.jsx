@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"; // Đảm bảo có useEffec
 
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
+import BottomNav from "./components/mobile/BottomNav";
 import { useAuth } from "./context/AuthContext";
 
 import LandingPage from "./pages/LandingPage";
@@ -101,6 +102,7 @@ function App() {
           )}
         </main>
       </div>
+      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
 }
