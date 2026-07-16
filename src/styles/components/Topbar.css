@@ -461,3 +461,39 @@
 .Topbar-style-60 {
   margin-left: 8px;
 }
+
+/* ---------------------------------------------------
+   TỐI ƯU PWA MOBILE: THU GỌN TOPBAR & NỚI LỀ
+--------------------------------------------------- */
+@media (max-width: 768px) {
+  .topbar {
+    left: 0 !important;
+    /* Xóa khoảng trống của Sidebar bên trái */
+    padding: 10px 16px !important;
+    height: auto !important;
+  }
+
+  /* Ẩn các thành phần không quan trọng trên Header mobile */
+  .Topbar-style-38,
+  /* Ngày tháng năm */
+  .Topbar-style-24
+
+  /* Nút Avatar profile trên Header (vì đã có ở Bottom Nav) */
+    {
+    display: none !important;
+  }
+
+  .topbar-left-text h2 {
+    font-size: 1.1rem !important;
+    margin-bottom: 2px !important;
+  }
+
+  .topbar-left-text p {
+    font-size: 0.75rem !important;
+  }
+
+  /* Đẩy nội dung chính bên dưới xuống và tránh bị Bottom Nav che mất ở đáy */
+  body {
+    padding-bottom: 80px !important;
+  }
+}
