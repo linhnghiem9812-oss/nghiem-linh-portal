@@ -53,3 +53,13 @@
 .Sidebar-style-9 {
   margin-top: 8px;
 }
+
+/* ---------------------------------------------------
+   TỐI ƯU PWA MOBILE: ẨN SIDEBAR TRÊN ĐIỆN THOẠI
+--------------------------------------------------- */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none !important;
+    width: 0 !important;
+  }
+}
