@@ -8,20 +8,24 @@
 /* CHỈ HIỆN TRÊN ĐIỆN THOẠI (Màn hình dưới 768px) */
 @media (max-width: 768px) {
     .bottom-nav {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100vw !important;
+        height: calc(65px + env(safe-area-inset-bottom)) !important;
+        padding-bottom: env(safe-area-inset-bottom) !important;
+        background-color: var(--bg-card, #ffffff) !important;
+        border-top: 1px solid var(--border-color, #e2e8f0) !important;
+        box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1) !important;
+        z-index: 99999 !important;
         display: flex !important;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: calc(65px + env(safe-area-inset-bottom));
-        /* Tối ưu vùng an toàn iOS */
-        padding-bottom: env(safe-area-inset-bottom);
-        background-color: var(--bg-card, #ffffff);
-        border-top: 1px solid var(--border-color, #e2e8f0);
-        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
-        z-index: 1000;
-        justify-content: space-around;
-        align-items: center;
+        justify-content: space-around !important;
+        align-items: center !important;
+    }
+
+    body, #root, .app-container, .main-content {
+        padding-bottom: 85px !important;
     }
 
     .bottom-nav-item {
