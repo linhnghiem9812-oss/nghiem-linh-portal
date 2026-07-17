@@ -477,7 +477,7 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
-  background-color: var(--bg-app);
+  background-color: white;
 }
 
 .Classes-style-76 {
@@ -798,7 +798,7 @@
   
   /* Ensure the title spans full width */
   .Classes-style-76 {
-    text-align: center;
+    text-align: left;
     width: 100%;
   }
 
@@ -810,6 +810,6 @@
   }
   
   .Classes-style-78 {
-    text-align: center;
+    text-align: left;
   }
 }
