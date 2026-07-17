@@ -719,12 +719,15 @@ function Classes() {
 
       <div className="card Classes-style-74">
         <div className="Classes-style-75">
-          <h3 className="Classes-style-76">Danh sách Lớp học</h3>
+          <div>
+            <h3 className="Classes-style-76">
+              <i className="fa-solid fa-list Classes-style-48"></i>Danh sách Lớp học
+            </h3>
+            <div className="Classes-style-78">
+              <i className="fa-solid fa-circle-info Classes-style-79"></i> Bấm tên lớp để xem chi tiết
+            </div>
+          </div>
           <div className="Classes-style-77">
-            <span className="Classes-style-78">
-              <i className="fa-solid fa-circle-info Classes-style-79"></i> Bấm
-              tên lớp để xem chi tiết
-            </span>
             <input
               type="text"
               className="form-control Classes-style-80"
