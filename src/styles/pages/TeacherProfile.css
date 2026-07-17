@@ -1,20 +1,33 @@
+/* =========================================================
+   TỐI ƯU TRANG THÔNG TIN GIÁO VIÊN (CHỐNG TRÀN & GỌN GÀNG)
+========================================================= */
 .TeacherProfile-style-1 {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 24px;
+  /* Thu gọn gap từ 28px xuống 24px bằng Trợ giảng */
   animation: fadeIn 0.3s ease-out;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  /* Khóa quan trọng nhất: Ngăn thẻ cha bị dãn theo bảng */
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
 }
 
 .TeacherProfile-style-2 {
-  padding: 32px;
+  padding: 28px;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .TeacherProfile-style-3 {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  margin-bottom: 24px;
-  color: var(--primary);
-  border-left: 4px solid var(--primary);
+  margin-bottom: 20px;
+  color: var(--primary, #2563eb);
+  border-left: 4px solid var(--primary, #2563eb);
   padding-left: 12px;
 }
 
@@ -22,10 +35,22 @@
   margin-right: 8px;
 }
 
+/* KHỐI FORM NHẬP LIỆU - CHUẨN HÓA KÍCH THƯỚC BẰNG TRỢ GIẢNG */
 .TeacherProfile-style-5 {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  /* Thu gọn từ 20px xuống 16px */
+}
+
+/* Định dạng nhãn (Label) gọn gàng, chữ đậm 0.8rem giống hệt Trợ giảng */
+.TeacherProfile-style-5 label,
+.TeacherProfile-style-52 label {
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  margin-bottom: 6px !important;
+  display: block !important;
 }
 
 .TeacherProfile-style-6 {
@@ -48,20 +73,32 @@
   grid-column: span 3;
   display: flex;
   justify-content: flex-end;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .TeacherProfile-style-11 {
-  padding: 14px 40px;
-  background-color: var(--primary);
+  padding: 12px 32px;
+  background-color: var(--primary, #2563eb);
   color: white;
   border-radius: 8px;
   font-weight: 800;
   cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
 }
 
+.TeacherProfile-style-11:hover {
+  opacity: 0.9;
+}
+
+/* KHỐI BẢNG DỮ LIỆU - KHÓA TRÀN NGANG */
 .TeacherProfile-style-12 {
   padding: 24px;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .TeacherProfile-style-13 {
@@ -71,9 +108,9 @@
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  padding: 16px;
-  margin-bottom: 20px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+  padding: 14px 16px;
+  margin-bottom: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -83,7 +120,7 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
 
 .TeacherProfile-style-15 {
@@ -91,35 +128,34 @@
   gap: 8px;
 }
 
-.TeacherProfile-style-16 {
-  font-size: 0.75rem;
-  padding: 6px 12px;
-  cursor: pointer;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: #f3f4f6;
-}
-
+.TeacherProfile-style-16,
 .TeacherProfile-style-17 {
   font-size: 0.75rem;
   padding: 6px 12px;
   cursor: pointer;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  background: #f3f4f6;
+  background: #f8fafc;
+  font-weight: 600;
 }
 
 .TeacherProfile-style-18 {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   border-top: 1px solid #f1f5f9;
   padding-top: 12px;
 }
 
+/* KHÓA KHUNG CUỘN BẢNG: Chỉ cuộn ngang bên trong khung, không kéo cả trang đi theo */
 .TeacherProfile-style-19 {
-  overflow-x: auto;
-  max-width: 100%;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  display: block !important;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
 }
 
 .TeacherProfile-style-20 {
@@ -127,181 +163,163 @@
   border-collapse: collapse;
   white-space: nowrap;
   text-align: left;
+  font-size: 0.85rem;
+  /* Giảm cỡ chữ bảng xuống 0.85rem cho vừa vặn */
 }
 
 .TeacherProfile-style-21 {
-  background-color: var(--bg-app);
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  background-color: var(--bg-app, #f8fafc);
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
   text-transform: uppercase;
+  border-bottom: 2px solid var(--border-color, #e2e8f0);
 }
 
-.TeacherProfile-style-22 {
-  padding: 16px 24px;
-}
-
-.TeacherProfile-style-23 {
-  padding: 16px;
-}
-
-.TeacherProfile-style-24 {
-  padding: 16px;
-}
-
-.TeacherProfile-style-25 {
-  padding: 16px;
-}
-
-.TeacherProfile-style-26 {
-  padding: 16px;
-}
-
-.TeacherProfile-style-27 {
-  padding: 16px;
-}
-
-.TeacherProfile-style-28 {
-  padding: 16px;
-}
-
-.TeacherProfile-style-29 {
-  padding: 16px;
-}
-
-.TeacherProfile-style-30 {
-  padding: 16px;
-}
-
+/* THU GỌN PADDING CÁC Ô TỪ 24px XUỐNG 12px-14px ĐỂ KHÔNG BỊ PHÌNH TO */
+.TeacherProfile-style-22,
+.TeacherProfile-style-23,
+.TeacherProfile-style-24,
+.TeacherProfile-style-25,
+.TeacherProfile-style-26,
+.TeacherProfile-style-27,
+.TeacherProfile-style-28,
+.TeacherProfile-style-29,
+.TeacherProfile-style-30,
 .TeacherProfile-style-31 {
-  padding: 16px;
-  text-align: center;
-}
-
-.TeacherProfile-style-32 {
-  border-bottom: 1px solid var(--border-color);
-  background-color: white;
-}
-
-.TeacherProfile-style-33 {
-  padding: 16px 24px;
+  padding: 12px 14px !important;
   font-weight: 700;
 }
 
-.TeacherProfile-style-34 {
-  padding: 16px;
+.TeacherProfile-style-31 {
+  text-align: center !important;
+}
+
+.TeacherProfile-style-32 {
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  background-color: white;
+  transition: background 0.15s;
+}
+
+.TeacherProfile-style-32:hover {
+  background-color: #f8fafc;
+}
+
+.TeacherProfile-style-33,
+.TeacherProfile-style-34,
+.TeacherProfile-style-36,
+.TeacherProfile-style-37,
+.TeacherProfile-style-38,
+.TeacherProfile-style-39,
+.TeacherProfile-style-40,
+.TeacherProfile-style-41,
+.TeacherProfile-style-42,
+.TeacherProfile-style-43 {
+  padding: 12px 14px !important;
 }
 
 .TeacherProfile-style-35 {
-  color: var(--primary);
+  color: var(--primary, #2563eb);
   text-decoration: underline;
   font-weight: 700;
   cursor: pointer;
 }
 
-.TeacherProfile-style-36 {
-  padding: 16px;
-}
-
-.TeacherProfile-style-37 {
-  padding: 16px;
-}
-
-.TeacherProfile-style-38 {
-  padding: 16px;
-}
-
 .TeacherProfile-style-39 {
-  padding: 16px;
   font-weight: 700;
-  color: var(--primary);
-}
-
-.TeacherProfile-style-40 {
-  padding: 16px;
+  color: #16a34a;
+  /* Đổi màu lương sang xanh lá cây cho dễ nhìn */
 }
 
 .TeacherProfile-style-41 {
-  padding: 16px;
-  max-width: 150px;
+  max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.TeacherProfile-style-42 {
-  padding: 16px;
-}
-
 .TeacherProfile-style-43 {
-  padding: 16px;
   text-align: center;
 }
 
 .TeacherProfile-style-44 {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
+}
+
+.TeacherProfile-style-45,
+.TeacherProfile-style-46 {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  border: 1px solid transparent;
 }
 
 .TeacherProfile-style-45 {
-  border: 1px solid #cbd5e1;
   background: #f1f5f9;
   color: #475569;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
+  border-color: #cbd5e1;
 }
 
 .TeacherProfile-style-46 {
-  border: 1px solid #fecaca;
   background: #fee2e2;
   color: #b91c1c;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
+  border-color: #fecaca;
 }
 
+/* MODAL CHI TIẾT & CHỈNH SỬA */
 .TeacherProfile-style-47 {
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 99999 !important;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 16px;
 }
 
 .TeacherProfile-style-48 {
-  width: 550px;
+  width: 600px;
+  max-width: 95vw;
   background-color: white;
   padding: 24px;
-  border-radius: 12px;
-  max-height: 90vh;
+  border-radius: 16px;
+  max-height: 85vh;
   overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
 .TeacherProfile-style-49 {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
   padding-bottom: 12px;
 }
 
 .TeacherProfile-style-50 {
   font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--primary, #2563eb);
+  margin: 0;
 }
 
 .TeacherProfile-style-51 {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
+  color: #94a3b8;
 }
 
 .TeacherProfile-style-52 {
@@ -310,96 +328,29 @@
   gap: 16px;
 }
 
-.TeacherProfile-style-53 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.TeacherProfile-style-54 {
+.TeacherProfile-style-54,
+.TeacherProfile-style-56,
+.TeacherProfile-style-59,
+.TeacherProfile-style-62,
+.TeacherProfile-style-64,
+.TeacherProfile-style-66,
+.TeacherProfile-style-69,
+.TeacherProfile-style-73 {
   font-weight: 600;
+  font-size: 0.9rem;
+  color: #0f172a;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  min-height: 20px;
 }
 
-.TeacherProfile-style-55 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.TeacherProfile-style-56 {
-  font-weight: 600;
-}
-
-.TeacherProfile-style-57 {
-  grid-column: span 2;
-}
-
-.TeacherProfile-style-58 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.TeacherProfile-style-59 {
-  font-weight: 600;
-}
-
-.TeacherProfile-style-60 {
-  grid-column: span 2;
-}
-
-.TeacherProfile-style-61 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.TeacherProfile-style-62 {
-  font-weight: 600;
-}
-
-.TeacherProfile-style-63 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.TeacherProfile-style-64 {
-  font-weight: 600;
-}
-
-.TeacherProfile-style-65 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.TeacherProfile-style-66 {
-  font-weight: 600;
-}
-
-.TeacherProfile-style-67 {
-  grid-column: span 2;
-}
-
-.TeacherProfile-style-68 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.TeacherProfile-style-69 {
-  font-weight: 600;
-}
-
+.TeacherProfile-style-57,
+.TeacherProfile-style-60,
+.TeacherProfile-style-67,
 .TeacherProfile-style-70 {
   grid-column: span 2;
-}
-
-.TeacherProfile-style-71 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
 }
 
 .TeacherProfile-style-72 {
@@ -407,7 +358,6 @@
 }
 
 .TeacherProfile-style-73 {
-  font-weight: 600;
   white-space: pre-wrap;
 }
 
@@ -416,32 +366,86 @@
   justify-content: space-between;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-color, #e2e8f0);
 }
 
 .TeacherProfile-style-75 {
-  padding: 10px 20px;
+  padding: 10px 18px;
   background-color: #ef4444;
   color: white;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 700;
+  border: none;
 }
 
 .TeacherProfile-style-76 {
-  padding: 10px 20px;
-  background-color: var(--warning);
+  padding: 10px 18px;
+  background-color: #f59e0b;
   color: white;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 700;
+  border: none;
 }
 
 .TeacherProfile-style-77 {
-  padding: 10px 20px;
-  background-color: var(--success);
+  padding: 10px 18px;
+  background-color: #10b981;
   color: white;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 700;
+  border: none;
+}
+
+/* =========================================================
+   RESPONSIVE CHO MÀN HÌNH NHỎ & ĐIỆN THOẠI (< 768px)
+========================================================= */
+@media (max-width: 768px) {
+
+  .TeacherProfile-style-2,
+  .TeacherProfile-style-12 {
+    padding: 16px !important;
+  }
+
+  /* Biến form từ 3 cột ngang thành 1 cột dọc trên Mobile */
+  .TeacherProfile-style-5,
+  .TeacherProfile-style-52 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Các phần tử span 2, span 3 tự động thu về 1 cột */
+  .TeacherProfile-style-6,
+  .TeacherProfile-style-7,
+  .TeacherProfile-style-8,
+  .TeacherProfile-style-10,
+  .TeacherProfile-style-57,
+  .TeacherProfile-style-60,
+  .TeacherProfile-style-67,
+  .TeacherProfile-style-70 {
+    grid-column: span 1 !important;
+  }
+
+  .TeacherProfile-style-11 {
+    width: 100% !important;
+    text-align: center;
+  }
+
+  .TeacherProfile-style-14 {
+    flex-wrap: wrap;
+  }
+
+  .TeacherProfile-style-74 {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .TeacherProfile-style-75,
+  .TeacherProfile-style-76,
+  .TeacherProfile-style-77 {
+    width: 100% !important;
+    text-align: center;
+  }
 }
