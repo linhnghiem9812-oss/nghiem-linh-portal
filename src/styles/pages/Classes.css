@@ -812,4 +812,14 @@
   .Classes-style-78 {
     text-align: left;
   }
+
+  /* Responsive grid for detailed class view */
+  .Classes-style-6 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Responsive grid for attendance list */
+  .Classes-style-36 {
+    grid-template-columns: 1fr;
+  }
 }
