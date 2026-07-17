@@ -102,6 +102,9 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
     crm: { title: "Phễu Tuyển sinh & CRM", subtitle: "Quản lý hành trình khách hàng" },
     sales: { title: "Quản lý Sale", subtitle: "Bảng xếp hạng doanh số" },
     care: { title: "Chăm sóc Học viên", subtitle: "Xử lý khiếu nại, bảo lưu" },
+    teachers: { title: "Thông tin Giáo viên", subtitle: "Quản lý hồ sơ và lịch dạy của Giáo viên" },
+    tas: { title: "Thông tin Trợ giảng", subtitle: "Quản lý hồ sơ và lịch trực của Trợ giảng" },
+    finance: { title: "Tài chính & Doanh thu", subtitle: "Theo dõi thu chi và báo cáo tài chính" },
     profile: { title: "Hồ sơ Cá nhân", subtitle: "Quản lý thông tin bảo mật và tài khoản hệ thống" },
     payroll: { title: 'Thanh toán Lương', subtitle: 'Quản lý chi phí và lập hóa đơn lương nhân sự' },
   };
