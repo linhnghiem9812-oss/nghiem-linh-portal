@@ -392,14 +392,14 @@ function TeacherProfile() {
               </tr>
             </thead>
             <tbody>
-              {tas && tas.length === 0 && (
+              {teachers && teachers.length === 0 && (
                 <tr>
                   <td colSpan="8" className="TeacherProfile-style-35">
                     Chưa có giáo viên trong hệ thống.
                   </td>
                 </tr>
               )}
-              {tas &&
+              {teachers &&
                 teachers.map((t, idx) => (
                   <tr
                     key={t.id || idx}
