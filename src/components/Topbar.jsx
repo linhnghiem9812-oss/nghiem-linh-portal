@@ -126,20 +126,29 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
             <h2>{currentHeader.title}</h2>
             <p>{currentHeader.subtitle}</p>
           </div>
-          <div 
-            className="mobile-profile-header mobile-only"
-            onClick={() => setActiveTab("profile")}
-            title="Bấm để chỉnh sửa hồ sơ"
-          >
-            <img src={adminAvatarImg} alt="Avatar" className="mobile-avatar-img" />
-            <div className="mobile-user-info">
-              <strong className="mobile-user-name">{currentUser?.name || "Người dùng"}</strong>
-              <span className="mobile-user-role">
-                {currentRole === "admin" && "Quản trị viên"}
-                {currentRole === "manager" && "Quản lý"}
-                {currentRole === "sales" && "Chuyên viên Sale"}
-                {currentRole === "teacher" && "Giáo viên"}
-              </span>
+          
+          <div className="mobile-only" style={{ flexDirection: 'column', gap: '12px' }}>
+            <div 
+              className="mobile-profile-header"
+              onClick={() => setActiveTab("profile")}
+              title="Bấm để chỉnh sửa hồ sơ"
+              style={{ display: 'flex' }}
+            >
+              <img src={adminAvatarImg} alt="Avatar" className="mobile-avatar-img" />
+              <div className="mobile-user-info">
+                <strong className="mobile-user-name">{currentUser?.name || "Người dùng"}</strong>
+                <span className="mobile-user-role">
+                  {currentRole === "admin" && "Quản trị viên"}
+                  {currentRole === "manager" && "Quản lý"}
+                  {currentRole === "sales" && "Chuyên viên Sale"}
+                  {currentRole === "teacher" && "Giáo viên"}
+                </span>
+              </div>
+            </div>
+            
+            <div className="mobile-page-title">
+              <h2 style={{ fontSize: '1.15rem', margin: '0 0 4px 0', color: 'var(--primary)', fontWeight: '800' }}>{currentHeader.title}</h2>
+              <p style={{ fontSize: '0.8rem', margin: 0, color: 'var(--text-muted)' }}>{currentHeader.subtitle}</p>
             </div>
           </div>
         </div>
