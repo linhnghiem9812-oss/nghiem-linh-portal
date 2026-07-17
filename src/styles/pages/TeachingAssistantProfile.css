@@ -1,20 +1,31 @@
+/* =========================================================
+   TỐI ƯU TRANG THÔNG TIN TRỢ GIẢNG (CHỐNG TRÀN & RESPONSIVE)
+========================================================= */
 .TeachingAssistantProfile-style-1 {
   display: flex;
   flex-direction: column;
   gap: 24px;
   animation: fadeIn 0.3s ease-out;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important; /* Khóa thẻ cha không bị dãn theo bảng */
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
 }
 
 .TeachingAssistantProfile-style-2 {
-  padding: 32px;
+  padding: 28px;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .TeachingAssistantProfile-style-3 {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   color: #10b981;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color, #e2e8f0);
   padding-bottom: 16px;
 }
 
@@ -22,48 +33,29 @@
   margin-right: 8px;
 }
 
+/* KHỐI FORM NHẬP LIỆU - CHUẨN 3 CỘT TRÊN DESKTOP */
 .TeachingAssistantProfile-style-5 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 
-.TeachingAssistantProfile-style-6 {
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.TeachingAssistantProfile-style-7 {
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.TeachingAssistantProfile-style-8 {
-  font-size: 0.8rem;
-  font-weight: 700;
+/* Định dạng nhãn (Label) chuẩn 0.8rem chữ đậm */
+.TeachingAssistantProfile-style-5 label,
+.TeachingAssistantProfile-style-55 label {
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  margin-bottom: 6px !important;
+  display: block !important;
 }
 
 .TeachingAssistantProfile-style-9 {
   grid-column: span 2;
 }
 
-.TeachingAssistantProfile-style-10 {
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.TeachingAssistantProfile-style-11 {
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
 .TeachingAssistantProfile-style-12 {
   grid-column: span 3;
-}
-
-.TeachingAssistantProfile-style-13 {
-  font-size: 0.8rem;
-  font-weight: 700;
 }
 
 .TeachingAssistantProfile-style-14 {
@@ -84,10 +76,22 @@
   color: white;
   border-radius: 8px;
   cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
 }
 
+.TeachingAssistantProfile-style-16:hover {
+  opacity: 0.9;
+}
+
+/* KHỐI BẢNG DỮ LIỆU - KHÓA TRÀN NGANG */
 .TeachingAssistantProfile-style-17 {
   padding: 24px;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .TeachingAssistantProfile-style-18 {
@@ -97,9 +101,9 @@
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  padding: 16px;
-  margin-bottom: 20px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+  padding: 14px 16px;
+  margin-bottom: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -109,7 +113,7 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
 
 .TeachingAssistantProfile-style-20 {
@@ -117,35 +121,34 @@
   gap: 8px;
 }
 
-.TeachingAssistantProfile-style-21 {
-  font-size: 0.75rem;
-  padding: 6px 12px;
-  cursor: pointer;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: #f3f4f6;
-}
-
+.TeachingAssistantProfile-style-21,
 .TeachingAssistantProfile-style-22 {
   font-size: 0.75rem;
   padding: 6px 12px;
   cursor: pointer;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  background: #f3f4f6;
+  background: #f8fafc;
+  font-weight: 600;
 }
 
 .TeachingAssistantProfile-style-23 {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   border-top: 1px solid #f1f5f9;
   padding-top: 12px;
 }
 
+/* KHÓA KHUNG CUỘN BẢNG */
 .TeachingAssistantProfile-style-24 {
-  overflow-x: auto;
-  max-width: 100%;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  display: block !important;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
 }
 
 .TeachingAssistantProfile-style-25 {
@@ -153,66 +156,58 @@
   border-collapse: collapse;
   white-space: nowrap;
   text-align: left;
+  font-size: 0.85rem;
 }
 
 .TeachingAssistantProfile-style-26 {
-  background-color: var(--bg-app);
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  background-color: var(--bg-app, #f8fafc);
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
   text-transform: uppercase;
+  border-bottom: 2px solid var(--border-color, #e2e8f0);
 }
 
-.TeachingAssistantProfile-style-27 {
-  padding: 16px 24px;
-}
-
-.TeachingAssistantProfile-style-28 {
-  padding: 16px;
-}
-
-.TeachingAssistantProfile-style-29 {
-  padding: 16px;
-}
-
-.TeachingAssistantProfile-style-30 {
-  padding: 16px;
-}
-
-.TeachingAssistantProfile-style-31 {
-  padding: 16px;
-}
-
-.TeachingAssistantProfile-style-32 {
-  padding: 16px;
-}
-
-.TeachingAssistantProfile-style-33 {
-  padding: 16px;
+.TeachingAssistantProfile-style-27,
+.TeachingAssistantProfile-style-28,
+.TeachingAssistantProfile-style-29,
+.TeachingAssistantProfile-style-30,
+.TeachingAssistantProfile-style-31,
+.TeachingAssistantProfile-style-32,
+.TeachingAssistantProfile-style-33,
+.TeachingAssistantProfile-style-34 {
+  padding: 12px 14px !important;
+  font-weight: 700;
 }
 
 .TeachingAssistantProfile-style-34 {
-  padding: 16px;
-  text-align: center;
+  text-align: center !important;
 }
 
 .TeachingAssistantProfile-style-35 {
   text-align: center;
   padding: 40px;
-  color: var(--text-muted);
+  color: var(--text-muted, #64748b);
 }
 
 .TeachingAssistantProfile-style-36 {
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
   background-color: white;
+  transition: background 0.15s;
 }
 
-.TeachingAssistantProfile-style-37 {
-  padding: 16px 24px;
-  font-weight: 700;
+.TeachingAssistantProfile-style-36:hover {
+  background-color: #f8fafc;
 }
 
-.TeachingAssistantProfile-style-38 {
-  padding: 16px;
+.TeachingAssistantProfile-style-37,
+.TeachingAssistantProfile-style-38,
+.TeachingAssistantProfile-style-40,
+.TeachingAssistantProfile-style-41,
+.TeachingAssistantProfile-style-42,
+.TeachingAssistantProfile-style-43,
+.TeachingAssistantProfile-style-45,
+.TeachingAssistantProfile-style-46 {
+  padding: 12px 14px !important;
 }
 
 .TeachingAssistantProfile-style-39 {
@@ -220,22 +215,6 @@
   text-decoration: underline;
   font-weight: 700;
   cursor: pointer;
-}
-
-.TeachingAssistantProfile-style-40 {
-  padding: 16px;
-}
-
-.TeachingAssistantProfile-style-41 {
-  padding: 16px;
-}
-
-.TeachingAssistantProfile-style-42 {
-  padding: 16px;
-}
-
-.TeachingAssistantProfile-style-43 {
-  padding: 16px;
 }
 
 .TeachingAssistantProfile-style-44 {
@@ -248,84 +227,95 @@
 }
 
 .TeachingAssistantProfile-style-45 {
-  padding: 16px;
-  max-width: 150px;
+  max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .TeachingAssistantProfile-style-46 {
-  padding: 16px;
   text-align: center;
 }
 
 .TeachingAssistantProfile-style-47 {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
+}
+
+.TeachingAssistantProfile-style-48,
+.TeachingAssistantProfile-style-49 {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  border: 1px solid transparent;
 }
 
 .TeachingAssistantProfile-style-48 {
-  border: 1px solid #cbd5e1;
   background: #f1f5f9;
   color: #475569;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
+  border-color: #cbd5e1;
 }
 
 .TeachingAssistantProfile-style-49 {
-  border: 1px solid #fecaca;
   background: #fee2e2;
   color: #b91c1c;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
+  border-color: #fecaca;
 }
 
+/* MODAL CHI TIẾT & CHỈNH SỬA */
 .TeachingAssistantProfile-style-50 {
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 99999 !important;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 16px;
 }
 
 .TeachingAssistantProfile-style-51 {
-  width: 550px;
+  width: 600px;
+  max-width: 95vw;
   background-color: white;
   padding: 24px;
-  border-radius: 12px;
-  max-height: 90vh;
+  border-radius: 16px;
+  max-height: 85vh;
   overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
 .TeachingAssistantProfile-style-52 {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
   padding-bottom: 12px;
 }
 
 .TeachingAssistantProfile-style-53 {
   font-weight: 800;
+  font-size: 1.15rem;
   color: #10b981;
+  margin: 0;
 }
 
 .TeachingAssistantProfile-style-54 {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
+  color: #94a3b8;
 }
 
 .TeachingAssistantProfile-style-55 {
@@ -334,76 +324,27 @@
   gap: 16px;
 }
 
-.TeachingAssistantProfile-style-56 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.TeachingAssistantProfile-style-57 {
+.TeachingAssistantProfile-style-57,
+.TeachingAssistantProfile-style-59,
+.TeachingAssistantProfile-style-62,
+.TeachingAssistantProfile-style-65,
+.TeachingAssistantProfile-style-68,
+.TeachingAssistantProfile-style-72 {
   font-weight: 600;
+  font-size: 0.9rem;
+  color: #0f172a;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  min-height: 20px;
 }
 
-.TeachingAssistantProfile-style-58 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.TeachingAssistantProfile-style-59 {
-  font-weight: 600;
-}
-
-.TeachingAssistantProfile-style-60 {
-  grid-column: span 2;
-}
-
-.TeachingAssistantProfile-style-61 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.TeachingAssistantProfile-style-62 {
-  font-weight: 600;
-}
-
-.TeachingAssistantProfile-style-63 {
-  grid-column: span 2;
-}
-
-.TeachingAssistantProfile-style-64 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.TeachingAssistantProfile-style-65 {
-  font-weight: 600;
-}
-
-.TeachingAssistantProfile-style-66 {
-  grid-column: span 2;
-}
-
-.TeachingAssistantProfile-style-67 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.TeachingAssistantProfile-style-68 {
-  font-weight: 600;
-}
-
+.TeachingAssistantProfile-style-60,
+.TeachingAssistantProfile-style-63,
+.TeachingAssistantProfile-style-66,
 .TeachingAssistantProfile-style-69 {
   grid-column: span 2;
-}
-
-.TeachingAssistantProfile-style-70 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
 }
 
 .TeachingAssistantProfile-style-71 {
@@ -411,7 +352,6 @@
 }
 
 .TeachingAssistantProfile-style-72 {
-  font-weight: 600;
   white-space: pre-wrap;
 }
 
@@ -420,32 +360,84 @@
   justify-content: space-between;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-color, #e2e8f0);
 }
 
 .TeachingAssistantProfile-style-74 {
-  padding: 10px 20px;
+  padding: 10px 18px;
   background-color: #ef4444;
   color: white;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 700;
+  border: none;
 }
 
 .TeachingAssistantProfile-style-75 {
-  padding: 10px 20px;
+  padding: 10px 18px;
+  background-color: #f59e0b;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  border: none;
+}
+
+.TeachingAssistantProfile-style-76 {
+  padding: 10px 18px;
   background-color: #10b981;
   color: white;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 700;
+  border: none;
 }
 
-.TeachingAssistantProfile-style-76 {
-  padding: 10px 20px;
-  background-color: var(--primary);
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 700;
+/* =========================================================
+   RESPONSIVE CHO MÀN HÌNH NHỎ & ĐIỆN THOẠI (< 768px)
+========================================================= */
+@media (max-width: 768px) {
+  .TeachingAssistantProfile-style-2,
+  .TeachingAssistantProfile-style-17 {
+    padding: 16px !important;
+  }
+
+  /* Biến form từ 3 cột ngang thành 1 cột dọc trên Mobile */
+  .TeachingAssistantProfile-style-5,
+  .TeachingAssistantProfile-style-55 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Tự động thu các ô span về 1 cột cho khít màn hình */
+  .TeachingAssistantProfile-style-9,
+  .TeachingAssistantProfile-style-12,
+  .TeachingAssistantProfile-style-15,
+  .TeachingAssistantProfile-style-60,
+  .TeachingAssistantProfile-style-63,
+  .TeachingAssistantProfile-style-66,
+  .TeachingAssistantProfile-style-69 {
+    grid-column: span 1 !important;
+  }
+
+  .TeachingAssistantProfile-style-16 {
+    width: 100% !important;
+    text-align: center;
+  }
+
+  .TeachingAssistantProfile-style-19 {
+    flex-wrap: wrap;
+  }
+
+  .TeachingAssistantProfile-style-73 {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .TeachingAssistantProfile-style-74,
+  .TeachingAssistantProfile-style-75,
+  .TeachingAssistantProfile-style-76 {
+    width: 100% !important;
+    text-align: center;
+  }
 }
