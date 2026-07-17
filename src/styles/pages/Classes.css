@@ -780,3 +780,37 @@
   cursor: pointer;
   font-weight: 700;
 }
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  /* Stack 'Tạo lớp học mới' form fields */
+  .Classes-style-50,
+  .Classes-style-59 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* Make the header of 'Danh sách lớp học' stack */
+  .Classes-style-75 {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  
+  /* Ensure the title spans full width */
+  .Classes-style-76 {
+    text-align: center;
+    width: 100%;
+  }
+
+  /* Subtitle and search container stacking */
+  .Classes-style-77 {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  
+  .Classes-style-78 {
+    text-align: center;
+  }
+}
