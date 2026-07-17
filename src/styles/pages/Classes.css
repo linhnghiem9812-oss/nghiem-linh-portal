@@ -481,8 +481,10 @@
 }
 
 .Classes-style-76 {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 800;
+  color: #1e3a8a;
+  margin: 0;
 }
 
 .Classes-style-77 {
@@ -492,12 +494,9 @@
 }
 
 .Classes-style-78 {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
-  background-color: white;
-  padding: 6px 12px;
-  border-radius: 50px;
-  border: 1px solid var(--border-color);
+  margin-top: 4px;
 }
 
 .Classes-style-79 {
