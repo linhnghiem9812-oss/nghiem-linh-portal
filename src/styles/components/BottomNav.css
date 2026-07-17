@@ -82,19 +82,21 @@
         animation: fadeIn 0.2s ease-out;
     }
 
+    /* 1. KÉO ĐÁY MODAL NẰM NGAY TRÊN ĐỈNH BOTTOM BAR (KHÔNG BỊ CHE NỮA) */
     .bottom-modal-sheet {
         display: block !important;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        max-height: 80vh;
-        background-color: var(--bg-card, #ffffff);
-        border-radius: 20px 20px 0 0;
-        padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
-        z-index: 1002;
-        overflow-y: auto;
-        box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.15);
+        position: fixed !important;
+        /* Phép thuật ở đây: Đẩy đáy của modal lên cao bằng đúng chiều cao thanh Bottom Bar */
+        bottom: calc(65px + env(safe-area-inset-bottom)) !important;
+        left: 0 !important;
+        right: 0 !important;
+        max-height: calc(85vh - 70px) !important;
+        background-color: var(--bg-card, #ffffff) !important;
+        border-radius: 20px 20px 0 0 !important;
+        padding: 20px 16px !important;
+        z-index: 99998 !important; /* Nằm ngay dưới lớp của Bottom Bar */
+        overflow-y: auto !important;
+        box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.2) !important;
     }
 
     .bottom-modal-drag-handle {
@@ -113,36 +115,56 @@
         margin-bottom: 12px;
     }
 
+    /* 2. ĐỊNH DẠNG LƯỚI 2 CỘT GỌN GÀNG */
     .modal-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        margin-bottom: 8px !important;
     }
 
+    /* 3. ĐỔI NÚT BẤM SANG DẠNG NGANG (ICON TRÁI - CHỮ PHẢI NHƯ ATERNOS) */
     .modal-grid-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 16px 10px;
-        background-color: var(--bg-app, #f8fafc);
-        border: 1px solid var(--border-color, #e2e8f0);
-        border-radius: 12px;
-        color: var(--text-main, #0f172a);
-        font-size: 0.85rem;
-        font-weight: 700;
-        gap: 8px;
+        display: flex !important;
+        flex-direction: row !important; /* THAY ĐỔI CỐT LÕI: Từ column (dọc) sang row (ngang) */
+        align-items: center !important;
+        justify-content: flex-start !important; /* Căn lề trái cho đều mắt */
+        padding: 12px !important;
+        background-color: var(--bg-app, #f8fafc) !important;
+        border: 1px solid var(--border-color, #e2e8f0) !important;
+        border-radius: 12px !important;
+        color: var(--text-main, #0f172a) !important;
+        font-size: 0.8rem !important; /* Cỡ chữ vừa phải, không bị rớt dòng */
+        font-weight: 700 !important;
+        gap: 10px !important; /* Khoảng cách giữa Icon và Chữ */
+        min-height: 48px !important; /* Chiều cao chuẩn Apple Touch Target */
+        text-align: left !important;
+        transition: all 0.15s ease !important;
     }
 
+    /* Tối ưu Icon bên trong nút (Nằm gọn bên trái) */
     .modal-grid-item i {
-        font-size: 1.5rem;
-        color: var(--primary, #2563eb);
+        font-size: 1.15rem !important; /* Thu nhỏ icon vừa vặn với dòng chữ */
+        color: var(--primary, #2563eb) !important;
+        width: 22px !important;
+        text-align: center !important;
+        flex-shrink: 0 !important;
     }
 
+    /* Tối ưu Chữ bên trong nút (Chống tràn dòng) */
+    .modal-grid-item span {
+        flex: 1 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        line-height: 1.2 !important;
+    }
+
+    /* Hiệu ứng khi nút đang được chọn (Active) */
     .modal-grid-item.active {
-        border-color: var(--primary);
-        background-color: var(--primary-light, #eff6ff);
-        color: var(--primary);
+        border-color: var(--primary, #2563eb) !important;
+        background-color: var(--primary-light, #eff6ff) !important;
+        color: var(--primary, #2563eb) !important;
     }
 
     /* HEADER TÀI KHOẢN TRONG MODAL */
