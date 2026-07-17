@@ -445,9 +445,3 @@
   cursor: pointer;
   font-weight: 700;
 }
-
-/* FIX ZOOM ISSUE */
-.TeacherProfile-style-5 label, .TeacherProfile-style-55 label {
-  font-size: 0.8rem;
-  font-weight: 700;
-}

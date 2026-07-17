@@ -10,25 +10,31 @@ function TeacherProfile() {
   const { addNotification } = useNotification();
   const { teachers, setTeachers } = useData();
 
-  // ĐÃ BỔ SUNG TRƯỜNG "notes"
+  // Bổ sung notes vào form ban đầu
   const [formInput, setFormInput] = useState({
     name: "",
     email: "",
     phone: "",
-    education: "",
-    level: "",
+    experience: "",
+    fee: "",
+    address: "",
     notes: "",
+    status: "Đang dạy",
   });
+
+  // --- STATE QUẢN LÝ MODAL CHI TIẾT & CHỈNH SỬA ---
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
-  // Đã thêm notes vào cấu hình cột
+  // Thêm cột notes vào quản lý hiển thị
   const [visibleColumns, setVisibleColumns] = useState({
     email: true,
-    education: true,
-    level: true,
+    experience: true,
+    fee: true,
+    address: false,
     notes: false,
+    status: true,
   });
   const optionalColumnsConfig = [
     {
@@ -37,19 +43,29 @@ function TeacherProfile() {
       icon: "fa-envelope",
     },
     {
-      key: "education",
-      label: "Học vấn",
-      icon: "fa-graduation-cap",
+      key: "experience",
+      label: "Kinh nghiệm",
+      icon: "fa-book",
     },
     {
-      key: "level",
-      label: "Trình độ",
-      icon: "fa-award",
+      key: "fee",
+      label: "Lương/Buổi",
+      icon: "fa-wallet",
+    },
+    {
+      key: "address",
+      label: "Địa chỉ",
+      icon: "fa-location-dot",
     },
     {
       key: "notes",
       label: "Ghi chú",
       icon: "fa-note-sticky",
+    },
+    {
+      key: "status",
+      label: "Trạng thái",
+      icon: "fa-user-check",
     },
   ];
   const toggleColumn = (key) =>
@@ -57,6 +73,11 @@ function TeacherProfile() {
       ...prev,
       [key]: !prev[key],
     }));
+  const handleInputChange = (e) =>
+    setFormInput({
+      ...formInput,
+      [e.target.name]: e.target.value,
+    });
   const handleSaveTeacher = async (e) => {
     e.preventDefault();
     if (!formInput.name || !formInput.phone)
@@ -66,30 +87,33 @@ function TeacherProfile() {
         "teachers",
       );
     try {
-      const res = await api.post("/auth/register", {
+      const payload = {
         ...formInput,
+        salary: formInput.fee ? parseInt(formInput.fee) : 0,
         username: formInput.phone + "_teacher",
         password: "123",
         role: "teacher",
-      });
-      // SỬ DỤNG DỮ LIỆU CHUẨN TỪ BACKEND TRẢ VỀ (res.data) THAY VÌ HIỂN THỊ ẢO
+      };
+      const res = await api.post("/auth/register", payload);
       setTeachers((prev) => [res.data, ...prev]);
+      addNotification(
+        "Hệ thống: Lưu thông tin hồ sơ giáo viên thành công!",
+        "success",
+        "teachers",
+      );
       setFormInput({
         name: "",
         email: "",
         phone: "",
-        education: "",
-        level: "",
+        experience: "",
+        fee: "",
+        address: "",
         notes: "",
+        status: "Đang dạy",
       });
+    } catch (err) {
       addNotification(
-        "Hệ thống: Lưu thông tin hồ sơ Giáo viên thành công!",
-        "success",
-        "teachers",
-      );
-    } catch (error) {
-      addNotification(
-        `Lỗi: Không thể tạo Giáo viên. ${error.response?.data?.message || error.message}`,
+        "Lỗi tạo giáo viên: " + (err.response?.data?.message || err.message),
         "error",
         "teachers",
       );
@@ -103,15 +127,20 @@ function TeacherProfile() {
         "teachers",
       );
     try {
-      const res = await api.put(`/users/${selectedTeacher.id}`, selectedTeacher);
-      // SỬ DỤNG DỮ LIỆU CHUẨN TỪ BACKEND TRẢ VỀ ĐỂ XÓA BỎ HIỆN TƯỢNG BÓNG MA
+      const payload = {
+        ...selectedTeacher,
+        salary: selectedTeacher.fee
+          ? parseInt(selectedTeacher.fee)
+          : selectedTeacher.salary || 0,
+      };
+      const res = await api.put(`/users/${selectedTeacher.id}`, payload);
       setTeachers((prev) =>
         prev.map((t) => (t.id === selectedTeacher.id ? res.data : t)),
       );
       setSelectedTeacher(null);
       setIsEditing(false);
       addNotification(
-        "Cập nhật thông tin giáo viên thành công!",
+        "Hệ thống: Cập nhật thông tin thành công!",
         "success",
         "teachers",
       );
@@ -133,11 +162,16 @@ function TeacherProfile() {
       try {
         await api.delete(`/users/${id}`);
         setTeachers((prev) => prev.filter((t) => t.id !== id));
-        if (selectedTeacher && selectedTeacher.id === id) setSelectedTeacher(null);
-        addNotification("Đã xóa giáo viên thành công!", "success", "teachers");
+        if (selectedTeacher && selectedTeacher.id === id)
+          setSelectedTeacher(null);
+        addNotification(
+          "Hệ thống: Đã xóa giáo viên thành công!",
+          "success",
+          "teachers",
+        );
       } catch (err) {
         addNotification(
-          `Lỗi xóa dữ liệu: ${err.response?.data?.message || err.message}`,
+          `Lỗi xóa dữ liệu (Mã: ${err.response?.status}): ${err.response?.data?.message || err.message}`,
           "error",
           "teachers",
         );
@@ -146,138 +180,130 @@ function TeacherProfile() {
   };
   return (
     <div className="TeacherProfile-style-1">
+      {/* FORM TIẾP NHẬN GIÁO VIÊN */}
       <div className="card TeacherProfile-style-2">
         <h3 className="TeacherProfile-style-3">
-          <i className="fa-solid fa-user-graduate TeacherProfile-style-4"></i>{" "}
-          Thông tin Giáo viên
+          <i className="fa-solid fa-user-plus TeacherProfile-style-4"></i> Tiếp
+          nhận giáo viên / Nhập thông tin nhân sự
         </h3>
-        <form
-          onSubmit={handleSaveTeacher}
-          className="TeacherProfile-style-5"
-        >
+        <form onSubmit={handleSaveTeacher} className="TeacherProfile-style-5">
           <div>
-            <label className="TeacherProfile-style-6">
-              Họ & Tên (*)
-            </label>
+            <label className="form-label">Họ và tên (*)</label>
             <input
               type="text"
+              name="name"
               className="form-control"
+              placeholder="Ví dụ: Điệp Mạnh"
               value={formInput.name}
-              onChange={(e) =>
-                setFormInput({
-                  ...formInput,
-                  name: e.target.value,
-                })
-              }
+              onChange={handleInputChange}
               required
             />
           </div>
           <div>
-            <label className="TeacherProfile-style-7">
-              Email cá nhân
-            </label>
+            <label className="form-label">Email cá nhân</label>
             <input
               type="email"
+              name="email"
               className="form-control"
+              placeholder="teacher@nghiemlinh.edu.vn"
               value={formInput.email}
-              onChange={(e) =>
-                setFormInput({
-                  ...formInput,
-                  email: e.target.value,
-                })
-              }
+              onChange={handleInputChange}
             />
           </div>
           <div>
-            <label className="TeacherProfile-style-8">
-              Số điện thoại (*)
-            </label>
+            <label className="form-label">Số điện thoại (*)</label>
             <input
               type="text"
+              name="phone"
               className="form-control"
+              placeholder="09xxxxxxxx"
               value={formInput.phone}
-              onChange={(e) =>
-                setFormInput({
-                  ...formInput,
-                  phone: e.target.value,
-                })
-              }
+              onChange={handleInputChange}
               required
             />
           </div>
-          <div className="TeacherProfile-style-9">
-            <label className="TeacherProfile-style-10">Học vấn</label>
+          <div className="TeacherProfile-style-6">
+            <label className="form-label">
+              Học vấn & Kinh nghiệm giảng dạy
+            </label>
             <input
               type="text"
+              name="experience"
               className="form-control"
-              value={formInput.education}
-              onChange={(e) =>
-                setFormInput({
-                  ...formInput,
-                  education: e.target.value,
-                })
-              }
-              placeholder="VD: Sinh viên ĐH Ngoại ngữ..."
+              placeholder="Chứng chỉ HSK, thâm niên dạy..."
+              value={formInput.experience}
+              onChange={handleInputChange}
             />
           </div>
           <div>
-            <label className="TeacherProfile-style-11">
-              Trình độ
-            </label>
+            <label className="form-label">Mức học phí (VNĐ) / Buổi dạy</label>
             <input
-              type="text"
+              type="number"
+              name="fee"
               className="form-control"
-              value={formInput.level}
-              onChange={(e) =>
-                setFormInput({
-                  ...formInput,
-                  level: e.target.value,
-                })
-              }
-              placeholder="VD: HSK 5, IELTS 7.0..."
+              placeholder="350000"
+              value={formInput.fee}
+              onChange={handleInputChange}
             />
           </div>
-
-          {/* BỔ SUNG GHI CHÚ */}
-          <div className="TeacherProfile-style-12">
-            <label className="TeacherProfile-style-13">
-              Ghi chú thêm về nhân sự
-            </label>
+          <div className="TeacherProfile-style-7">
+            <label className="form-label">Địa chỉ</label>
+            <input
+              type="text"
+              name="address"
+              className="form-control"
+              value={formInput.address}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div>
+            <label className="form-label">Trạng thái</label>
+            <select
+              name="status"
+              className="form-control"
+              value={formInput.status}
+              onChange={handleInputChange}
+            >
+              <option value="Đang dạy">Đang dạy</option>
+              <option value="Tạm nghỉ">Tạm nghỉ</option>
+              <option value="Đã nghỉ">Đã nghỉ</option>
+            </select>
+          </div>
+          {/* BỔ SUNG TRƯỜNG GHI CHÚ */}
+          <div className="TeacherProfile-style-8">
+            <label className="form-label">Ghi chú thêm về nhân sự</label>
             <textarea
-              className="form-control TeacherProfile-style-14"
+              name="notes"
+              className="form-control TeacherProfile-style-9"
               rows="2"
+              placeholder="Ví dụ: Chỉ dạy được buổi tối, có kỹ năng làm MC..."
               value={formInput.notes}
-              onChange={(e) =>
-                setFormInput({
-                  ...formInput,
-                  notes: e.target.value,
-                })
-              }
-              placeholder="Thông tin cần lưu ý..."
+              onChange={handleInputChange}
             ></textarea>
           </div>
 
-          <div className="TeacherProfile-style-15">
+          <div className="TeacherProfile-style-10">
             <button
               type="submit"
-              className="btn btn-primary TeacherProfile-style-16"
+              className="btn btn-primary TeacherProfile-style-11"
             >
-              LƯU THÔNG TIN TRỢ GIẢNG
+              LƯU THÔNG TIN GIÁO VIÊN
             </button>
           </div>
         </form>
       </div>
 
-      <div className="card TeacherProfile-style-17">
-        <div className="TeacherProfile-style-18">
-          <div className="TeacherProfile-style-19">
+      {/* BẢNG DỮ LIỆU */}
+      <div className="card TeacherProfile-style-12">
+        <div className="TeacherProfile-style-13">
+          <div className="TeacherProfile-style-14">
             <button
               type="button"
               onClick={() => setIsPanelExpanded(!isPanelExpanded)}
               style={{
-                background: isPanelExpanded ? "#10b981" : "#ffffff",
-                color: isPanelExpanded ? "white" : "#10b981",
-                border: "1px solid #10b981",
+                background: isPanelExpanded ? "#4f46e5" : "#ffffff",
+                color: isPanelExpanded ? "white" : "#4f46e5",
+                border: "1px solid #4f46e5",
                 padding: "6px 16px",
                 borderRadius: "6px",
                 fontSize: "0.8rem",
@@ -296,7 +322,7 @@ function TeacherProfile() {
               </span>
             </button>
             {isPanelExpanded && (
-              <div className="TeacherProfile-style-20">
+              <div className="TeacherProfile-style-15">
                 <button
                   onClick={() =>
                     setVisibleColumns(
@@ -309,7 +335,7 @@ function TeacherProfile() {
                       ),
                     )
                   }
-                  className="TeacherProfile-style-21"
+                  className="TeacherProfile-style-16"
                 >
                   Chọn tất cả
                 </button>
@@ -325,7 +351,7 @@ function TeacherProfile() {
                       ),
                     )
                   }
-                  className="TeacherProfile-style-22"
+                  className="TeacherProfile-style-17"
                 >
                   Bỏ chọn
                 </button>
@@ -333,7 +359,7 @@ function TeacherProfile() {
             )}
           </div>
           {isPanelExpanded && (
-            <div className="TeacherProfile-style-23">
+            <div className="TeacherProfile-style-18">
               {optionalColumnsConfig.map((col) => (
                 <label
                   key={col.key}
@@ -343,16 +369,16 @@ function TeacherProfile() {
                     gap: "8px",
                     padding: "6px 10px",
                     backgroundColor: visibleColumns[col.key]
-                      ? "#ecfdf5"
+                      ? "#eef2ff"
                       : "#f8fafc",
                     border: visibleColumns[col.key]
-                      ? "1px solid #10b981"
+                      ? "1px solid #4f46e5"
                       : "1px solid #e2e8f0",
                     borderRadius: "6px",
                     cursor: "pointer",
                     fontSize: "0.75rem",
                     fontWeight: "700",
-                    color: visibleColumns[col.key] ? "#059669" : "#475569",
+                    color: visibleColumns[col.key] ? "#4f46e5" : "#475569",
                   }}
                 >
                   <input
@@ -367,50 +393,42 @@ function TeacherProfile() {
           )}
         </div>
 
-        <div className="modal-table-container TeacherProfile-style-24">
-          <table className="modal-table TeacherProfile-style-25">
-            <thead className="TeacherProfile-style-26">
+        <div className="modal-table-container TeacherProfile-style-19">
+          <table className="modal-table TeacherProfile-style-20">
+            <thead className="TeacherProfile-style-21">
               <tr>
-                <th className="TeacherProfile-style-27">STT</th>
-                <th className="TeacherProfile-style-28">HỌ & TÊN</th>
-                <th className="TeacherProfile-style-29">SĐT</th>
+                <th className="TeacherProfile-style-22">STT</th>
+                <th className="TeacherProfile-style-23">HỌ TÊN</th>
+                <th className="TeacherProfile-style-24">SĐT</th>
                 {visibleColumns.email && (
-                  <th className="TeacherProfile-style-30">EMAIL</th>
+                  <th className="TeacherProfile-style-25">EMAIL</th>
                 )}
-                {visibleColumns.education && (
-                  <th className="TeacherProfile-style-31">HỌC VẤN</th>
+                {visibleColumns.experience && (
+                  <th className="TeacherProfile-style-26">KINH NGHIỆM</th>
                 )}
-                {visibleColumns.level && (
-                  <th className="TeacherProfile-style-32">
-                    TRÌNH ĐỘ
-                  </th>
+                {visibleColumns.fee && (
+                  <th className="TeacherProfile-style-27">LƯƠNG</th>
+                )}
+                {visibleColumns.address && (
+                  <th className="TeacherProfile-style-28">ĐỊA CHỈ</th>
                 )}
                 {visibleColumns.notes && (
-                  <th className="TeacherProfile-style-33">GHI CHÚ</th>
+                  <th className="TeacherProfile-style-29">GHI CHÚ</th>
                 )}
-                <th className="TeacherProfile-style-34">THAO TÁC</th>
+                {visibleColumns.status && (
+                  <th className="TeacherProfile-style-30">TRẠNG THÁI</th>
+                )}
+                <th className="TeacherProfile-style-31">THAO TÁC</th>
               </tr>
             </thead>
             <tbody>
-              {teachers && teachers.length === 0 && (
-                <tr>
-                  <td colSpan="8" className="TeacherProfile-style-35">
-                    Chưa có giáo viên trong hệ thống.
-                  </td>
-                </tr>
-              )}
               {teachers &&
                 teachers.map((t, idx) => (
-                  <tr
-                    key={t.id || idx}
-                    className="TeacherProfile-style-36"
-                  >
-                    <td className="TeacherProfile-style-37">
-                      {idx + 1}
-                    </td>
-                    <td className="TeacherProfile-style-38">
+                  <tr key={t.id || idx} className="TeacherProfile-style-32">
+                    <td className="TeacherProfile-style-33">{idx + 1}</td>
+                    <td className="TeacherProfile-style-34">
                       <span
-                        className="TeacherProfile-style-39"
+                        className="TeacherProfile-style-35"
                         onClick={() => {
                           setSelectedTeacher({
                             ...t,
@@ -421,36 +439,56 @@ function TeacherProfile() {
                         {t.name || "---"}
                       </span>
                     </td>
-                    <td className="TeacherProfile-style-40">
+                    <td className="TeacherProfile-style-36">
                       {t.phone || "---"}
                     </td>
                     {visibleColumns.email && (
-                      <td className="TeacherProfile-style-41">
+                      <td className="TeacherProfile-style-37">
                         {t.email || "---"}
                       </td>
                     )}
-                    {visibleColumns.education && (
-                      <td className="TeacherProfile-style-42">
-                        {t.education || "---"}
+                    {visibleColumns.experience && (
+                      <td className="TeacherProfile-style-38">
+                        {t.experience || "---"}
                       </td>
                     )}
-                    {visibleColumns.level && (
-                      <td className="TeacherProfile-style-43">
-                        <span className="TeacherProfile-style-44">
-                          {t.level || "---"}
-                        </span>
+                    {visibleColumns.fee && (
+                      <td className="TeacherProfile-style-39">
+                        {t.salary || t.fee
+                          ? `${parseInt(t.salary || t.fee).toLocaleString("vi-VN")} đ`
+                          : "---"}
+                      </td>
+                    )}
+                    {visibleColumns.address && (
+                      <td className="TeacherProfile-style-40">
+                        {t.address || "---"}
                       </td>
                     )}
                     {visibleColumns.notes && (
-                      <td
-                        className="TeacherProfile-style-45"
-                        title={t.notes}
-                      >
+                      <td className="TeacherProfile-style-41" title={t.notes}>
                         {t.notes || "---"}
                       </td>
                     )}
-                    <td className="TeacherProfile-style-46">
-                      <div className="TeacherProfile-style-47">
+                    {visibleColumns.status && (
+                      <td className="TeacherProfile-style-42">
+                        <span
+                          style={{
+                            backgroundColor:
+                              t.status === "Đang dạy" ? "#dcfce7" : "#fee2e2",
+                            color:
+                              t.status === "Đang dạy" ? "#166534" : "#b91c1c",
+                            padding: "4px 12px",
+                            borderRadius: "50px",
+                            fontSize: "0.75rem",
+                            fontWeight: "800",
+                          }}
+                        >
+                          {t.status || "Đang dạy"}
+                        </span>
+                      </td>
+                    )}
+                    <td className="TeacherProfile-style-43">
+                      <div className="TeacherProfile-style-44">
                         <button
                           onClick={() => {
                             setSelectedTeacher({
@@ -459,14 +497,14 @@ function TeacherProfile() {
                             setIsEditing(true);
                           }}
                           title="Sửa"
-                          className="TeacherProfile-style-48"
+                          className="TeacherProfile-style-45"
                         >
                           <i className="fa-solid fa-pen"></i>
                         </button>
                         <button
                           onClick={() => handleDeleteTeacher(t.id)}
                           title="Xóa"
-                          className="TeacherProfile-style-49"
+                          className="TeacherProfile-style-46"
                         >
                           <i className="fa-solid fa-trash"></i>
                         </button>
@@ -479,27 +517,26 @@ function TeacherProfile() {
         </div>
       </div>
 
+      {/* MODAL XEM CHI TIẾT & CHỈNH SỬA HỒ SƠ GIÁO VIÊN */}
       {selectedTeacher && (
-        <div className="TeacherProfile-style-50">
-          <div className="card TeacherProfile-style-51">
-            <div className="TeacherProfile-style-52">
-              <h3 className="TeacherProfile-style-53">
+        <div className="TeacherProfile-style-47">
+          <div className="card TeacherProfile-style-48">
+            <div className="TeacherProfile-style-49">
+              <h3 className="TeacherProfile-style-50">
                 <i className="fa-solid fa-user-pen"></i>{" "}
                 {isEditing ? "Chỉnh sửa hồ sơ" : "Hồ sơ giáo viên"}
               </h3>
               <button
                 onClick={() => setSelectedTeacher(null)}
-                className="TeacherProfile-style-54"
+                className="TeacherProfile-style-51"
               >
                 ✖
               </button>
             </div>
 
-            <div className="TeacherProfile-style-55">
+            <div className="TeacherProfile-style-52">
               <div>
-                <label className="TeacherProfile-style-56">
-                  Họ và tên
-                </label>
+                <label className="TeacherProfile-style-53">Họ và tên</label>
                 {isEditing ? (
                   <input
                     className="form-control"
@@ -512,15 +549,13 @@ function TeacherProfile() {
                     }
                   />
                 ) : (
-                  <div className="TeacherProfile-style-57">
+                  <div className="TeacherProfile-style-54">
                     {selectedTeacher.name || "---"}
                   </div>
                 )}
               </div>
               <div>
-                <label className="TeacherProfile-style-58">
-                  Số điện thoại
-                </label>
+                <label className="TeacherProfile-style-55">Số điện thoại</label>
                 {isEditing ? (
                   <input
                     className="form-control"
@@ -533,15 +568,13 @@ function TeacherProfile() {
                     }
                   />
                 ) : (
-                  <div className="TeacherProfile-style-59">
+                  <div className="TeacherProfile-style-56">
                     {selectedTeacher.phone || "---"}
                   </div>
                 )}
               </div>
-              <div className="TeacherProfile-style-60">
-                <label className="TeacherProfile-style-61">
-                  Email
-                </label>
+              <div className="TeacherProfile-style-57">
+                <label className="TeacherProfile-style-58">Email</label>
                 {isEditing ? (
                   <input
                     className="form-control"
@@ -554,61 +587,109 @@ function TeacherProfile() {
                     }
                   />
                 ) : (
-                  <div className="TeacherProfile-style-62">
+                  <div className="TeacherProfile-style-59">
                     {selectedTeacher.email || "---"}
                   </div>
                 )}
               </div>
-              <div className="TeacherProfile-style-63">
-                <label className="TeacherProfile-style-64">
-                  Học vấn
+              <div className="TeacherProfile-style-60">
+                <label className="TeacherProfile-style-61">
+                  Kinh nghiệm / Học vấn
                 </label>
                 {isEditing ? (
                   <input
                     className="form-control"
-                    value={selectedTeacher.education || ""}
+                    value={selectedTeacher.experience || ""}
                     onChange={(e) =>
                       setSelectedTeacher({
                         ...selectedTeacher,
-                        education: e.target.value,
+                        experience: e.target.value,
                       })
                     }
                   />
                 ) : (
-                  <div className="TeacherProfile-style-65">
-                    {selectedTeacher.education || "---"}
+                  <div className="TeacherProfile-style-62">
+                    {selectedTeacher.experience || "---"}
                   </div>
                 )}
               </div>
-              <div className="TeacherProfile-style-66">
-                <label className="TeacherProfile-style-67">
-                  Trình độ
+              <div>
+                <label className="TeacherProfile-style-63">
+                  Mức lương / Buổi
+                </label>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={selectedTeacher.fee || selectedTeacher.salary || ""}
+                    onChange={(e) =>
+                      setSelectedTeacher({
+                        ...selectedTeacher,
+                        fee: e.target.value,
+                        salary: e.target.value,
+                      })
+                    }
+                  />
+                ) : (
+                  <div className="TeacherProfile-style-64">
+                    {selectedTeacher.salary || selectedTeacher.fee
+                      ? `${parseInt(selectedTeacher.salary || selectedTeacher.fee).toLocaleString("vi-VN")} đ`
+                      : "---"}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="TeacherProfile-style-65">Trạng thái</label>
+                {isEditing ? (
+                  <select
+                    className="form-control"
+                    value={selectedTeacher.status || "Đang dạy"}
+                    onChange={(e) =>
+                      setSelectedTeacher({
+                        ...selectedTeacher,
+                        status: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="Đang dạy">Đang dạy</option>
+                    <option value="Tạm nghỉ">Tạm nghỉ</option>
+                    <option value="Đã nghỉ">Đã nghỉ</option>
+                  </select>
+                ) : (
+                  <div className="TeacherProfile-style-66">
+                    {selectedTeacher.status || "---"}
+                  </div>
+                )}
+              </div>
+              <div className="TeacherProfile-style-67">
+                <label className="TeacherProfile-style-68">
+                  Địa chỉ thường trú
                 </label>
                 {isEditing ? (
                   <input
                     className="form-control"
-                    value={selectedTeacher.level || ""}
+                    value={selectedTeacher.address || ""}
                     onChange={(e) =>
                       setSelectedTeacher({
                         ...selectedTeacher,
-                        level: e.target.value,
+                        address: e.target.value,
                       })
                     }
                   />
                 ) : (
-                  <div className="TeacherProfile-style-68">
-                    {selectedTeacher.level || "---"}
+                  <div className="TeacherProfile-style-69">
+                    {selectedTeacher.address || "---"}
                   </div>
                 )}
               </div>
-              {/* BỔ SUNG TRƯỜNG GHI CHÚ TRONG CHI TIẾT */}
-              <div className="TeacherProfile-style-69">
-                <label className="TeacherProfile-style-70">
+              {/* BỔ SUNG TRƯỜNG GHI CHÚ TRONG MODAL CHI TIẾT */}
+              <div className="TeacherProfile-style-70">
+                <label className="TeacherProfile-style-71">
                   Ghi chú thêm về nhân sự
                 </label>
                 {isEditing ? (
                   <textarea
-                    className="form-control TeacherProfile-style-71"
+                    className="form-control TeacherProfile-style-72"
                     rows="2"
                     value={selectedTeacher.notes || ""}
                     onChange={(e) =>
@@ -619,30 +700,30 @@ function TeacherProfile() {
                     }
                   />
                 ) : (
-                  <div className="TeacherProfile-style-72">
+                  <div className="TeacherProfile-style-73">
                     {selectedTeacher.notes || "---"}
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="TeacherProfile-style-73">
+            <div className="TeacherProfile-style-74">
               <button
-                className="btn TeacherProfile-style-74"
+                className="btn TeacherProfile-style-75"
                 onClick={() => handleDeleteTeacher(selectedTeacher.id)}
               >
                 <i className="fa-solid fa-trash"></i> Xóa hồ sơ
               </button>
               {!isEditing ? (
                 <button
-                  className="btn TeacherProfile-style-75"
+                  className="btn TeacherProfile-style-76"
                   onClick={() => setIsEditing(true)}
                 >
                   <i className="fa-solid fa-pen"></i> Sửa thông tin
                 </button>
               ) : (
                 <button
-                  className="btn TeacherProfile-style-76"
+                  className="btn TeacherProfile-style-77"
                   onClick={handleSaveEdit}
                 >
                   <i className="fa-solid fa-floppy-disk"></i> Lưu thay đổi
