@@ -800,11 +800,18 @@ function Classes() {
                         >
                           {c.classCode}
                         </strong>
-                        <span className="Classes-style-94">
-                          <i className="fa-solid fa-chalkboard-user Classes-style-95"></i>{" "}
-                          {c.teacher || "Chưa xếp giáo viên"}{" "}
-                          {c.ta && `| TA: ${c.ta}`}
-                        </span>
+                        <div className="Classes-style-94" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                          <span>
+                            <i className="fa-solid fa-chalkboard-user Classes-style-95"></i>{" "}
+                            {c.teacher || "Chưa xếp giáo viên"}
+                          </span>
+                          {c.ta && (
+                            <span style={{ color: 'var(--text-muted)' }}>
+                              <i className="fa-solid fa-user-group Classes-style-95"></i>{" "}
+                              TA: {c.ta}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="Classes-style-96">
                         <div>
