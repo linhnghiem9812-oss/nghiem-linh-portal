@@ -22,6 +22,14 @@ function Classes() {
 
   const [sessionsData, setSessionsData] = useState([]);
   const [attendanceData, setAttendanceData] = useState([]);
+  const [collapsedMonths, setCollapsedMonths] = useState({});
+
+  const toggleMonth = (monthLabel) => {
+    setCollapsedMonths((prev) => ({
+      ...prev,
+      [monthLabel]: !prev[monthLabel],
+    }));
+  };
   
   const [isLoadingStudents, setIsLoadingStudents] = useState(false);
   const [isLoadingSessions, setIsLoadingSessions] = useState(false);
@@ -749,14 +757,23 @@ function Classes() {
 
             {Object.keys(groupedClasses).map((monthLabel) => (
               <React.Fragment key={monthLabel}>
-                <tr className="Classes-style-88">
+                <tr 
+                  className="Classes-style-88" 
+                  onClick={() => toggleMonth(monthLabel)} 
+                  style={{ cursor: "pointer" }}
+                >
                   <td colSpan="4" className="Classes-style-89">
-                    <i className="fa-regular fa-calendar Classes-style-90"></i>{" "}
-                    {monthLabel}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                      <span>
+                        <i className="fa-regular fa-calendar Classes-style-90"></i>{" "}
+                        {monthLabel}
+                      </span>
+                      <i className={`fa-solid ${collapsedMonths[monthLabel] ? 'fa-chevron-down' : 'fa-chevron-up'}`}></i>
+                    </div>
                   </td>
                 </tr>
 
-                {groupedClasses[monthLabel].map((c) => {
+                {!collapsedMonths[monthLabel] && groupedClasses[monthLabel].map((c) => {
                   const count = allStudents.filter(
                     (s) => s.classId === c.classCode,
                   ).length;
