@@ -428,3 +428,41 @@
   align-items: center;
   gap: 4px;
 }
+
+@media (max-width: 768px) {
+  .ClassReports-style-26 {
+    width: 95% !important;
+    max-height: 95vh !important;
+  }
+  
+  .ClassReports-style-30 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .ClassReports-style-49 {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    overflow-y: auto !important; /* Allow the whole area to scroll if stacked */
+  }
+
+  .ClassReports-style-52,
+  .ClassReports-style-59 {
+    overflow-y: visible !important; /* Let the parent scroll */
+  }
+  
+  .ClassReports-style-31, 
+  .ClassReports-style-34, 
+  .ClassReports-style-37, 
+  .ClassReports-style-40, 
+  .ClassReports-style-43, 
+  .ClassReports-style-46 {
+    border-right: none !important;
+    border-top: none !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 12px 20px !important;
+  }
+  
+  .ClassReports-style-46 {
+    border-bottom: none !important;
+  }
+}
