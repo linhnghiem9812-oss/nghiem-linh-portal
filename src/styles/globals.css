@@ -1035,6 +1035,7 @@ input:checked + .slider:before {
     margin-left: 0 !important;
     width: 100vw !important;
     padding: 12px !important;
+    margin-top: 130px !important;
   }
 
   /* 3. Xử lý Bảng (Table) không bị vỡ layout */
