@@ -513,8 +513,8 @@ function Classes() {
       {currentRole !== "teacher" && (
         <div className="card Classes-style-46">
           <h3 className="Classes-style-47">
-            <i className="fa-regular fa-square-plus Classes-style-48"></i>Quản
-            lý Lớp học
+            <i className="fa-regular fa-square-plus Classes-style-48"></i>Tạo
+            lớp học mới
           </h3>
           <form onSubmit={handleCreateClass} className="Classes-style-49">
             <div className="Classes-style-50">
