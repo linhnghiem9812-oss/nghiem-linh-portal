@@ -11,7 +11,7 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'Quản lý Ngoại Ngữ Nghiêm Linh',
-        short_name: 'UET Nghiêm Linh',
+        short_name: 'Ngoại Ngữ Nghiêm Linh',
         description: 'Hệ thống Quản lý & Giảng dạy Trung tâm Ngoại Ngữ Nghiêm Linh',
         theme_color: '#2563eb', /* Màu chủ đạo của Topbar */
         background_color: '#ffffff', /* Màu nền lúc màn hình khởi động (Splash Screen) */
