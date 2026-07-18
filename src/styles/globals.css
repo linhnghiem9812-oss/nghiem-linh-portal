@@ -1083,3 +1083,35 @@ input:checked + .slider:before {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* =========================================================================
+   KHÓA TUYỆT ĐỐI: DƯỚI 1024px BẮT BUỘC DÙNG BOTTOM BAR, ẨN SIDEBAR
+========================================================================= */
+@media (max-width: 1024px) {
+  /* 1. "Giết" triệt để thanh Sidebar bên trái trên mọi màn hình di động/tablet */
+  .sidebar, 
+  [class*="sidebar"], 
+  .sidebar-container {
+    display: none !important;
+    width: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* 2. Ép phần nội dung chính dãn tràn 100% màn hình, không chừa chỗ cho Sidebar nữa */
+  .main-content, 
+  .app-container, 
+  #root > div {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 3. Bắt buộc hiển thị thanh Bottom Bar ở đáy */
+  .bottom-nav, 
+  [class*="bottom-nav"] {
+    display: flex !important;
+  }
+}

@@ -40,6 +40,17 @@ function App() {
   }, [activeTab]);
   const [theme, setTheme] = useState("light");
 
+  // State kiểm tra xem có phải màn hình Mobile/Tablet không (< 1024px)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1024);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // XỬ LÝ ĐIỀU HƯỚNG KHI CHƯA ĐĂNG NHẬP
   if (!currentUser) {
     if (viewMode === "landing") {
@@ -55,15 +66,15 @@ function App() {
   };
 
   return (
-    <div className={`app-container ${isCollapsed ? "sidebar-collapsed" : ""}`}>
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+    <div className={`app-container ${isCollapsed && !isMobile ? "sidebar-collapsed" : ""}`}>
+      {!isMobile && <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />}
       <div
         className="main-layout-wrapper"
         style={{
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          marginLeft: isCollapsed ? "80px" : "260px",
+          marginLeft: isMobile ? "0px" : (isCollapsed ? "80px" : "260px"),
           transition: "margin-left 0.25s ease"
         }}
       >
@@ -73,6 +84,7 @@ function App() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           isCollapsed={isCollapsed}
+          isMobile={isMobile}
         />
 
         <main
@@ -104,7 +116,7 @@ function App() {
           {activeTab === "install-app" && <InstallApp />}
         </main>
       </div>
-      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      {isMobile && <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />}
     </div>
   );
 }

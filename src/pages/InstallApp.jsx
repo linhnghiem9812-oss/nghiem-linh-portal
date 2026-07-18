@@ -13,7 +13,7 @@ function InstallApp() {
         }
 
         const userAgent = window.navigator.userAgent.toLowerCase();
-        
+
         // 2. Kiểm tra iPhone/iPad (iOS)
         const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
         setIsIOS(isIosDevice);
@@ -24,8 +24,8 @@ function InstallApp() {
 
         // 4. Bắt sự kiện cài đặt tự động của Android / Chrome
         const handleBeforeInstallPrompt = (e) => {
-            e.preventDefault(); 
-            setDeferredPrompt(e); 
+            e.preventDefault();
+            setDeferredPrompt(e);
         };
 
         window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
