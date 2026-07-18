@@ -79,6 +79,10 @@
   outline: none;
 }
 
+html, body {
+  overscroll-behavior-y: none; /* Ngăn hiệu ứng kéo nảy cao su của iPhone */
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--bg-app);
@@ -106,6 +110,10 @@ select,
 textarea {
   font-family: inherit;
   border: none;
+}
+
+input, select, textarea {
+  font-size: 16px !important; /* QUAN TRỌNG: Ngăn iPhone tự động zoom khi bấm vào ô nhập liệu */
 }
 
 /* Custom scroll */
