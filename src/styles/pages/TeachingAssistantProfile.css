@@ -8,7 +8,8 @@
   animation: fadeIn 0.3s ease-out;
   width: 100% !important;
   max-width: 100% !important;
-  min-width: 0 !important; /* Khóa thẻ cha không bị dãn theo bảng */
+  min-width: 0 !important;
+  /* Khóa thẻ cha không bị dãn theo bảng */
   box-sizing: border-box !important;
   overflow-x: hidden !important;
 }
@@ -397,6 +398,7 @@
    RESPONSIVE CHO MÀN HÌNH NHỎ & ĐIỆN THOẠI (< 768px)
 ========================================================= */
 @media (max-width: 768px) {
+
   .TeachingAssistantProfile-style-2,
   .TeachingAssistantProfile-style-17 {
     padding: 16px !important;

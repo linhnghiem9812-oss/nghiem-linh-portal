@@ -461,6 +461,7 @@
    KHÓA TRÀN MÀN HÌNH TUYỆT ĐỐI CHO ĐIỆN THOẠI (< 768px)
 ========================================================================= */
 @media (max-width: 768px) {
+
   /* 1. Phá vỡ mọi thuộc tính độ rộng cố định từ các class cha/dùng chung */
   .FinanceLog-style-1,
   .FinanceLog-style-10,
@@ -489,10 +490,12 @@
   .FinanceLog-style-6 {
     font-size: 1.4rem !important;
   }
+
   .FinanceLog-style-7,
   .FinanceLog-style-8 {
     font-size: 1.15rem !important;
   }
+
   .FinanceLog-style-9 {
     display: none !important;
   }
@@ -540,7 +543,8 @@
     max-width: 100% !important;
     box-sizing: border-box !important;
     padding: 14px 12px !important;
-    font-size: 0.85rem !important; /* Giảm cỡ chữ xuống 0.85rem để dòng "XUẤT HÓA ĐƠN THU TIỀN" hiện trọn vẹn 1 dòng trên iPhone */
+    font-size: 0.85rem !important;
+    /* Giảm cỡ chữ xuống 0.85rem để dòng "XUẤT HÓA ĐƠN THU TIỀN" hiện trọn vẹn 1 dòng trên iPhone */
     text-align: center !important;
     display: block !important;
     white-space: normal !important;

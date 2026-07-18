@@ -31,7 +31,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 0; /* Cho phép co lại trên màn hình nhỏ */
+  min-width: 0;
+  /* Cho phép co lại trên màn hình nhỏ */
 }
 
 .LandingPage-style-4 {
@@ -121,7 +122,8 @@
   font-size: 1.15rem;
   background-color: var(--primary, #2563eb);
   color: white;
-  border-radius: 50px; /* Đổi sang bo tròn dạng viên nhộng chuẩn phong cách Apple/SaaS */
+  border-radius: 50px;
+  /* Đổi sang bo tròn dạng viên nhộng chuẩn phong cách Apple/SaaS */
   font-weight: 800;
   cursor: pointer;
   border: none;
@@ -139,6 +141,7 @@
    RESPONSIVE TUYỆT ĐỐI CHO MÀN HÌNH NHỎ & ĐIỆN THOẠI (< 768px)
 ========================================================================= */
 @media (max-width: 768px) {
+
   /* 1. Thu gọn lề hai bên Header từ 40px xuống 16px */
   .LandingPage-style-2 {
     padding: 14px 16px !important;
@@ -152,7 +155,8 @@
 
   .LandingPage-style-8 {
     font-size: 0.95rem !important;
-    max-width: 160px; /* Giới hạn chiều dài tên trung tâm trên máy quá bé */
+    max-width: 160px;
+    /* Giới hạn chiều dài tên trung tâm trên máy quá bé */
   }
 
   .LandingPage-style-9 {
@@ -163,13 +167,15 @@
   /* 3. Thu gọn lề khu vực nội dung chính */
   .LandingPage-style-10 {
     padding: 32px 16px !important;
-    justify-content: flex-start; /* Đẩy nội dung lên cao một chút, tránh bị lọt thỏm giữa màn hình dọc */
+    justify-content: flex-start;
+    /* Đẩy nội dung lên cao một chút, tránh bị lọt thỏm giữa màn hình dọc */
     padding-top: 12vh !important;
   }
 
   /* 4. ĐIỀU CHỈNH CỠ CHỮ HERO SECTION (Quyết định độ đẹp của Mobile) */
   .LandingPage-style-11 {
-    font-size: 1.75rem !important; /* Thu nhỏ từ 3rem (48px) xuống 1.75rem (28px) - Chuẩn vàng cho iPhone */
+    font-size: 1.75rem !important;
+    /* Thu nhỏ từ 3rem (48px) xuống 1.75rem (28px) - Chuẩn vàng cho iPhone */
     line-height: 1.35 !important;
     margin-bottom: 16px !important;
   }
