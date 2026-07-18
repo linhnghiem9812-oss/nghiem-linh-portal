@@ -1,302 +1,326 @@
+/* =========================================================
+   TỐI ƯU TRANG TÀI CHÍNH & DOANH THU (CHỐNG TRÀN & RESPONSIVE)
+========================================================= */
 .FinanceLog-style-1 {
   display: flex;
   flex-direction: column;
   gap: 24px;
   animation: fadeIn 0.3s ease-out;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important; /* Khóa quan trọng: Ngăn thẻ cha bị dãn ngang */
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
 }
 
 .FinanceLog-style-2 {
-  padding: 20px;
-  background-color: var(--primary-light);
-  border-color: var(--primary);
+  padding: 20px 24px;
+  background-color: var(--primary-light, #eff6ff);
+  border: 1px solid var(--primary, #2563eb);
+  border-radius: 12px;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .FinanceLog-style-3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
 }
 
 .FinanceLog-style-4 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--primary, #2563eb);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .FinanceLog-style-5 {
   display: flex;
-  align-items: flex-end;
+  align-items: baseline;
   gap: 16px;
-  margin-top: 4px;
-  flex-wrap: wrap;
+  margin-top: 6px;
+  flex-wrap: wrap; /* Cho phép rớt dòng nếu có nhiều tiền tệ */
 }
 
 .FinanceLog-style-6 {
-  font-size: 2rem;
+  font-size: 1.85rem;
   font-weight: 800;
-  color: var(--primary);
+  color: var(--primary, #2563eb);
   margin: 0px;
 }
 
 .FinanceLog-style-7 {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #059669;
   margin: 0px;
-  padding-bottom: 2px;
 }
 
 .FinanceLog-style-8 {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #ea580c;
   margin: 0px;
-  padding-bottom: 2px;
 }
 
 .FinanceLog-style-9 {
-  font-size: 2.5rem;
-  color: var(--primary);
-  opacity: 0.3;
+  font-size: 3rem;
+  color: var(--primary, #2563eb);
+  opacity: 0.25;
+  flex-shrink: 0;
 }
 
+/* LƯỚI CHÍNH: Cố định tỷ lệ 1:2 trên Desktop, khóa tràn ngang */
 .FinanceLog-style-10 {
+  display: grid;
   grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
 }
 
-.FinanceLog-style-11 {
+.FinanceLog-style-11,
+.FinanceLog-style-31 {
   padding: 24px;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
-.FinanceLog-style-12 {
-  font-size: 1.1rem;
+.FinanceLog-style-12,
+.FinanceLog-style-32 {
+  font-size: 1.15rem;
   font-weight: 800;
-  margin-bottom: 16px;
-  color: var(--primary);
+  margin-bottom: 20px;
+  color: var(--primary, #2563eb);
+  border-bottom: 2px solid var(--border-color, #e2e8f0);
+  padding-bottom: 12px;
 }
 
 .FinanceLog-style-13 {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
-.FinanceLog-style-14 {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
+.FinanceLog-style-14,
+.FinanceLog-style-15,
+.FinanceLog-style-16,
+.FinanceLog-style-27,
+.FinanceLog-style-28 {
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  margin-bottom: 6px !important;
+  display: block !important;
 }
 
-.FinanceLog-style-15 {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.FinanceLog-style-16 {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.FinanceLog-style-17 {
+/* KHỐI 3 Ô NHẬP TIỀN TỆ */
+.FinanceLog-style-17,
+.FinanceLog-style-68 {
   display: flex;
   gap: 12px;
 }
 
-.FinanceLog-style-18 {
+.FinanceLog-style-18,
+.FinanceLog-style-21,
+.FinanceLog-style-24,
+.FinanceLog-style-69,
+.FinanceLog-style-71,
+.FinanceLog-style-73 {
   flex: 1;
+  min-width: 0; /* Cho phép ô input co lại nếu cần */
 }
 
-.FinanceLog-style-19 {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--primary);
+.FinanceLog-style-19,
+.FinanceLog-style-70 {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--primary, #2563eb);
+  margin-bottom: 4px;
+  display: block;
 }
 
 .FinanceLog-style-20 {
-  border-color: var(--primary);
-}
-
-.FinanceLog-style-21 {
-  flex: 1;
-}
-
-.FinanceLog-style-22 {
-  font-size: 0.7rem;
+  border-color: var(--primary, #2563eb);
   font-weight: 700;
+}
+
+.FinanceLog-style-22,
+.FinanceLog-style-72 {
+  font-size: 0.75rem;
+  font-weight: 800;
   color: #059669;
+  margin-bottom: 4px;
+  display: block;
 }
 
 .FinanceLog-style-23 {
   border-color: #10b981;
-}
-
-.FinanceLog-style-24 {
-  flex: 1;
-}
-
-.FinanceLog-style-25 {
-  font-size: 0.7rem;
   font-weight: 700;
+}
+
+.FinanceLog-style-25,
+.FinanceLog-style-74 {
+  font-size: 0.75rem;
+  font-weight: 800;
   color: #ea580c;
+  margin-bottom: 4px;
+  display: block;
 }
 
 .FinanceLog-style-26 {
   border-color: #ea580c;
-}
-
-.FinanceLog-style-27 {
-  font-size: 0.75rem;
   font-weight: 700;
-  color: var(--text-muted);
 }
 
-.FinanceLog-style-28 {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.FinanceLog-style-29 {
+.FinanceLog-style-29,
+.FinanceLog-style-77 {
   resize: vertical;
 }
 
 .FinanceLog-style-30 {
-  padding: 12px;
-  font-weight: 700;
-  background-color: var(--primary);
+  padding: 14px;
+  font-weight: 800;
+  background-color: var(--primary, #2563eb);
   color: white;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 6px;
+  margin-top: 8px;
+  border: none;
+  transition: opacity 0.2s;
 }
 
-.FinanceLog-style-31 {
-  padding: 24px;
+.FinanceLog-style-30:hover {
+  opacity: 0.9;
 }
 
-.FinanceLog-style-32 {
-  font-size: 1.1rem;
-  font-weight: 800;
-  margin-bottom: 16px;
-}
-
+/* KHÓA KHUNG CUỘN BẢNG */
 .FinanceLog-style-33 {
-  overflow-x: auto;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  display: block !important;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
 }
 
 .FinanceLog-style-34 {
   width: 100%;
   white-space: nowrap;
+  border-collapse: collapse;
+  font-size: 0.85rem;
 }
 
 .FinanceLog-style-35 {
-  background-color: var(--bg-app);
+  background-color: var(--bg-app, #f8fafc);
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--border-color, #e2e8f0);
 }
 
-.FinanceLog-style-36 {
-  padding: 12px;
-}
-
-.FinanceLog-style-37 {
-  padding: 12px;
-}
-
-.FinanceLog-style-38 {
-  padding: 12px;
-}
-
-.FinanceLog-style-39 {
-  padding: 12px;
+.FinanceLog-style-36,
+.FinanceLog-style-37,
+.FinanceLog-style-38,
+.FinanceLog-style-39,
+.FinanceLog-style-40 {
+  padding: 12px 14px !important;
+  font-weight: 700;
 }
 
 .FinanceLog-style-40 {
-  padding: 12px;
-  text-align: center;
+  text-align: center !important;
 }
 
 .FinanceLog-style-41 {
   text-align: center;
-  padding: 30px;
-  color: var(--text-muted);
+  padding: 40px;
+  color: var(--text-muted, #64748b);
 }
 
 .FinanceLog-style-42 {
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  background-color: white;
+  transition: background 0.15s;
 }
 
-.FinanceLog-style-43 {
-  padding: 14px 12px;
+.FinanceLog-style-42:hover {
+  background-color: #f8fafc;
 }
 
-.FinanceLog-style-44 {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--text-muted);
+.FinanceLog-style-43,
+.FinanceLog-style-45,
+.FinanceLog-style-49,
+.FinanceLog-style-53,
+.FinanceLog-style-55 {
+  padding: 12px 14px !important;
 }
 
-.FinanceLog-style-45 {
-  padding: 14px 12px;
-}
-
-.FinanceLog-style-46 {
-  color: var(--text-main);
-}
-
+.FinanceLog-style-44,
 .FinanceLog-style-47 {
   display: block;
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--text-muted, #64748b);
+  margin-top: 2px;
+}
+
+.FinanceLog-style-46 {
+  color: var(--text-main, #0f172a);
+  font-size: 0.95rem;
 }
 
 .FinanceLog-style-48 {
   display: block;
-  font-size: 0.7rem;
-  color: #94a3b8;
+  font-size: 0.75rem;
+  color: #64748b;
   font-style: italic;
-  margin-top: 2px;
-  max-width: 200px;
+  margin-top: 4px;
+  max-width: 220px;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.FinanceLog-style-49 {
-  padding: 14px 12px;
+  white-space: nowrap;
 }
 
 .FinanceLog-style-50 {
-  font-weight: 700;
-  color: var(--primary);
+  font-weight: 800;
+  color: var(--primary, #2563eb);
+  font-size: 0.95rem;
 }
 
 .FinanceLog-style-51 {
-  font-weight: 700;
+  font-weight: 800;
   color: #059669;
   font-size: 0.85rem;
   margin-top: 2px;
 }
 
 .FinanceLog-style-52 {
-  font-weight: 700;
+  font-weight: 800;
   color: #ea580c;
   font-size: 0.85rem;
   margin-top: 2px;
-}
-
-.FinanceLog-style-53 {
-  padding: 14px 12px;
 }
 
 .FinanceLog-style-54 {
   background-color: #dcfce7;
   color: #166534;
   font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 0.75rem;
 }
 
 .FinanceLog-style-55 {
-  padding: 14px 12px;
   text-align: center;
 }
 
@@ -306,139 +330,98 @@
   justify-content: center;
 }
 
-.FinanceLog-style-57 {
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+.FinanceLog-style-57,
+.FinanceLog-style-58 {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  border: 1px solid transparent;
+}
+
+.FinanceLog-style-57 {
+  background: #f1f5f9;
   color: #475569;
+  border-color: #cbd5e1;
 }
 
 .FinanceLog-style-58 {
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
+  background: #fee2e2;
   color: #b91c1c;
+  border-color: #fecaca;
 }
 
+/* MODAL CHỈNH SỬA HÓA ĐƠN */
 .FinanceLog-style-59 {
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 99999 !important;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 16px;
 }
 
 .FinanceLog-style-60 {
-  width: 550px;
+  width: 600px;
+  max-width: 95vw !important; /* Khóa quan trọng: Không bị tràn màn hình điện thoại */
   background-color: white;
   padding: 24px;
-  border-radius: 12px;
+  border-radius: 16px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box !important;
 }
 
 .FinanceLog-style-61 {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
   padding-bottom: 12px;
 }
 
 .FinanceLog-style-62 {
   font-weight: 800;
-  color: var(--primary);
+  font-size: 1.15rem;
+  color: var(--primary, #2563eb);
+  margin: 0;
 }
 
 .FinanceLog-style-63 {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
+  color: #94a3b8;
 }
 
 .FinanceLog-style-64 {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
-.FinanceLog-style-65 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.FinanceLog-style-66 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.FinanceLog-style-67 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.FinanceLog-style-68 {
-  display: flex;
-  gap: 12px;
-}
-
-.FinanceLog-style-69 {
-  flex: 1;
-}
-
-.FinanceLog-style-70 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.FinanceLog-style-71 {
-  flex: 1;
-}
-
-.FinanceLog-style-72 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.FinanceLog-style-73 {
-  flex: 1;
-}
-
-.FinanceLog-style-74 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.FinanceLog-style-75 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
+.FinanceLog-style-65,
+.FinanceLog-style-66,
+.FinanceLog-style-67,
+.FinanceLog-style-75,
 .FinanceLog-style-76 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.FinanceLog-style-77 {
-  resize: vertical;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  margin-bottom: 6px !important;
+  display: block !important;
 }
 
 .FinanceLog-style-78 {
@@ -446,14 +429,65 @@
   justify-content: flex-end;
   margin-top: 24px;
   padding-top: 16px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-color, #e2e8f0);
 }
 
 .FinanceLog-style-79 {
-  padding: 10px 24px;
-  background-color: var(--success);
+  padding: 12px 24px;
+  background-color: #10b981;
   color: white;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 800;
+  border: none;
+}
+
+/* =========================================================
+   RESPONSIVE CHO MÀN HÌNH NHỎ & ĐIỆN THOẠI (< 768px)
+========================================================= */
+@media (max-width: 768px) {
+  .FinanceLog-style-2,
+  .FinanceLog-style-11,
+  .FinanceLog-style-31 {
+    padding: 16px !important;
+  }
+
+  /* Thu nhỏ chữ Banner tổng kết để không bị vỡ bố cục */
+  .FinanceLog-style-6 {
+    font-size: 1.5rem !important;
+  }
+  .FinanceLog-style-7,
+  .FinanceLog-style-8 {
+    font-size: 1.2rem !important;
+  }
+  .FinanceLog-style-9 {
+    display: none; /* Ẩn icon cái két sắt trên mobile cho thoáng */
+  }
+
+  /* CHUYỂN LƯỚI 2 CỘT THÀNH 1 CỘT DỌC TRÊN MOBILE */
+  .FinanceLog-style-10 {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* CHUYỂN 3 Ô TIỀN TỆ TỪ NGANG THÀNH DỌC (Cả Form mới & Modal sửa) */
+  .FinanceLog-style-17,
+  .FinanceLog-style-68 {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .FinanceLog-style-30 {
+    width: 100% !important;
+    text-align: center;
+  }
+
+  .FinanceLog-style-78 {
+    justify-content: stretch !important;
+  }
+
+  .FinanceLog-style-79 {
+    width: 100% !important;
+    text-align: center;
+  }
 }
