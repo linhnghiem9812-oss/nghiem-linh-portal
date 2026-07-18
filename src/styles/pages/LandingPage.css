@@ -1,11 +1,20 @@
+/* =========================================================
+   TỐI ƯU LANDING PAGE (CHỐNG TRÀN & RESPONSIVE MOBILE)
+========================================================= */
 .LandingPage-style-1 {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: #f8fafc;
-  font-family: var(--font-body);
+  font-family: var(--font-body, sans-serif);
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
 }
 
+/* THANH ĐIỀU HƯỚNG (HEADER) */
 .LandingPage-style-2 {
   display: flex;
   justify-content: space-between;
@@ -13,18 +22,23 @@
   padding: 20px 40px;
   background-color: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .LandingPage-style-3 {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0; /* Cho phép co lại trên màn hình nhỏ */
 }
 
 .LandingPage-style-4 {
   width: 40px;
   height: 40px;
   margin: 0px;
+  flex-shrink: 0;
 }
 
 .LandingPage-style-5 {
@@ -33,11 +47,7 @@
   border-radius: 4px;
 }
 
-.LandingPage-style-6 {
-  width: 4px;
-  height: 4px;
-}
-
+.LandingPage-style-6,
 .LandingPage-style-7 {
   width: 4px;
   height: 4px;
@@ -46,18 +56,31 @@
 .LandingPage-style-8 {
   font-size: 1.2rem;
   font-weight: 800;
-  color: var(--primary);
+  color: var(--primary, #2563eb);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .LandingPage-style-9 {
   padding: 10px 24px;
-  background-color: var(--primary);
+  background-color: var(--primary, #2563eb);
   color: white;
   border-radius: 50px;
   font-weight: 700;
   cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
+.LandingPage-style-9:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* NỘI DUNG CHÍNH (HERO SECTION) */
 .LandingPage-style-10 {
   flex: 1;
   display: flex;
@@ -66,35 +89,104 @@
   align-items: center;
   text-align: center;
   padding: 40px;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .LandingPage-style-11 {
   font-size: 3rem;
   font-weight: 800;
   color: #1e293b;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   max-width: 800px;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .LandingPage-style-12 {
-  color: var(--primary);
+  color: var(--primary, #2563eb);
+  display: inline-block;
 }
 
 .LandingPage-style-13 {
-  font-size: 1.1rem;
-  color: var(--text-muted);
+  font-size: 1.15rem;
+  color: var(--text-muted, #64748b);
   margin-bottom: 40px;
   max-width: 600px;
+  line-height: 1.6;
 }
 
 .LandingPage-style-14 {
-  padding: 16px 40px;
-  font-size: 1.1rem;
-  background-color: var(--primary);
+  padding: 16px 44px;
+  font-size: 1.15rem;
+  background-color: var(--primary, #2563eb);
   color: white;
-  border-radius: 8px;
+  border-radius: 50px; /* Đổi sang bo tròn dạng viên nhộng chuẩn phong cách Apple/SaaS */
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+  border: none;
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+  transition: all 0.2s ease;
+}
+
+.LandingPage-style-14:hover {
+  opacity: 0.95;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.5);
+}
+
+/* =========================================================================
+   RESPONSIVE TUYỆT ĐỐI CHO MÀN HÌNH NHỎ & ĐIỆN THOẠI (< 768px)
+========================================================================= */
+@media (max-width: 768px) {
+  /* 1. Thu gọn lề hai bên Header từ 40px xuống 16px */
+  .LandingPage-style-2 {
+    padding: 14px 16px !important;
+  }
+
+  /* 2. Thu nhỏ logo và chữ trên Header để không chèn mất nút Đăng nhập */
+  .LandingPage-style-4 {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .LandingPage-style-8 {
+    font-size: 0.95rem !important;
+    max-width: 160px; /* Giới hạn chiều dài tên trung tâm trên máy quá bé */
+  }
+
+  .LandingPage-style-9 {
+    padding: 8px 16px !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* 3. Thu gọn lề khu vực nội dung chính */
+  .LandingPage-style-10 {
+    padding: 32px 16px !important;
+    justify-content: flex-start; /* Đẩy nội dung lên cao một chút, tránh bị lọt thỏm giữa màn hình dọc */
+    padding-top: 12vh !important;
+  }
+
+  /* 4. ĐIỀU CHỈNH CỠ CHỮ HERO SECTION (Quyết định độ đẹp của Mobile) */
+  .LandingPage-style-11 {
+    font-size: 1.75rem !important; /* Thu nhỏ từ 3rem (48px) xuống 1.75rem (28px) - Chuẩn vàng cho iPhone */
+    line-height: 1.35 !important;
+    margin-bottom: 16px !important;
+  }
+
+  .LandingPage-style-13 {
+    font-size: 0.95rem !important;
+    margin-bottom: 32px !important;
+    padding: 0 8px;
+  }
+
+  /* 5. Tối ưu nút CTA chính: Kéo rộng ra dễ bấm, đúng chuẩn Apple Touch Target */
+  .LandingPage-style-14 {
+    width: 100% !important;
+    max-width: 320px !important;
+    padding: 16px 24px !important;
+    font-size: 1.05rem !important;
+    text-align: center;
+    box-sizing: border-box !important;
+  }
 }
