@@ -19,6 +19,7 @@ import MyClassActive from "./pages/MyClassActive";
 import TeachingAssistantProfile from "./pages/TeachingAssistantProfile";
 import AccountProfile from "./pages/AccountProfile"; // Trang cấu hình tài khoản mới
 import PayrollManagement from "./pages/PayrollManagement";
+import InstallApp from "./pages/InstallApp"; // Trang Cài đặt App
 import "./styles/globals.css";
 
 function App() {
@@ -100,6 +101,7 @@ function App() {
           {activeTab === "payroll" && currentRole === "admin" && (
             <PayrollManagement />
           )}
+          {activeTab === "install-app" && <InstallApp />}
         </main>
       </div>
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />

@@ -1,12 +1,10 @@
 import "../styles/components/Sidebar.css";
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { InstallAppModal } from "./common/InstallAppModal";
 
 // Kéo file ảnh từ thư mục assets vào
 import adminAvatarImg from "../assets/admin_avatar.jpg";
 function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
-  const [showInstallModal, setShowInstallModal] = useState(false);
   const { currentUser, currentRole, logout } = useAuth();
   const isTeacher = currentRole === "teacher";
 
@@ -164,8 +162,8 @@ function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
 
         {isCollapsed ? <div className="menu-divider" /> : <div className="menu-label">Hệ thống</div>}
         <div
-          className="menu-item"
-          onClick={() => setShowInstallModal(true)}
+          className={`menu-item ${activeTab === "install-app" ? "active" : ""}`}
+          onClick={() => setActiveTab("install-app")}
           title={isCollapsed ? "Cài đặt App điện thoại" : ""}
         >
           <i className="fa-solid fa-mobile-screen-button text-blue-500"></i>
@@ -182,9 +180,6 @@ function Sidebar({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) {
           <i className={`fa-solid ${isCollapsed ? "fa-angles-right" : "fa-angles-left"}`}></i>
         </div>
       </div>
-
-      {/* MODAL CÀI ĐẶT APP */}
-      {showInstallModal && <InstallAppModal onClose={() => setShowInstallModal(false)} />}
     </aside>
   );
 }
