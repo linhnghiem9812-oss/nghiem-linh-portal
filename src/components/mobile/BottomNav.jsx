@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { InstallAppModal } from "../common/InstallAppModal";
 import { useAuth } from "../../context/AuthContext";
 import adminAvatarImg from "../../assets/admin_avatar.jpg";
 import "../../styles/components/BottomNav.css";
@@ -9,6 +10,7 @@ function BottomNav({ activeTab, setActiveTab }) {
 
     // State quản lý việc mở Modal cho Sale/Admin
     const [activeModal, setActiveModal] = useState(null); // 'teaching' | 'management' | 'account' | null
+    const [showInstallModal, setShowInstallModal] = useState(false);
 
     const handleNavClick = (tabId, modalType = null) => {
         if (modalType) {
@@ -178,6 +180,10 @@ function BottomNav({ activeTab, setActiveTab }) {
                                     <i className="fa-solid fa-pen-to-square"></i>
                                     <span>Chỉnh sửa Hồ sơ</span>
                                 </button>
+                                <button onClick={() => { setActiveModal(null); setShowInstallModal(true); }} className="modal-list-item text-blue-600 font-bold">
+                                    <i className="fa-solid fa-mobile-screen-button"></i>
+                                    <span>Cài đặt App điện thoại</span>
+                                </button>
                                 <button onClick={() => { setActiveModal(null); logout(); }} className="modal-list-item logout">
                                     <i className="fa-solid fa-arrow-right-from-bracket"></i>
                                     <span>Đăng xuất an toàn</span>
@@ -187,6 +193,9 @@ function BottomNav({ activeTab, setActiveTab }) {
                     )}
                 </div>
             )}
+
+            {/* MODAL CÀI ĐẶT APP */}
+            {showInstallModal && <InstallAppModal onClose={() => setShowInstallModal(false)} />}
         </>
     );
 }
