@@ -1,5 +1,6 @@
 import "../styles/pages/LandingPage.css";
 import React from "react";
+
 function LandingPage({ onLoginClick }) {
   return (
     <div className="LandingPage-style-1">
@@ -16,7 +17,7 @@ function LandingPage({ onLoginClick }) {
         </div>
         <button
           onClick={onLoginClick}
-          className="btn btn-primary LandingPage-style-9"
+          className="LandingPage-style-9"
         >
           Truy cập hệ thống
         </button>
@@ -36,7 +37,7 @@ function LandingPage({ onLoginClick }) {
         </p>
         <button
           onClick={onLoginClick}
-          className="btn btn-primary LandingPage-style-14"
+          className="LandingPage-style-14"
         >
           Đăng nhập / Đăng ký ngay
         </button>
@@ -44,4 +45,5 @@ function LandingPage({ onLoginClick }) {
     </div>
   );
 }
+
 export default LandingPage;
