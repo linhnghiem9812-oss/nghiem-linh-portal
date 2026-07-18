@@ -301,14 +301,14 @@ function TeacherProfile() {
               <tr>
                 <th className="TeacherProfile-style-22">STT</th>
                 <th className="TeacherProfile-style-23">HỌ TÊN</th>
-                <th className="TeacherProfile-style-24">SĐT</th>
-                {visibleColumns.email && <th className="TeacherProfile-style-25">EMAIL</th>}
-                {visibleColumns.experience && <th className="TeacherProfile-style-26">KINH NGHIỆM</th>}
+                <th className="TeacherProfile-style-24 col-optional">SĐT</th>
+                {visibleColumns.email && <th className="TeacherProfile-style-25 col-optional">EMAIL</th>}
+                {visibleColumns.experience && <th className="TeacherProfile-style-26 col-optional">KINH NGHIỆM</th>}
                 {visibleColumns.fee && <th className="TeacherProfile-style-27">LƯƠNG</th>}
-                {visibleColumns.address && <th className="TeacherProfile-style-28">ĐỊA CHỈ</th>}
-                {visibleColumns.notes && <th className="TeacherProfile-style-29">GHI CHÚ</th>}
-                {visibleColumns.status && <th className="TeacherProfile-style-30">TRẠNG THÁI</th>}
-                <th className="TeacherProfile-style-31">THAO TÁC</th>
+                {visibleColumns.address && <th className="TeacherProfile-style-28 col-optional">ĐỊA CHỈ</th>}
+                {visibleColumns.notes && <th className="TeacherProfile-style-29 col-optional">GHI CHÚ</th>}
+                {visibleColumns.status && <th className="TeacherProfile-style-30 col-optional">TRẠNG THÁI</th>}
+                <th className="TeacherProfile-style-31 col-optional">THAO TÁC</th>
               </tr>
             </thead>
             <tbody>
@@ -321,33 +321,32 @@ function TeacherProfile() {
               )}
               {teachers &&
                 teachers.map((t, idx) => (
-                  <tr key={t.id || idx} className="TeacherProfile-style-32">
-                    <td className="TeacherProfile-style-33">{idx + 1}</td>
-                    <td className="TeacherProfile-style-34">
-                      <span
-                        className="TeacherProfile-style-35"
-                        onClick={() => {
+                  <tr key={t.id || idx} className="TeacherProfile-style-32" onClick={() => {
                           setSelectedTeacher({ ...t });
                           setIsEditing(false);
-                        }}
+                        }}>
+                    <td className="TeacherProfile-style-33">{idx + 1}</td>
+                    <td className="TeacherProfile-style-34 teacher-name-cell">
+                      <span
+                        className="TeacherProfile-style-35"
                       >
                         {t.name || "---"}
                       </span>
                     </td>
-                    <td className="TeacherProfile-style-36">{t.phone || "---"}</td>
-                    {visibleColumns.email && <td className="TeacherProfile-style-37">{t.email || "---"}</td>}
-                    {visibleColumns.experience && <td className="TeacherProfile-style-38">{t.experience || "---"}</td>}
+                    <td className="TeacherProfile-style-36 col-optional">{t.phone || "---"}</td>
+                    {visibleColumns.email && <td className="TeacherProfile-style-37 col-optional">{t.email || "---"}</td>}
+                    {visibleColumns.experience && <td className="TeacherProfile-style-38 col-optional">{t.experience || "---"}</td>}
                     {visibleColumns.fee && (
-                      <td className="TeacherProfile-style-39">
+                      <td className="TeacherProfile-style-39 teacher-salary-cell">
                         {t.salary || t.fee ? `${parseInt(t.salary || t.fee).toLocaleString("vi-VN")} đ` : "---"}
                       </td>
                     )}
-                    {visibleColumns.address && <td className="TeacherProfile-style-40">{t.address || "---"}</td>}
+                    {visibleColumns.address && <td className="TeacherProfile-style-40 col-optional">{t.address || "---"}</td>}
                     {visibleColumns.notes && (
-                      <td className="TeacherProfile-style-41" title={t.notes}>{t.notes || "---"}</td>
+                      <td className="TeacherProfile-style-41 col-optional" title={t.notes}>{t.notes || "---"}</td>
                     )}
                     {visibleColumns.status && (
-                      <td className="TeacherProfile-style-42">
+                      <td className="TeacherProfile-style-42 col-optional">
                         <span
                           style={{
                             backgroundColor: t.status === "Đang dạy" ? "#dcfce7" : "#fee2e2",
@@ -362,7 +361,7 @@ function TeacherProfile() {
                         </span>
                       </td>
                     )}
-                    <td className="TeacherProfile-style-43">
+                    <td className="TeacherProfile-style-43 col-optional">
                       <div className="TeacherProfile-style-44">
                         <button
                           onClick={() => {

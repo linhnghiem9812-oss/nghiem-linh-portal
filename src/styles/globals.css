@@ -1115,3 +1115,30 @@ input:checked + .slider:before {
     display: flex !important;
   }
 }
+
+/* =========================================================================
+   1. KHÓA CU?N NGANG NHUNG B?T BU?C M? CU?N D?C CHO TOÀN B? APP
+========================================================================= */
+html, body {
+  max-width: 100vw !important;
+  overflow-x: hidden !important; /* CH? khóa cu?n ngang ch?ng tràn trang */
+  overflow-y: auto !important;   /* B?T BU?C cho phép cu?n d?c */
+  height: auto !important;       /* Không du?c khóa chi?u cao 100vh */
+  min-height: 100% !important;
+  -webkit-overflow-scrolling: touch !important; /* Cu?n mu?t trên iPhone/iPad */
+}
+
+#root, .app-container, .main-content {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important; /* Ð? lu?ng cu?n ch?y t? nhiên theo body */
+  height: auto !important;
+  min-height: 100vh !important;
+}
+
+/* Ð?m b?o ph?n n?i dung không b? thanh Bottom Bar ? dáy che m?t ph?n duôi */
+@media (max-width: 768px) {
+  .main-content, .page-content {
+    padding-bottom: 85px !important; 
+  }
+}

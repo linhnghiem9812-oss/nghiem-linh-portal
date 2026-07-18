@@ -449,3 +449,57 @@
     text-align: center;
   }
 }
+/* =========================================================================
+   2. T?I UU TRANG THÔNG TIN GIÁO VIÊN TRÊN ÐI?N THO?I (< 768px)
+========================================================================= */
+@media (max-width: 768px) {
+  /* Khóa ch?ng tràn cho khung ngoài trang Giáo viên */
+  .TeacherProfile-style-1, .TeacherProfile-style-12 {
+    width: 100% !important;
+    max-width: 100vw !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ?n toàn b? các c?t ph?, ch? d? l?i STT, H? Tên và M?c luong */
+  .col-optional {
+    display: none !important;
+  }
+
+  /* Ép b?ng giáo viên v?a khít 100% màn hình di?n tho?i */
+  .TeacherProfile-style-19 {
+    width: 100% !important;
+    overflow-x: hidden !important; /* Không cu?n ngang n?a vì dã siêu g?n */
+  }
+
+  .TeacherProfile-style-20 {
+    width: 100% !important;
+    table-layout: auto !important;
+  }
+
+  /* Thu nh? ch? và padding c?a 3 c?t còn l?i d? không b? v? */
+  .TeacherProfile-style-20 th, 
+  .TeacherProfile-style-20 td {
+    padding: 12px 8px !important;
+    font-size: 0.85rem !important;
+    white-space: nowrap !important;
+  }
+
+  /* C?t STT cho nh? l?i */
+  .TeacherProfile-style-20 td:first-child,
+  .TeacherProfile-style-20 th:first-child {
+    width: 35px !important;
+    text-align: center !important;
+  }
+
+  /* Làm n?i b?t tên Giáo viên và M?c luong */
+  .teacher-name-cell {
+    font-weight: 800 !important;
+    color: var(--primary, #2563eb) !important;
+  }
+  
+  .teacher-salary-cell {
+    font-weight: 700 !important;
+    color: #10b981 !important; /* Màu xanh lá cho ti?n luong */
+  }
+}
