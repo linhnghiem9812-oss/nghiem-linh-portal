@@ -47,7 +47,7 @@ function FinanceLog() {
     const dateParts = formInvoice.date.split("-");
     const formattedDate =
       dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}` : formInvoice.date;
-      
+
     const newInv = {
       date: formattedDate,
       studentName: formInvoice.studentName,
