@@ -12,10 +12,10 @@ function BottomNav({ activeTab, setActiveTab }) {
 
     const handleNavClick = (tabId, modalType = null) => {
         if (modalType) {
-            // Nếu nút có modal -> Bật/tắt modal
+            // Nếu bấm vào nút có Modal -> Bật/tắt modal đó
             setActiveModal(activeModal === modalType ? null : modalType);
         } else {
-            // Nếu nút chuyển trang trực tiếp -> Chuyển trang & đóng mọi modal
+            // Nếu bấm chuyển trang trực tiếp -> Chuyển trang & đóng mọi modal
             setActiveTab(tabId);
             setActiveModal(null);
         }
@@ -26,23 +26,37 @@ function BottomNav({ activeTab, setActiveTab }) {
         setActiveModal(null);
     };
 
+    // =========================================================================
+    // LOGIC KIỂM TRA MÀU ACTIVE SIÊU NHẠY (Sáng ngay khi bấm hoặc đang ở tab đó)
+    // =========================================================================
+    const isHomeActive = !activeModal && activeTab === (isTeacher ? "my-class" : "reports");
+    
+    // Nút Giảng dạy sáng khi: Đang mở Modal Giảng dạy HOẶC đang ở trang thuộc nhóm Giảng dạy
+    const isTeachingActive = activeModal === "teaching" || (!activeModal && ["classes", "reports", "my-class"].includes(activeTab));
+    
+    // Nút Quản lý sáng khi: Đang mở Modal Quản lý HOẶC đang ở trang thuộc nhóm Quản lý
+    const isManagementActive = activeModal === "management" || (!activeModal && ["crm", "sales", "care", "teachers", "tas", "finance", "payroll"].includes(activeTab));
+    
+    // Nút Tài khoản sáng khi: Đang mở Modal Tài khoản HOẶC đang ở trang Hồ sơ/Cài đặt app
+    const isAccountActive = activeModal === "account" || (!activeModal && ["profile", "install-app"].includes(activeTab));
+
     return (
         <>
             {/* 1. KHUNG BOTTOM BAR CỐ ĐỊNH DƯỚI ĐÁY MÀN HÌNH */}
             <nav className="bottom-nav">
-                {/* NÚT 1: HÔM NAY / TỔNG QUAN (Chung cho mọi người) */}
+                {/* NÚT 1: HÔM NAY / TỔNG QUAN */}
                 <button
-                    className={`bottom-nav-item ${activeTab === (isTeacher ? "my-class" : "reports") ? "active" : ""}`}
+                    className={`bottom-nav-item ${isHomeActive ? "active" : ""}`}
                     onClick={() => handleNavClick(isTeacher ? "my-class" : "reports")}
                 >
                     <i className="fa-solid fa-house"></i>
                     <span>{isTeacher ? "Hôm nay" : "Tổng quan"}</span>
                 </button>
 
-                {/* NÚT 2: KHỐI GIẢNG DẠY (Giáo viên vào thẳng, Admin mở Modal) */}
+                {/* NÚT 2: KHỐI GIẢNG DẠY */}
                 {isTeacher ? (
                     <button
-                        className={`bottom-nav-item ${activeTab === "reports" ? "active" : ""}`}
+                        className={`bottom-nav-item ${!activeModal && activeTab === "reports" ? "active" : ""}`}
                         onClick={() => handleNavClick("reports")}
                     >
                         <i className="fa-solid fa-square-poll-vertical"></i>
@@ -50,7 +64,7 @@ function BottomNav({ activeTab, setActiveTab }) {
                     </button>
                 ) : (
                     <button
-                        className={`bottom-nav-item ${["classes", "reports", "my-class"].includes(activeTab) ? "active" : ""}`}
+                        className={`bottom-nav-item ${isTeachingActive ? "active" : ""}`}
                         onClick={() => handleNavClick(null, "teaching")}
                     >
                         <i className="fa-solid fa-school"></i>
@@ -61,7 +75,7 @@ function BottomNav({ activeTab, setActiveTab }) {
                 {/* NÚT 3: KHỐI QUẢN LÝ / LƯƠNG */}
                 {isTeacher ? (
                     <button
-                        className={`bottom-nav-item ${activeTab === "payroll" ? "active" : ""}`}
+                        className={`bottom-nav-item ${!activeModal && activeTab === "payroll" ? "active" : ""}`}
                         onClick={() => handleNavClick("payroll")}
                     >
                         <i className="fa-solid fa-wallet"></i>
@@ -69,7 +83,7 @@ function BottomNav({ activeTab, setActiveTab }) {
                     </button>
                 ) : (
                     <button
-                        className={`bottom-nav-item ${["crm", "sales", "care", "teachers", "tas", "finance", "payroll"].includes(activeTab) ? "active" : ""}`}
+                        className={`bottom-nav-item ${isManagementActive ? "active" : ""}`}
                         onClick={() => handleNavClick(null, "management")}
                     >
                         <i className="fa-solid fa-briefcase"></i>
@@ -77,9 +91,9 @@ function BottomNav({ activeTab, setActiveTab }) {
                     </button>
                 )}
 
-                {/* NÚT 4: TÀI KHOẢN (Chung cho mọi người - Mở Modal Tài khoản) */}
+                {/* NÚT 4: TÀI KHOẢN */}
                 <button
-                    className={`bottom-nav-item ${activeTab === "profile" || activeModal === "account" ? "active" : ""}`}
+                    className={`bottom-nav-item ${isAccountActive ? "active" : ""}`}
                     onClick={() => handleNavClick(null, "account")}
                 >
                     <div className="bottom-nav-avatar">
