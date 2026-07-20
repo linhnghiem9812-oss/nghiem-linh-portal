@@ -336,12 +336,19 @@
   .MyClassActive-style-3 {
     flex-direction: column;
   }
-  
+
   .MyClassActive-style-11 {
     width: 100%;
     text-align: left;
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  /* Cho phép đoạn text "(Nhấp vào hộp để chỉnh sửa)" rớt xuống dòng cho gọn gàng */
+  .MyClassActive-style-22 {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.75rem;
   }
 }
