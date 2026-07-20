@@ -127,10 +127,12 @@
   font-weight: 800;
   cursor: pointer;
 }
+
 /* ==========================================================================
    BỔ SUNG RESPONSIVE MOBILE CHO TRANG HỒ SƠ CÁ NHÂN (ACCOUNT PROFILE)
 ========================================================================== */
 @media (max-width: 768px) {
+
   /* 1. Co dãn thẻ Container chính vừa vặn màn hình điện thoại */
   .AccountProfile-style-2 {
     padding: 20px 16px !important;

@@ -255,7 +255,7 @@ function TeachingAssistantProfile() {
                 {visibleColumns.education && <th className="TeachingAssistantProfile-style-31 col-optional">HỌC VẤN</th>}
                 {visibleColumns.level && <th className="TeachingAssistantProfile-style-32">TRÌNH ĐỘ</th>}
                 {visibleColumns.notes && <th className="TeachingAssistantProfile-style-33 col-optional">GHI CHÚ</th>}
-                <th className="TeachingAssistantProfile-style-34">THAO TÁC</th>
+                <th className="TeachingAssistantProfile-style-34 col-optional">THAO TÁC</th>
               </tr>
             </thead>
             <tbody>
@@ -291,7 +291,7 @@ function TeachingAssistantProfile() {
                     {visibleColumns.notes && (
                       <td className="TeachingAssistantProfile-style-45 col-optional" title={t.notes}>{t.notes || "---"}</td>
                     )}
-                    <td className="TeachingAssistantProfile-style-46">
+                    <td className="TeachingAssistantProfile-style-46 col-optional">
                       <div className="TeachingAssistantProfile-style-47">
                         <button
                           onClick={(e) => {

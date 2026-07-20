@@ -30,13 +30,13 @@ function BottomNav({ activeTab, setActiveTab }) {
     // LOGIC KIỂM TRA MÀU ACTIVE SIÊU NHẠY (Sáng ngay khi bấm hoặc đang ở tab đó)
     // =========================================================================
     const isHomeActive = !activeModal && activeTab === (isTeacher ? "my-class" : "reports");
-    
+
     // Nút Giảng dạy sáng khi: Đang mở Modal Giảng dạy HOẶC đang ở trang thuộc nhóm Giảng dạy
     const isTeachingActive = activeModal === "teaching" || (!activeModal && ["classes", "reports", "my-class"].includes(activeTab));
-    
+
     // Nút Quản lý sáng khi: Đang mở Modal Quản lý HOẶC đang ở trang thuộc nhóm Quản lý
     const isManagementActive = activeModal === "management" || (!activeModal && ["crm", "sales", "care", "teachers", "tas", "finance", "payroll"].includes(activeTab));
-    
+
     // Nút Tài khoản sáng khi: Đang mở Modal Tài khoản HOẶC đang ở trang Hồ sơ/Cài đặt app
     const isAccountActive = activeModal === "account" || (!activeModal && ["profile", "install-app"].includes(activeTab));
 
