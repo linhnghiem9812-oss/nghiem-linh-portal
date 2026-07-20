@@ -250,11 +250,11 @@ function TeachingAssistantProfile() {
               <tr>
                 <th className="TeachingAssistantProfile-style-27">STT</th>
                 <th className="TeachingAssistantProfile-style-28">HỌ & TÊN</th>
-                <th className="TeachingAssistantProfile-style-29">SĐT</th>
-                {visibleColumns.email && <th className="TeachingAssistantProfile-style-30">EMAIL</th>}
-                {visibleColumns.education && <th className="TeachingAssistantProfile-style-31">HỌC VẤN</th>}
+                <th className="TeachingAssistantProfile-style-29 col-optional">SĐT</th>
+                {visibleColumns.email && <th className="TeachingAssistantProfile-style-30 col-optional">EMAIL</th>}
+                {visibleColumns.education && <th className="TeachingAssistantProfile-style-31 col-optional">HỌC VẤN</th>}
                 {visibleColumns.level && <th className="TeachingAssistantProfile-style-32">TRÌNH ĐỘ</th>}
-                {visibleColumns.notes && <th className="TeachingAssistantProfile-style-33">GHI CHÚ</th>}
+                {visibleColumns.notes && <th className="TeachingAssistantProfile-style-33 col-optional">GHI CHÚ</th>}
                 <th className="TeachingAssistantProfile-style-34">THAO TÁC</th>
               </tr>
             </thead>
@@ -268,34 +268,34 @@ function TeachingAssistantProfile() {
               )}
               {tas &&
                 tas.map((t, idx) => (
-                  <tr key={t.id || idx} className="TeachingAssistantProfile-style-36">
-                    <td className="TeachingAssistantProfile-style-37">{idx + 1}</td>
-                    <td className="TeachingAssistantProfile-style-38">
-                      <span
-                        className="TeachingAssistantProfile-style-39"
-                        onClick={() => {
+                  <tr key={t.id || idx} className="TeachingAssistantProfile-style-36" onClick={() => {
                           setSelectedTA({ ...t });
                           setIsEditing(false);
-                        }}
+                        }}>
+                    <td className="TeachingAssistantProfile-style-37">{idx + 1}</td>
+                    <td className="TeachingAssistantProfile-style-38 ta-name-cell">
+                      <span
+                        className="TeachingAssistantProfile-style-39"
                       >
                         {t.name || "---"}
                       </span>
                     </td>
-                    <td className="TeachingAssistantProfile-style-40">{t.phone || "---"}</td>
-                    {visibleColumns.email && <td className="TeachingAssistantProfile-style-41">{t.email || "---"}</td>}
-                    {visibleColumns.education && <td className="TeachingAssistantProfile-style-42">{t.education || "---"}</td>}
+                    <td className="TeachingAssistantProfile-style-40 col-optional">{t.phone || "---"}</td>
+                    {visibleColumns.email && <td className="TeachingAssistantProfile-style-41 col-optional">{t.email || "---"}</td>}
+                    {visibleColumns.education && <td className="TeachingAssistantProfile-style-42 col-optional">{t.education || "---"}</td>}
                     {visibleColumns.level && (
                       <td className="TeachingAssistantProfile-style-43">
                         <span className="TeachingAssistantProfile-style-44">{t.level || "---"}</span>
                       </td>
                     )}
                     {visibleColumns.notes && (
-                      <td className="TeachingAssistantProfile-style-45" title={t.notes}>{t.notes || "---"}</td>
+                      <td className="TeachingAssistantProfile-style-45 col-optional" title={t.notes}>{t.notes || "---"}</td>
                     )}
                     <td className="TeachingAssistantProfile-style-46">
                       <div className="TeachingAssistantProfile-style-47">
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setSelectedTA({ ...t });
                             setIsEditing(true);
                           }}
@@ -305,7 +305,10 @@ function TeachingAssistantProfile() {
                           <i className="fa-solid fa-pen"></i>
                         </button>
                         <button
-                          onClick={() => handleDeleteTA(t.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTA(t.id);
+                          }}
                           title="Xóa"
                           className="TeachingAssistantProfile-style-49"
                         >
