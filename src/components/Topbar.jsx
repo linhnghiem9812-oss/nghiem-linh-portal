@@ -120,7 +120,7 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
       <header className="topbar">
         <div className="topbar-left-section">
           <div className="topbar-left-text desktop-only">
-            <h2 style={{ color: "red" }}>{currentHeader.title}</h2> {/* TEST CACHE RED COLOR - XÓA SAU */}
+            {/*<h2 style={{ color: "red" }}>{currentHeader.title}</h2> {/* TEST CACHE RED COLOR - XÓA SAU */}
             <p>{currentHeader.subtitle}</p>
           </div>
 
@@ -144,7 +144,7 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
             </div>
 
             <div className="mobile-page-title">
-              <h2 style={{ fontSize: "1.15rem", margin: "0 0 4px 0", color: "red", fontWeight: "800" }}>{currentHeader.title}</h2> {/* TEST CACHE RED COLOR - XÓA SAU */}
+              {/* <h2 style={{ fontSize: "1.15rem", margin: "0 0 4px 0", color: "red", fontWeight: "800" }}>{currentHeader.title}</h2>  */}{/* TEST CACHE RED COLOR - XÓA SAU */}
               <p style={{ fontSize: "0.8rem", margin: 0, color: "var(--text-muted)" }}>{currentHeader.subtitle}</p>
             </div>
           </div>
