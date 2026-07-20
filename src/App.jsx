@@ -67,17 +67,17 @@ function App() {
 
   return (
     <div className={`app-container ${isCollapsed && !isMobile ? "sidebar-collapsed" : ""}`}>
-      {!isMobile && <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />}
-      <div
-        className="main-layout-wrapper"
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          marginLeft: isMobile ? "0px" : (isCollapsed ? "80px" : "260px"),
-          transition: "margin-left 0.25s ease"
-        }}
-      >
+      {!isMobile && (
+        <Sidebar 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          isCollapsed={isCollapsed} 
+          setIsCollapsed={setIsCollapsed} 
+        />
+      )}
+      
+      {/* ĐÃ BỎ INLINE STYLE GÂY LỖI TRÔI LỀ TRÊN IOS, NHƯỜNG CHO CSS XỬ LÝ */}
+      <div className="main-layout-wrapper">
         <Topbar
           theme={theme}
           toggleTheme={toggleTheme}
@@ -87,35 +87,22 @@ function App() {
           isMobile={isMobile}
         />
 
-        <main
-          className="main-content"
-          style={{ marginTop: "80px", padding: "32px" }}
-        >
+        <main className="main-content">
           {activeTab === "classes" && <Classes />}
           {activeTab === "reports" && <ClassReports />}
           {activeTab === "my-class" && <MyClassActive />}
-          {activeTab === "profile" && <AccountProfile />}{" "}
-          {/* Tab Quản lý tài khoản */}
+          {activeTab === "profile" && <AccountProfile />}
           {activeTab === "crm" && currentRole !== "teacher" && <CRM />}
-          {activeTab === "sales" && currentRole !== "teacher" && (
-            <SalesRating />
-          )}
+          {activeTab === "sales" && currentRole !== "teacher" && <SalesRating />}
           {activeTab === "care" && currentRole !== "teacher" && <StudentCare />}
-          {activeTab === "teachers" && currentRole !== "teacher" && (
-            <TeacherProfile />
-          )}
-          {activeTab === "tas" && currentRole !== "teacher" && (
-            <TeachingAssistantProfile />
-          )}
-          {activeTab === "finance" && currentRole !== "teacher" && (
-            <FinanceLog />
-          )}
-          {activeTab === "payroll" && currentRole === "admin" && (
-            <PayrollManagement />
-          )}
+          {activeTab === "teachers" && currentRole !== "teacher" && <TeacherProfile />}
+          {activeTab === "tas" && currentRole !== "teacher" && <TeachingAssistantProfile />}
+          {activeTab === "finance" && currentRole !== "teacher" && <FinanceLog />}
+          {activeTab === "payroll" && currentRole === "admin" && <PayrollManagement />}
           {activeTab === "install-app" && <InstallApp />}
         </main>
       </div>
+      
       {isMobile && <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />}
     </div>
   );
