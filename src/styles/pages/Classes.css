@@ -780,46 +780,147 @@
   font-weight: 700;
 }
 
-/* Mobile responsive adjustments */
+/* =========================================================================
+   RESPONSIVE CHO ĐIỆN THOẠI (< 768px): BIẾN BẢNG LỚP HỌC THÀNH THẻ (CARD)
+   ========================================================================= */
 @media (max-width: 768px) {
-  /* Stack 'Tạo lớp học mới' form fields */
+
+  /* 1. Xử lý Form Tạo lớp mới chuyển thành cột đơn dễ nhập */
   .Classes-style-50,
   .Classes-style-59 {
     grid-template-columns: 1fr;
     gap: 16px;
   }
 
-  /* Make the header of 'Danh sách lớp học' stack */
+  /* 2. Tiêu đề "Danh sách lớp học" và thanh tìm kiếm tự động dãn 100% */
   .Classes-style-75 {
     flex-direction: column;
     align-items: stretch;
     gap: 16px;
   }
-  
-  /* Ensure the title spans full width */
+
   .Classes-style-76 {
     text-align: left;
     width: 100%;
   }
 
-  /* Subtitle and search container stacking */
   .Classes-style-77 {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
   }
-  
-  .Classes-style-78 {
-    text-align: left;
+
+  .Classes-style-80 {
+    width: 100% !important;
   }
 
-  /* Responsive grid for detailed class view */
+  /* 3. ẨN THEAD (Tiêu đề bảng) TRÊN DI ĐỘNG */
+  .Classes-style-81 thead {
+    display: none !important;
+  }
+
+  /* Ép bảng (table), tbody, tr trượt theo luồng dọc của thiết bị */
+  .Classes-style-81,
+  .Classes-style-81 tbody,
+  .Classes-style-81 tr,
+  .Classes-style-81 td {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 4. GIỮ NGUYÊN THANH PHÂN NHÓM THEO THÁNG */
+  .Classes-style-88 {
+    background-color: var(--primary-light, #eff6ff) !important;
+    border-radius: 8px !important;
+    margin-top: 16px !important;
+    margin-bottom: 8px !important;
+    border: 1px solid var(--primary, #3b82f6) !important;
+  }
+
+  .Classes-style-89 {
+    padding: 12px 16px !important;
+  }
+
+  /* 5. THIẾT KẾ THẺ (CARD) CHO TỪNG LỚP HỌC */
+  .Classes-style-91 {
+    background: white !important;
+    border: 1px solid var(--border-color, #e2e8f0) !important;
+    border-radius: 12px !important;
+    margin-bottom: 12px !important;
+    padding: 16px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+    position: relative !important;
+  }
+
+  /* Xóa lề và padding thừa của ô bảng (TD) khi dựng thẻ */
+  .Classes-style-92,
+  .Classes-style-96,
+  .Classes-style-99,
+  .Classes-style-101 {
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* THÔNG IN TÊN LỚP & GIÁO VIÊN (DÒNG TRÊN CÙNG) */
+  .Classes-style-92 {
+    margin-bottom: 12px !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px dashed var(--border-color, #e2e8f0) !important;
+  }
+
+  .Classes-style-93 {
+    font-size: 1.15rem !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* HIỂN THỊ THÔNG TIN GIÁO TRÌNH, LỊCH HỌC TỪNG DÒNG RÕ RÀNG */
+  .Classes-style-96 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    margin-bottom: 12px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* SĨ SỐ HỌC VIÊN: Đặt ở góc dưới bên trái của thẻ */
+  .Classes-style-99 {
+    display: inline-block !important;
+    width: auto !important;
+    margin-bottom: 8px !important;
+  }
+
+  .Classes-style-100 {
+    display: inline-block !important;
+    padding: 6px 12px !important;
+  }
+
+  /* CÁC NÚT THAO TÁC (SỬA/XÓA): Gom về góc dưới bên phải */
+  .Classes-style-101 {
+    display: flex !important;
+    justify-content: flex-end !important;
+    margin-top: 8px !important;
+    padding-top: 12px !important;
+    border-top: 1px solid var(--border-color, #e2e8f0) !important;
+  }
+
+  .Classes-style-102 {
+    justify-content: flex-end !important;
+    width: 100% !important;
+  }
+
+  /* 6. TỐI ƯU MÀN HÌNH XEM CHI TIẾT LỚP HỌC TRÊN DI ĐỘNG */
   .Classes-style-6 {
     grid-template-columns: 1fr;
   }
 
-  /* Responsive grid for attendance list */
   .Classes-style-36 {
     grid-template-columns: 1fr;
+  }
+
+  /* Biến nút bấm buổi học trên lưới nhỏ gọn vừa vặn */
+  .Classes-style-27 {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)) !important;
+    gap: 8px !important;
   }
 }
