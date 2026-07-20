@@ -117,21 +117,21 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
   // SỬ DỤNG REACT FRAGMENT (<>) ĐỂ TÁCH MODAL RA KHỎI HEADER
   return (
     <>
-      <header 
-        className="topbar" 
-        style={{ 
+      <header
+        className="topbar"
+        style={{
           left: isCollapsed ? "80px" : "260px",
           transition: "left 0.25s ease"
         }}
       >
         <div className="topbar-left-section">
           <div className="topbar-left-text desktop-only">
-            <h2>{currentHeader.title}</h2>
+            <h2 style={{ color: "red" }}>{currentHeader.title}</h2> {/* TEST CACHE RED COLOR - XÓA SAU */}
             <p>{currentHeader.subtitle}</p>
           </div>
-          
+
           <div className="mobile-only" style={{ flexDirection: 'column', gap: '12px' }}>
-            <div 
+            <div
               className="mobile-profile-header"
               onClick={() => setActiveTab("profile")}
               title="Bấm để chỉnh sửa hồ sơ"
@@ -148,9 +148,9 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
                 </span>
               </div>
             </div>
-            
+
             <div className="mobile-page-title">
-              <h2 style={{ fontSize: '1.15rem', margin: '0 0 4px 0', color: 'var(--primary)', fontWeight: '800' }}>{currentHeader.title}</h2>
+              <h2 style={{ fontSize: '1.15rem', margin: '0 0 4px 0', color: 'red', fontWeight: '800' }}>{currentHeader.title}</h2> {/* TEST CACHE RED COLOR - XÓA SAU */}
               <p style={{ fontSize: '0.8rem', margin: 0, color: 'var(--text-muted)' }}>{currentHeader.subtitle}</p>
             </div>
           </div>
@@ -335,9 +335,9 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
             )}
           </div>
 
-          <button 
-            className="circular-btn mobile-only text-red-500 hover:bg-red-50" 
-            onClick={logout} 
+          <button
+            className="circular-btn mobile-only text-red-500 hover:bg-red-50"
+            onClick={logout}
             title="Đăng xuất"
             style={{ color: '#ef4444' }}
           >
