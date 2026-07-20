@@ -11,7 +11,9 @@
 .MyClassActive-style-3 {
   display: flex;
   justify-content: space-between;
-  align-items: start;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .MyClassActive-style-4 {
@@ -29,44 +31,47 @@
   color: var(--text-main);
 }
 
+/* TỐI ƯU HÓA: ÉP THÔNG TIN LỚP THÀNH 3 DÒNG RIÊNG BIỆT */
 .MyClassActive-style-7 {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-top: 12px;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 500;
 }
 
-.MyClassActive-style-8 {
-  margin-right: 6px;
-}
-
-.MyClassActive-style-9 {
-  margin-left: 12px;
-  margin-right: 6px;
-}
-
+.MyClassActive-style-8,
+.MyClassActive-style-9,
 .MyClassActive-style-10 {
-  margin-left: 12px;
-  margin-right: 6px;
+  margin-right: 8px;
+  color: var(--primary);
+  width: 18px;
+  text-align: center;
 }
 
+/* THU NHỎ Ô HỌC PHÍ & LÀM CHO GỌN HƠN */
 .MyClassActive-style-11 {
   text-align: right;
-  padding: 12px 20px;
+  padding: 10px 16px;
   background-color: var(--bg-app);
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid var(--border-color);
+  align-self: flex-start;
 }
 
 .MyClassActive-style-12 {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--text-muted);
   display: block;
   text-transform: uppercase;
+  margin-bottom: 2px;
 }
 
 .MyClassActive-style-13 {
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   color: var(--primary);
   font-weight: 800;
 }
@@ -114,13 +119,13 @@
 }
 
 .MyClassActive-style-19 {
-  padding: 24px;
+  padding: 20px;
 }
 
 .MyClassActive-style-20 {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 800;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .MyClassActive-style-21 {
@@ -134,17 +139,18 @@
   color: var(--text-muted);
 }
 
+/* THU NHỎ CHIỀU RỘNG TỐI THIỂU CỦA HỘP BUỔI HỌC SỬ DOWN 90PX (CŨ LÀ 130PX) */
 .MyClassActive-style-23 {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 10px;
 }
 
 .MyClassActive-style-24 {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: #64748b;
   margin-top: 2px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -154,44 +160,56 @@
 .MyClassActive-style-25 {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   align-items: center;
   width: 100%;
   margin-top: auto;
 }
 
 .MyClassActive-style-26 {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 800;
   color: #10b981;
   background-color: #dcfce7;
-  padding: 1px 6px;
+  padding: 1px 4px;
   border-radius: 4px;
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .MyClassActive-style-27 {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 800;
   color: #ef4444;
   background-color: #fee2e2;
-  padding: 1px 6px;
+  padding: 1px 4px;
   border-radius: 4px;
+  width: 100%;
+  text-align: center;
 }
 
 .MyClassActive-style-28 {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
   color: #2563eb;
   background-color: #e0e7ff;
-  padding: 1px 6px;
+  padding: 1px 4px;
   border-radius: 4px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 2px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .MyClassActive-style-29 {
-  font-size: 0.6rem;
+  font-size: 0.55rem;
 }
 
 .MyClassActive-style-30 {
@@ -219,14 +237,7 @@
   gap: 16px;
 }
 
-.MyClassActive-style-35 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  display: block;
-  margin-bottom: 6px;
-}
-
+.MyClassActive-style-35,
 .MyClassActive-style-36 {
   font-size: 0.8rem;
   font-weight: 700;
@@ -318,4 +329,19 @@
 
 .MyClassActive-style-52 {
   margin-right: 8px;
+}
+
+/* Đảm bảo bố cục tự động chuyển dọc trên màn hình điện thoại (< 768px) */
+@media (max-width: 768px) {
+  .MyClassActive-style-3 {
+    flex-direction: column;
+  }
+  
+  .MyClassActive-style-11 {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
