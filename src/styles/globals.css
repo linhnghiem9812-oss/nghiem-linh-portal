@@ -2,11 +2,11 @@
    NGOẠI NGỮ NGHIÊM LINH - COMPLETE GLOBAL STYLESHEET (REACT REFRACTOR)
    ========================================================================== */
 
-@import url("https://fonts.googleapis.com/css2Đểfamily=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap");
 
 :root {
   --font-heading: "Plus Jakarta Sans", sans-serif;
-  --font-bođáy: "Inter", sans-serif;
+  --font-body: "Inter", sans-serif;
 
   /* Premium Soft Theme Palette matching Hanai Lab */
   --bg-app: #f5f7fb;
@@ -80,13 +80,13 @@
 }
 
 html,
-bođáy {
+body {
   overscroll-behavior-y: none;
   /* Ngăn hiệu ứng kéo nảy cao su của iPhone */
 }
 
-bođáy {
-  font-family: var(--font-bođáy);
+body {
+  font-family: var(--font-body);
   background-color: var(--bg-app);
   color: var(--text-main);
   overflow-x: hidden;
@@ -140,7 +140,7 @@ textarea {
   background: #4b5563;
 }
 
-/* --- Form Controls & Switches (Extracted from index.html) --- */
+/* --- Form Controls & Switches --- */
 .form-control {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -948,7 +948,7 @@ input:checked+.slider:before {
   border-bottom: none;
 }
 
-.badge-stuđáying {
+.badge-studying {
   background-color: var(--success-light);
   color: var(--success);
   font-size: 0.7rem;
@@ -956,7 +956,6 @@ input:checked+.slider:before {
   padding: 2px 8px;
   border-radius: 4px;
 }
-
 
 /* ==========================================================================
    CHUẨN HÓA BỐ CỤC & RESPONSIVE CHỐNG LỖI IOS SAFARI (UNIFIED RULES)
@@ -994,7 +993,7 @@ html {
   height: auto !important;
 }
 
-bođáy {
+body {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
@@ -1019,9 +1018,8 @@ bođáy {
   box-sizing: border-box !important;
 }
 
-/* 3. QUY TẮC CHO MÀN HÌNH DI ĐỘNG & TABLET (<= 1024px) - ƯU TIÊN CAO NHẤT */
+/* 3. QUY TẮC CHO MÀN HÌNH DI ĐỘNG & TABLET (<= 1024px) */
 @media screen and (max-width: 1024px) {
-
   /* Tiêu diệt Sidebar và lề trống, kéo giao diện về sát lề trái 0px */
   .sidebar,
   [class*="sidebar"] {
@@ -1075,19 +1073,16 @@ bođáy {
     grid-template-columns: 1fr !important;
     gap: 12px !important;
   }
-}
 
-/* 4. MÀN HÌNH SIÊU NHỎ (<= 480px) */
-@media screen and (max-width: 480px) {
-  .main-content {
-    padding: 12px !important;
-    padding-bottom: 90px !important;
+  /* DÒNG LỆNH TEST CACHE (Khi nào iPhone hết lỗi thì xóa đi): */
+  .topbar {
+    border-bottom: 4px solid red !important;
+    /* Biến viền Topbar thành màu đỏ rực */
   }
 }
 
-@media (max-width: 768px) {
-
-  /* 1. Thay thế toàn bộ 100vw thành 100% để Safari iOS không bị dãn tràn ngang */
+/* QUY TẮC CHO ĐIỆN THOẠI (< 768px): KHÓA 100VW CỦA IOS SAFARI */
+@media screen and (max-width: 768px) {
   html,
   body,
   #root,
@@ -1102,24 +1097,23 @@ bođáy {
     box-sizing: border-box !important;
   }
 
-  .main-layout-wrapper {
+  .main-layout-wrapper,
+  .main-content {
     margin-left: 0 !important;
     width: 100% !important;
   }
 
   .main-content {
-    margin-left: 0 !important;
-    width: 100% !important;
     padding: 12px !important;
     margin-top: 80px !important;
     padding-bottom: 90px !important;
   }
 }
 
-/* DÒNG LỆNH TEST CACHE (Khi nào iPhone hết lỗi thì xóa đi): */
-@media (max-width: 1024px) {
-  .topbar {
-    border-bottom: 4px solid red !important;
-    /* Biến viền Topbar thành màu đỏ rực */
+/* 4. MÀN HÌNH SIÊU NHỎ (<= 480px) */
+@media screen and (max-width: 480px) {
+  .main-content {
+    padding: 12px !important;
+    padding-bottom: 90px !important;
   }
 }
