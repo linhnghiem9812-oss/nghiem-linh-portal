@@ -981,38 +981,40 @@ input:checked+.slider:before {
   flex: 1;
 }
 
-/* 2. ÉP THANH CUỘN VĨNH VIỄN & MỞ KHÓA CẢM ỨNG DỌC (ANTI-FREEZE) */
+/* ==========================================================================
+   2. MỞ KHÓA CUỘN CHUỘT MÁY TÍNH & ÉP CUỘN MƯỢT TRÊN MOBILE (ANTI-FREEZE)
+   ========================================================================== */
+
+/* Chỉ giao quyền quản lý thanh cuộn duy nhất cho trình duyệt (html) */
 html {
   width: 100% !important;
   max-width: 100% !important;
-  overflow-x: hidden !important;
-  overflow-y: scroll !important;
-  /* Luôn vẽ đường ray cuộn, chống giật layout */
-  -webkit-overflow-scrolling: touch !important;
-  /* Cuộn quán tính mượt trên iOS */
+  /* PHÉP THUẬT: "clip" cắt phần tràn ngang mà KHÔNG biến trang thành bẫy cuộn */
+  overflow-x: clip !important; 
+  overflow-y: auto !important; /* Cho phép cuộn dọc tự nhiên theo bánh xe chuột */
   height: auto !important;
+  -webkit-overflow-scrolling: touch !important; /* Cuộn quán tính mượt trên iOS */
 }
 
 body {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
   overflow-y: visible !important;
   margin: 0 !important;
   padding: 0 !important;
   position: relative !important;
-  touch-action: pan-y !important;
-  /* Khóa vuốt ngang nhầm, CHỈ CHO VUỐT DỌC */
 }
 
+/* THẢ TỰ DO HOÀN TOÀN cho các thẻ bọc của React */
+/* Tuyệt đối không dùng overflow: hidden ở đây để chuột máy tính cuộn được trang */
 #root,
 .app-container {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
-  overflow-x: hidden !important;
-  overflow-y: visible !important;
+  overflow: visible !important; /* <--- CHÌA KHÓA VÀNG MỞ KHÓA CUỘN CHUỘT */
   height: auto !important;
   min-height: 100vh !important;
   box-sizing: border-box !important;
