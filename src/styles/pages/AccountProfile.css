@@ -127,3 +127,89 @@
   font-weight: 800;
   cursor: pointer;
 }
+/* ==========================================================================
+   BỔ SUNG RESPONSIVE MOBILE CHO TRANG HỒ SƠ CÁ NHÂN (ACCOUNT PROFILE)
+========================================================================== */
+@media (max-width: 768px) {
+  /* 1. Co dãn thẻ Container chính vừa vặn màn hình điện thoại */
+  .AccountProfile-style-2 {
+    padding: 20px 16px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    border-radius: 12px !important;
+  }
+
+  /* 2. Tiêu đề gọn gàng, giảm cỡ chữ để không bị rớt dòng */
+  .AccountProfile-style-3 {
+    font-size: 1.25rem !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 12px !important;
+    display: flex;
+    align-items: center;
+  }
+
+  /* 3. BẺ CỘT: Đưa khối Avatar từ bên trái lên nằm chính giữa đỉnh form */
+  .AccountProfile-style-5 {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 24px !important;
+    width: 100% !important;
+  }
+
+  /* 4. Khối Avatar căn giữa và có khoảng cách hợp lý */
+  .AccountProfile-style-6 {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 20px !important;
+  }
+
+  /* Thu nhỏ Avatar xuống một chút để màn hình không bị chiếm quá nhiều diện tích */
+  .AccountProfile-style-7 {
+    width: 100px !important;
+    height: 100px !important;
+    border-width: 3px !important;
+  }
+
+  /* Nút thay đổi ảnh vừa vặn ngón tay */
+  .AccountProfile-style-9 {
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* 5. Tối ưu Form nhập liệu (tràn 100% chiều rộng) */
+  .AccountProfile-style-10 {
+    width: 100% !important;
+    gap: 16px !important;
+  }
+
+  /* Các nhãn (Label) dễ đọc hơn */
+  .AccountProfile-style-11,
+  .AccountProfile-style-13,
+  .AccountProfile-style-14,
+  .AccountProfile-style-15,
+  .AccountProfile-style-16 {
+    font-size: 0.75rem !important;
+    margin-bottom: 6px !important;
+    display: block !important;
+  }
+
+  /* 6. NÚT LƯU THAY ĐỔI: Kéo rộng 100% để bấm cực dễ bằng ngón tay cái */
+  .AccountProfile-style-18 {
+    margin-top: 24px !important;
+    width: 100% !important;
+  }
+
+  .AccountProfile-style-19 {
+    width: 100% !important;
+    padding: 14px !important;
+    font-size: 1rem !important;
+    text-align: center !important;
+    display: block !important;
+    box-sizing: border-box !important;
+  }
+}
