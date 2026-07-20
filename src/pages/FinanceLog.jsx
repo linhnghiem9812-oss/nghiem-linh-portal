@@ -247,10 +247,11 @@ function FinanceLog() {
               <table className="FinanceLog-style-34">
                 <thead>
                   <tr className="FinanceLog-style-35">
-                    <th className="FinanceLog-style-36">Mã / Ngày nộp</th>
+                    <th className="FinanceLog-style-36">Mã/Ngày</th>
                     <th className="FinanceLog-style-37">Học viên / Nội dung</th>
                     <th className="FinanceLog-style-38">Số tiền đã nộp</th>
-                    <th className="FinanceLog-style-39">Trạng thái</th>
+                    {/* Thêm col-optional để ẩn trên Mobile */}
+                    <th className="FinanceLog-style-39 col-optional">Trạng thái</th>
                     <th className="FinanceLog-style-40">Thao tác</th>
                   </tr>
                 </thead>
@@ -265,13 +266,13 @@ function FinanceLog() {
                   {invoices.map((inv) => (
                     <tr key={inv.id} className="FinanceLog-style-42">
                       <td className="FinanceLog-style-43">
-                        <strong>INV-{inv.id}</strong>
+                        <strong style={{ fontSize: "0.75rem" }}>INV-{inv.id}</strong>
                         <span className="FinanceLog-style-44">{inv.date}</span>
                       </td>
                       <td className="FinanceLog-style-45">
                         <strong className="FinanceLog-style-46">{inv.studentName}</strong>
                         <span className="FinanceLog-style-47">
-                          {inv.course} ({inv.method})
+                          {inv.course}
                         </span>
                         {inv.notes && <span className="FinanceLog-style-48">Lưu ý: {inv.notes}</span>}
                       </td>
@@ -280,13 +281,14 @@ function FinanceLog() {
                           <div className="FinanceLog-style-50">{(inv.amount || 0).toLocaleString("vi-VN")} đ</div>
                         )}
                         {inv.amountJpy > 0 && (
-                          <div className="FinanceLog-style-51">{inv.amountJpy.toLocaleString("vi-VN")} ¥ (JPY)</div>
+                          <div className="FinanceLog-style-51">{inv.amountJpy.toLocaleString("vi-VN")} ¥</div>
                         )}
                         {inv.amountCny > 0 && (
-                          <div className="FinanceLog-style-52">{inv.amountCny.toLocaleString("vi-VN")} ¥ (CNY)</div>
+                          <div className="FinanceLog-style-52">{inv.amountCny.toLocaleString("vi-VN")} ¥</div>
                         )}
                       </td>
-                      <td className="FinanceLog-style-53">
+                      {/* Thêm col-optional để ẩn trên Mobile */}
+                      <td className="FinanceLog-style-53 col-optional">
                         <span className="FinanceLog-style-54">{inv.status}</span>
                       </td>
                       <td className="FinanceLog-style-55">
