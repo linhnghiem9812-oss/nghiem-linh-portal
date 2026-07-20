@@ -117,13 +117,7 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
   // SỬ DỤNG REACT FRAGMENT (<>) ĐỂ TÁCH MODAL RA KHỎI HEADER
   return (
     <>
-      <header
-        className="topbar"
-        style={{
-          left: isCollapsed ? "80px" : "260px",
-          transition: "left 0.25s ease"
-        }}
-      >
+      <header className="topbar">
         <div className="topbar-left-section">
           <div className="topbar-left-text desktop-only">
             <h2 style={{ color: "red" }}>{currentHeader.title}</h2> {/* TEST CACHE RED COLOR - XÓA SAU */}
