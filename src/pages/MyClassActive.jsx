@@ -381,7 +381,7 @@ function MyClassActive() {
               }
               disabled={!activeClass}
               style={{
-                fontSize: "1.4rem",
+                fontSize: "1.3rem",
                 fontWeight: "800",
                 color: !activeClass ? "#94a3b8" : "#1e3a8a",
                 border: "1px solid var(--primary)",
@@ -416,15 +416,24 @@ function MyClassActive() {
               )}
             </select>
 
-            <p className="MyClassActive-style-7">
-              <i className="fa-solid fa-clock MyClassActive-style-8"></i> Giờ
-              học: {activeClass?.scheduleTime || "Chưa xếp"} |
-              <i className="fa-solid fa-user-tie MyClassActive-style-9"></i>{" "}
-              Giáo viên: {activeClass?.teacher || "Chưa xếp"} |
-              <i className="fa-solid fa-user-graduate MyClassActive-style-10"></i>{" "}
-              Trợ giảng: {activeClass?.ta ? activeClass.ta : "Không có"}
-            </p>
+            {/* CẬP NHẬT TRÌNH BÀY: CHIA THÀNH 3 DÒNG RIÊNG BIỆT DỄ ĐỌC */}
+            <div className="MyClassActive-style-7">
+              <span>
+                <i className="fa-solid fa-clock MyClassActive-style-8"></i>{" "}
+                <strong>Giờ học:</strong> {activeClass?.scheduleTime || "Chưa xếp lịch"}
+              </span>
+              <span>
+                <i className="fa-solid fa-user-tie MyClassActive-style-9"></i>{" "}
+                <strong>Giáo viên:</strong> {activeClass?.teacher || "Chưa phân công"}
+              </span>
+              <span>
+                <i className="fa-solid fa-user-graduate MyClassActive-style-10"></i>{" "}
+                <strong>Trợ giảng:</strong> {activeClass?.ta ? activeClass.ta : "Không có"}
+              </span>
+            </div>
           </div>
+
+          {/* Ô HỌC PHÍ ĐÃ ĐƯỢC THU NHỎ LẠI TỐI ƯU HƠN */}
           {currentRole !== "teacher" && (
             <div className="MyClassActive-style-11">
               <span className="MyClassActive-style-12">Học phí / Buổi dạy</span>
@@ -478,8 +487,8 @@ function MyClassActive() {
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      padding: "14px 10px",
-                      borderRadius: "12px",
+                      padding: "8px 6px", // THU NHỎ PADDING ĐỂ Ô NHỎ GỌN HƠN
+                      borderRadius: "10px",
                       backgroundColor: bgStyle,
                       border: borderStyle,
                       cursor: "pointer",
@@ -488,12 +497,12 @@ function MyClassActive() {
                         ? "0 4px 12px rgba(37, 99, 235, 0.12)"
                         : "0 1px 3px rgba(0,0,0,0.02)",
                       textAlign: "center",
-                      minHeight: "110px",
+                      minHeight: "80px", // GIẢM CHIỀU CAO TỐI THIỂU (CŨ LÀ 110PX)
                     }}
                   >
                     <strong
                       style={{
-                        fontSize: "0.85rem",
+                        fontSize: "0.8rem",
                         color: isSelected ? "#1e40af" : "#1e293b",
                       }}
                     >
@@ -506,7 +515,7 @@ function MyClassActive() {
                     <div className="MyClassActive-style-25">
                       {session.status === "completed" && (
                         <span className="MyClassActive-style-26">
-                          Đã hoàn thành
+                          Đã học
                         </span>
                       )}
                       {session.status === "cancelled" && (
@@ -515,7 +524,7 @@ function MyClassActive() {
                       {session.hasLessonPlan && (
                         <span className="MyClassActive-style-28">
                           <i className="fa-solid fa-file-shield MyClassActive-style-29"></i>{" "}
-                          Đã nộp giáo án
+                          Đã nộp GA
                         </span>
                       )}
                     </div>
