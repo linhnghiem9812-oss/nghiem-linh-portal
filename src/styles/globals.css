@@ -1020,6 +1020,7 @@ body {
 
 /* 3. QUY TẮC CHO MÀN HÌNH DI ĐỘNG & TABLET (<= 1024px) */
 @media screen and (max-width: 1024px) {
+
   /* Tiêu diệt Sidebar và lề trống, kéo giao diện về sát lề trái 0px */
   .sidebar,
   [class*="sidebar"] {
@@ -1035,19 +1036,27 @@ body {
     max-width: 100% !important;
   }
 
+  /* Kéo Topbar về sát lề trái 0px, cho phép tự co dãn chiều cao */
   .topbar {
     left: 0 !important;
+    margin-left: 0 !important;
     width: 100% !important;
-    padding: 0 16px !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 110px !important; /* Đảm bảo đủ chỗ cho 2 hàng Topbar trên mobile */
+    padding: 12px 16px !important;
+    box-sizing: border-box !important;
   }
 
+  /* Tăng margin-top để nội dung không bị Topbar che mất trên Android/iOS */
   .main-content {
-    margin-top: 80px !important;
+    margin-top: 135px !important;
     padding: 16px !important;
     padding-bottom: 90px !important;
     /* Chừa chỗ cho thanh Bottom Bar ở đáy */
     width: 100% !important;
     max-width: 100% !important;
+    margin-left: 0 !important;
     box-sizing: border-box !important;
   }
 
@@ -1073,16 +1082,11 @@ body {
     grid-template-columns: 1fr !important;
     gap: 12px !important;
   }
-
-  /* DÒNG LỆNH TEST CACHE (Khi nào iPhone hết lỗi thì xóa đi): */
-  .topbar {
-    border-bottom: 4px solid red !important;
-    /* Biến viền Topbar thành màu đỏ rực */
-  }
 }
 
 /* QUY TẮC CHO ĐIỆN THOẠI (< 768px): KHÓA 100VW CỦA IOS SAFARI */
 @media screen and (max-width: 768px) {
+
   html,
   body,
   #root,
@@ -1097,16 +1101,17 @@ body {
     box-sizing: border-box !important;
   }
 
-  .main-layout-wrapper,
-  .main-content {
+  .main-layout-wrapper {
     margin-left: 0 !important;
     width: 100% !important;
   }
 
   .main-content {
+    margin-top: 135px !important; /* Luôn giữ 135px trên Mobile */
     padding: 12px !important;
-    margin-top: 80px !important;
     padding-bottom: 90px !important;
+    margin-left: 0 !important;
+    width: 100% !important;
   }
 }
 
