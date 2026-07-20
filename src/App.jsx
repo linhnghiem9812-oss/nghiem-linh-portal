@@ -78,7 +78,7 @@ function App() {
         />
       )}
 
-      {/* ĐÃ BỎ INLINE STYLE GÂY LỖI TRÔI LỀ TRÊN IOS, NHƯỜNG CHO CSS XỬ LÝ */}
+      {/* ĐÃ XÓA INLINE STYLE GÂY LỖI TRÔI LỀ TRÊN SAFARI IOS */}
       <div className="main-layout-wrapper">
         <Topbar
           theme={theme}
