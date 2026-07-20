@@ -138,61 +138,98 @@
 }
 
 /* =========================================================================
-   RESPONSIVE TUYỆT ĐỐI CHO MÀN HÌNH NHỎ & ĐIỆN THOẠI (< 768px)
+   RESPONSIVE TUYỆT ĐỐI CHO TRANG CHỦ TRÊN ĐIỆN THOẠI (< 768px)
 ========================================================================= */
 @media (max-width: 768px) {
-
-  /* 1. Thu gọn lề hai bên Header từ 40px xuống 16px */
-  .LandingPage-style-2 {
-    padding: 14px 16px !important;
+  /* 1. Khóa tràn màn hình ngang tuyệt đối cho trang chủ */
+  .LandingPage-style-1 {
+    min-height: 100vh !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: clip !important; /* Dùng clip để chống tràn layout iOS */
   }
 
-  /* 2. Thu nhỏ logo và chữ trên Header để không chèn mất nút Đăng nhập */
+  /* 2. Thu gọn Header, giữ logo và nút bấm trên 1 hàng ngang cân đối */
+  .LandingPage-style-2 {
+    padding: 12px 16px !important;
+    height: auto !important;
+    min-height: 60px !important;
+  }
+
+  .LandingPage-style-3 {
+    gap: 8px !important;
+  }
+
   .LandingPage-style-4 {
     width: 32px !important;
     height: 32px !important;
   }
 
+  .LandingPage-style-5 {
+    width: 16px !important;
+    height: 14px !important;
+  }
+
+  /* Tên trung tâm thu nhỏ vừa đủ nhìn, chống rớt dòng */
   .LandingPage-style-8 {
     font-size: 0.95rem !important;
-    max-width: 160px;
-    /* Giới hạn chiều dài tên trung tâm trên máy quá bé */
+    max-width: 150px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 
+  /* Nút "Truy cập hệ thống" trên góc phải nhỏ gọn hơn */
   .LandingPage-style-9 {
-    padding: 8px 16px !important;
-    font-size: 0.8rem !important;
+    padding: 8px 14px !important;
+    font-size: 0.75rem !important;
+    white-space: nowrap !important;
   }
 
-  /* 3. Thu gọn lề khu vực nội dung chính */
+  /* 3. HERO SECTION (Khu vực giữa trang): Căn chỉnh khoảng cách mượt mà */
   .LandingPage-style-10 {
-    padding: 32px 16px !important;
-    justify-content: flex-start;
-    /* Đẩy nội dung lên cao một chút, tránh bị lọt thỏm giữa màn hình dọc */
-    padding-top: 12vh !important;
+    padding: 24px 16px !important;
+    justify-content: center !important;
+    min-height: calc(100vh - 70px) !important;
+    margin-top: -20px !important; /* Bù trừ nhẹ để khối chữ nằm ở trọng tâm mắt nhìn */
   }
 
-  /* 4. ĐIỀU CHỈNH CỠ CHỮ HERO SECTION (Quyết định độ đẹp của Mobile) */
+  /* Tiêu đề chính thu nhỏ chuẩn tỉ lệ vàng cho màn hình dọc */
   .LandingPage-style-11 {
-    font-size: 1.75rem !important;
-    /* Thu nhỏ từ 3rem (48px) xuống 1.75rem (28px) - Chuẩn vàng cho iPhone */
-    line-height: 1.35 !important;
+    font-size: 1.65rem !important;
+    line-height: 1.3 !important;
     margin-bottom: 16px !important;
+    padding: 0 4px !important;
   }
 
+  /* Đoạn văn mô tả dễ đọc, không bị chói mắt */
   .LandingPage-style-13 {
-    font-size: 0.95rem !important;
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
     margin-bottom: 32px !important;
-    padding: 0 8px;
+    padding: 0 12px !important;
+    color: var(--text-muted, #64748b) !important;
   }
 
-  /* 5. Tối ưu nút CTA chính: Kéo rộng ra dễ bấm, đúng chuẩn Apple Touch Target */
+  /* 4. NÚT ĐĂNG NHẬP CHÍNH: Kéo rộng, tạo bóng đổ ấn tượng và dễ chạm */
   .LandingPage-style-14 {
     width: 100% !important;
-    max-width: 320px !important;
-    padding: 16px 24px !important;
-    font-size: 1.05rem !important;
-    text-align: center;
+    max-width: 310px !important;
+    padding: 16px 20px !important;
+    font-size: 1rem !important;
+    text-align: center !important;
     box-sizing: border-box !important;
+    box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.4) !important;
+  }
+}
+
+/* Tối ưu thêm cho các dòng điện thoại siêu nhỏ (iPhone SE, màn hình < 380px) */
+@media (max-width: 380px) {
+  .LandingPage-style-8 {
+    max-width: 110px !important; /* Thu nhỏ tên trung tâm hơn nữa để không đẩy nút góc phải */
+  }
+  
+  .LandingPage-style-11 {
+    font-size: 1.45rem !important;
   }
 }
