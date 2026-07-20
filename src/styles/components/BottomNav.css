@@ -24,7 +24,10 @@
         align-items: center !important;
     }
 
-    body, #root, .app-container, .main-content {
+    body,
+    #root,
+    .app-container,
+    .main-content {
         padding-bottom: 85px !important;
     }
 
@@ -133,9 +136,14 @@
         width: 100% !important;
     }
 
-    /* NẾU TỔNG SỐ NÚT LÀ SỐ LẺ (Như 7 nút Quản lý), NÚT CUỐI CÙNG SẼ TỰ ĐỘNG TRÀN ĐẦY 2 CỘT */
+    /* =========================================================================
+       NẾU TỔNG SỐ NÚT LÀ SỐ LẺ (Như 7 nút Quản lý):
+       NÚT CUỐI CÙNG SẼ TRÀN ĐẦY 2 CỘT VÀ CĂN GIỮA NỘI DUNG
+    ========================================================================= */
     .modal-grid > *:last-child:nth-child(odd) {
-        grid-column: 1 / -1 !important;
+        grid-column: 1 / -1 !important;      /* 1. Kéo dài trải bét nhè hết 2 cột */
+        width: 100% !important;              /* 2. Đảm bảo lấp đầy 100% chiều rộng */
+        justify-content: center !important;  /* 3. PHÉP THUẬT: Đẩy cụm (Icon + Chữ) vào chuẩn chính giữa nút! */
     }
 
     /* 3. TỐI ƯU CÁC NÚT BÊN TRONG MODAL */
@@ -156,7 +164,8 @@
         text-align: left !important;
         transition: all 0.15s ease !important;
         width: 100% !important;
-        min-width: 0 !important; /* Chống tràn ô lưới */
+        min-width: 0 !important;
+        /* Chống tràn ô lưới */
         box-sizing: border-box !important;
     }
 
