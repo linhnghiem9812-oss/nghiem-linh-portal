@@ -460,9 +460,12 @@
 /* =========================================================================
    KHÓA TRÀN MÀN HÌNH TUYỆT ĐỐI CHO ĐIỆN THOẠI (< 768px)
 ========================================================================= */
+/* =========================================================================
+   KHÓA TRÀN MÀN HÌNH TUYỆT ĐỐI CHO ĐIỆN THOẠI (< 768px)
+========================================================================= */
 @media (max-width: 768px) {
 
-  /* 1. Phá vỡ mọi thuộc tính độ rộng cố định từ các class cha/dùng chung */
+  /* 1. Phá vỡ mọi thuộc tính độ rộng cố định */
   .FinanceLog-style-1,
   .FinanceLog-style-10,
   .portal-left-column,
@@ -479,14 +482,22 @@
     margin-right: 0 !important;
   }
 
-  /* 2. Thu gọn padding của các thẻ card cho vừa màn hình mobile */
   .FinanceLog-style-2,
   .FinanceLog-style-11,
   .FinanceLog-style-31 {
     padding: 16px !important;
   }
 
-  /* 3. Banner tổng thu: Ẩn két sắt, giảm cỡ chữ */
+  /* ========================================================
+     2. BANNER TỔNG THU: XẾP 3 DÒNG TIỀN TỆ LIÊN TIẾP
+  ======================================================== */
+  .FinanceLog-style-5 {
+    flex-direction: column !important;
+    /* Xếp dọc các loại tiền */
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+
   .FinanceLog-style-6 {
     font-size: 1.4rem !important;
   }
@@ -498,16 +509,16 @@
 
   .FinanceLog-style-9 {
     display: none !important;
+    /* Ẩn icon két sắt cho gọn */
   }
 
-  /* 4. CHUYỂN LƯỚI TỪ 2 CỘT SANG 1 CỘT DỌC */
+  /* 3. CHUYỂN LƯỚI TỪ 2 CỘT SANG 1 CỘT DỌC */
   .FinanceLog-style-10 {
     display: flex !important;
     flex-direction: column !important;
     gap: 16px !important;
   }
 
-  /* 5. Ép tất cả ô input, select, textarea không được vượt quá chiều rộng form */
   .FinanceLog-style-13 input,
   .FinanceLog-style-13 select,
   .FinanceLog-style-13 textarea,
@@ -517,7 +528,6 @@
     box-sizing: border-box !important;
   }
 
-  /* 6. Chuyển 3 ô nhập tiền tệ từ ngang sang dọc */
   .FinanceLog-style-17,
   .FinanceLog-style-68 {
     display: flex !important;
@@ -536,7 +546,6 @@
     max-width: 100% !important;
   }
 
-  /* 7. XỬ LÝ KHÓA NÚT BẤM (Không bao giờ bị cắt chữ XUẤT nữa) */
   .FinanceLog-style-30,
   .FinanceLog-style-79 {
     width: 100% !important;
@@ -544,14 +553,60 @@
     box-sizing: border-box !important;
     padding: 14px 12px !important;
     font-size: 0.85rem !important;
-    /* Giảm cỡ chữ xuống 0.85rem để dòng "XUẤT HÓA ĐƠN THU TIỀN" hiện trọn vẹn 1 dòng trên iPhone */
     text-align: center !important;
     display: block !important;
-    white-space: normal !important;
-    word-wrap: break-word !important;
   }
 
   .FinanceLog-style-78 {
     justify-content: stretch !important;
+  }
+
+  /* ========================================================
+     4. TỐI ƯU BẢNG NHẬT KÝ GIỐNG TRANG GIÁO VIÊN/TRỢ GIẢNG
+  ======================================================== */
+  .FinanceLog-style-33 {
+    width: 100% !important;
+    overflow-x: hidden !important;
+    /* Khóa cuộn ngang */
+  }
+
+  .FinanceLog-style-34 {
+    width: 100% !important;
+    table-layout: auto !important;
+    /* Ép bảng co dãn vừa màn hình */
+  }
+
+  /* Ẩn các cột phụ trên mobile để không tràn */
+  .col-optional {
+    display: none !important;
+  }
+
+  /* Thu nhỏ chữ và padding của các ô trong bảng */
+  .FinanceLog-style-34 th,
+  .FinanceLog-style-34 td {
+    padding: 12px 6px !important;
+    font-size: 0.8rem !important;
+    white-space: normal !important;
+    /* Cho phép rớt dòng */
+  }
+
+  /* Nhấn mạnh tên học viên */
+  .FinanceLog-style-46 {
+    font-weight: 800 !important;
+    color: var(--primary, #2563eb) !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* Thu gọn nút thao tác */
+  .FinanceLog-style-56 {
+    gap: 4px !important;
+    justify-content: center !important;
+  }
+
+  .FinanceLog-style-57,
+  .FinanceLog-style-58 {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 0.75rem !important;
   }
 }
