@@ -443,3 +443,70 @@
     text-align: center;
   }
 }
+
+/* =========================================================================
+   TỐI ƯU TRANG THÔNG TIN TRỢ GIẢNG TRÊN ĐIỆN THOẠI (< 768px)
+========================================================================= */
+@media (max-width: 768px) {
+
+  /* Khóa chống tràn cho khung ngoài trang Trợ giảng */
+  .TeachingAssistantProfile-style-1,
+  .TeachingAssistantProfile-style-17 {
+    width: 100% !important;
+    max-width: 100vw !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Ẩn các cột phụ trên mobile để bảng không bị tràn ngang */
+  .col-optional {
+    display: none !important;
+  }
+
+  /* Ép bảng vừa khít 100% màn hình điện thoại */
+  .TeachingAssistantProfile-style-24 {
+    width: 100% !important;
+    overflow-x: hidden !important;
+    /* Tắt thanh cuộn ngang */
+  }
+
+  .TeachingAssistantProfile-style-25 {
+    width: 100% !important;
+    table-layout: auto !important;
+  }
+
+  /* Thu nhỏ chữ và padding của các cột còn lại */
+  .TeachingAssistantProfile-style-25 th,
+  .TeachingAssistantProfile-style-25 td {
+    padding: 12px 8px !important;
+    font-size: 0.85rem !important;
+    white-space: nowrap !important;
+  }
+
+  /* Thu nhỏ cột STT */
+  .TeachingAssistantProfile-style-25 td:first-child,
+  .TeachingAssistantProfile-style-25 th:first-child {
+    width: 30px !important;
+    text-align: center !important;
+    padding: 12px 2px !important;
+  }
+
+  /* Làm nổi bật Tên và Trình độ */
+  .ta-name-cell .TeachingAssistantProfile-style-39 {
+    font-weight: 800 !important;
+    color: #10b981 !important;
+    /* Màu xanh lá chủ đạo của Trợ giảng */
+    font-size: 0.95rem !important;
+  }
+
+  /* Căn chỉnh lại nhóm nút Thao tác cho gọn */
+  .TeachingAssistantProfile-style-47 {
+    gap: 4px !important;
+  }
+
+  .TeachingAssistantProfile-style-48,
+  .TeachingAssistantProfile-style-49 {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
