@@ -106,7 +106,7 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
     tas: { title: "Thông tin Trợ giảng", subtitle: "Quản lý hồ sơ và lịch trực của Trợ giảng" },
     finance: { title: "Tài chính & Doanh thu", subtitle: "Theo dõi thu chi và báo cáo tài chính" },
     profile: { title: "Hồ sơ Cá nhân", subtitle: "Quản lý thông tin bảo mật và tài khoản hệ thống" },
-    payroll: { title: 'Thanh toán Lương', subtitle: 'Quản lý chi phí và lập hóa đơn lương nhân sự' },
+    payroll: { title: "Thanh toán Lương", subtitle: "Quản lý chi phí và lập hóa đơn lương nhân sự" },
   };
 
   const currentHeader = pageTitles[activeTab] || {
@@ -130,12 +130,12 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
             <p>{currentHeader.subtitle}</p>
           </div>
 
-          <div className="mobile-only" style={{ flexDirection: 'column', gap: '12px' }}>
+          <div className="mobile-only" style={{ flexDirection: "column", gap: "12px" }}>
             <div
               className="mobile-profile-header"
               onClick={() => setActiveTab("profile")}
               title="Bấm để chỉnh sửa hồ sơ"
-              style={{ display: 'flex' }}
+              style={{ display: "flex" }}
             >
               <img src={adminAvatarImg} alt="Avatar" className="mobile-avatar-img" />
               <div className="mobile-user-info">
@@ -150,8 +150,8 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
             </div>
 
             <div className="mobile-page-title">
-              <h2 style={{ fontSize: '1.15rem', margin: '0 0 4px 0', color: 'red', fontWeight: '800' }}>{currentHeader.title}</h2> {/* TEST CACHE RED COLOR - XÓA SAU */}
-              <p style={{ fontSize: '0.8rem', margin: 0, color: 'var(--text-muted)' }}>{currentHeader.subtitle}</p>
+              <h2 style={{ fontSize: "1.15rem", margin: "0 0 4px 0", color: "red", fontWeight: "800" }}>{currentHeader.title}</h2> {/* TEST CACHE RED COLOR - XÓA SAU */}
+              <p style={{ fontSize: "0.8rem", margin: 0, color: "var(--text-muted)" }}>{currentHeader.subtitle}</p>
             </div>
           </div>
         </div>
@@ -339,7 +339,7 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
             className="circular-btn mobile-only text-red-500 hover:bg-red-50"
             onClick={logout}
             title="Đăng xuất"
-            style={{ color: '#ef4444' }}
+            style={{ color: "#ef4444" }}
           >
             <i className="fa-solid fa-arrow-right-from-bracket"></i>
           </button>
@@ -396,39 +396,39 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
         <div
           onClick={() => setViewingNotif(null)}
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.75)',
+            backgroundColor: "rgba(0,0,0,0.75)",
             zIndex: 9999999, // Cực cao để đè lên mọi Sidebar
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '20px',
-            boxSizing: 'border-box' // Chống tràn padding
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "20px",
+            boxSizing: "border-box" // Chống tràn padding
           }}
         >
           <div
             className="card"
             onClick={(e) => e.stopPropagation()} // Ngăn click xuyên qua
             style={{
-              width: '550px',
-              maxWidth: '100%',
-              maxHeight: '85vh', // Chốt khóa chiều cao 85% màn hình để không bị đẩy tít lên trên
-              overflowY: 'auto', // Có thanh cuộn nếu chữ quá dài
-              backgroundColor: 'white',
-              padding: '32px',
-              borderRadius: '16px',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
-              boxSizing: 'border-box', // Chống tràn kích thước
-              display: 'flex',
-              flexDirection: 'column'
+              width: "550px",
+              maxWidth: "100%",
+              maxHeight: "85vh", // Chốt khóa chiều cao 85% màn hình để không bị đẩy tít lên trên
+              overflowY: "auto", // Có thanh cuộn nếu chữ quá dài
+              backgroundColor: "white",
+              padding: "32px",
+              borderRadius: "16px",
+              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
+              boxSizing: "border-box", // Chống tràn kích thước
+              display: "flex",
+              flexDirection: "column"
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px" }}>
+              <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
                 <div
                   style={{
                     width: "56px",
@@ -446,31 +446,31 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
                   <i className={`fa-solid ${viewingNotif.type === "error" ? "fa-trash" : viewingNotif.type === "warning" ? "fa-pen" : "fa-check"}`}></i>
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: '800', color: 'var(--text-main)' }}>{viewingNotif.title}</h3>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  <h3 style={{ margin: 0, fontSize: "1.3rem", fontWeight: "800", color: "var(--text-main)" }}>{viewingNotif.title}</h3>
+                  <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
                     <i className="fa-regular fa-clock"></i> {viewingNotif.time}
                   </span>
                 </div>
               </div>
               <button
                 onClick={() => setViewingNotif(null)}
-                style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: '#cbd5e1', cursor: 'pointer' }}
+                style={{ background: "none", border: "none", fontSize: "1.5rem", color: "#cbd5e1", cursor: "pointer" }}
               >
                 ✖
               </button>
             </div>
 
-            <div style={{ padding: '24px', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid var(--border-color)', marginBottom: '24px' }}>
-              <p style={{ margin: '0 0 16px 0', fontSize: '1rem', color: '#334155', fontWeight: '600', lineHeight: '1.5' }}>{viewingNotif.message}</p>
+            <div style={{ padding: "24px", backgroundColor: "#f8fafc", borderRadius: "12px", border: "1px solid var(--border-color)", marginBottom: "24px" }}>
+              <p style={{ margin: "0 0 16px 0", fontSize: "1rem", color: "#334155", fontWeight: "600", lineHeight: "1.5" }}>{viewingNotif.message}</p>
 
               {viewingNotif.details && Object.keys(viewingNotif.details).length > 0 && (
-                <div style={{ borderTop: '1px dashed #cbd5e1', paddingTop: '20px' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--primary)', display: 'block', marginBottom: '12px', textTransform: 'uppercase' }}>Bản ghi chi tiết:</span>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ borderTop: "1px dashed #cbd5e1", paddingTop: "20px" }}>
+                  <span style={{ fontSize: "0.85rem", fontWeight: "800", color: "var(--primary)", display: "block", marginBottom: "12px", textTransform: "uppercase" }}>Bản ghi chi tiết:</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                     {Object.entries(viewingNotif.details).map(([key, value]) => (
-                      <div key={key} style={{ display: 'flex', alignItems: 'center', fontSize: '0.95rem', backgroundColor: 'white', padding: '12px 16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                        <strong style={{ width: '150px', color: '#64748b' }}>{key}:</strong>
-                        <span style={{ flex: 1, color: '#0f172a', fontWeight: '700' }}>{value}</span>
+                      <div key={key} style={{ display: "flex", alignItems: "center", fontSize: "0.95rem", backgroundColor: "white", padding: "12px 16px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                        <strong style={{ width: "150px", color: "#64748b" }}>{key}:</strong>
+                        <span style={{ flex: 1, color: "#0f172a", fontWeight: "700" }}>{value}</span>
                       </div>
                     ))}
                   </div>
@@ -478,15 +478,15 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
               )}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-              <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
+              <div style={{ display: "flex", gap: "12px" }}>
                 <button
                   onClick={() => {
                     viewingNotif.isRead ? markAsUnread(viewingNotif.id) : markAsRead(viewingNotif.id);
                     setViewingNotif(null);
                   }}
                   className="btn"
-                  style={{ fontSize: '0.9rem', padding: '10px 20px', background: '#e2e8f0', color: '#1e293b', borderRadius: '8px', fontWeight: '700' }}
+                  style={{ fontSize: "0.9rem", padding: "10px 20px", background: "#e2e8f0", color: "#1e293b", borderRadius: "8px", fontWeight: "700" }}
                 >
                   {viewingNotif.isRead ? "Đánh dấu chưa đọc" : "Đánh dấu đã đọc"}
                 </button>
@@ -496,7 +496,7 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
                     setViewingNotif(null);
                   }}
                   className="btn"
-                  style={{ fontSize: '0.9rem', padding: '10px 20px', background: '#fee2e2', color: '#ef4444', borderRadius: '8px', fontWeight: '700' }}
+                  style={{ fontSize: "0.9rem", padding: "10px 20px", background: "#fee2e2", color: "#ef4444", borderRadius: "8px", fontWeight: "700" }}
                 >
                   <i className="fa-solid fa-trash"></i> Xóa
                 </button>
@@ -506,9 +506,9 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
                 <button
                   onClick={() => handleNavigate(viewingNotif.targetTab)}
                   className="btn btn-primary"
-                  style={{ fontSize: '0.95rem', padding: '10px 24px', background: 'var(--primary)', color: 'white', borderRadius: '8px', fontWeight: '800' }}
+                  style={{ fontSize: "0.95rem", padding: "10px 24px", background: "var(--primary)", color: "white", borderRadius: "8px", fontWeight: "800" }}
                 >
-                  Đến trang liên quan <i className="fa-solid fa-arrow-right" style={{ marginLeft: '8px' }}></i>
+                  Đến trang liên quan <i className="fa-solid fa-arrow-right" style={{ marginLeft: "8px" }}></i>
                 </button>
               )}
             </div>

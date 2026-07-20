@@ -28,6 +28,7 @@ function App() {
   // viewMode: 'landing' (Trang chủ) | 'auth' (Đăng nhập/Đăng ký)
   const [viewMode, setViewMode] = useState("landing");
   const [isCollapsed, setIsCollapsed] = useState(false); // Thêm state thu gọn sidebar
+
   // 1. Lấy tab từ bộ nhớ, nếu mới đăng nhập (chưa có) thì để rỗng '' (Trang trắng)
   const [activeTab, setActiveTab] = useState(() => {
     const savedTab = localStorage.getItem("current_tab");
@@ -38,6 +39,7 @@ function App() {
   useEffect(() => {
     localStorage.setItem("current_tab", activeTab);
   }, [activeTab]);
+
   const [theme, setTheme] = useState("light");
 
   // State kiểm tra xem có phải màn hình Mobile/Tablet không (< 1024px)
@@ -68,14 +70,14 @@ function App() {
   return (
     <div className={`app-container ${isCollapsed && !isMobile ? "sidebar-collapsed" : ""}`}>
       {!isMobile && (
-        <Sidebar 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
-          isCollapsed={isCollapsed} 
-          setIsCollapsed={setIsCollapsed} 
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          isCollapsed={isCollapsed}
+          setIsCollapsed={setIsCollapsed}
         />
       )}
-      
+
       {/* ĐÃ BỎ INLINE STYLE GÂY LỖI TRÔI LỀ TRÊN IOS, NHƯỜNG CHO CSS XỬ LÝ */}
       <div className="main-layout-wrapper">
         <Topbar
@@ -102,7 +104,7 @@ function App() {
           {activeTab === "install-app" && <InstallApp />}
         </main>
       </div>
-      
+
       {isMobile && <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />}
     </div>
   );
