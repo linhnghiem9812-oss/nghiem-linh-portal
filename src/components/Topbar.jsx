@@ -119,11 +119,15 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
     <>
       <header className="topbar">
         <div className="topbar-left-section">
+          {/* 1. GIAO DIỆN MÁY TÍNH: Phục hồi H2 và đổi sang màu xanh dương đậm đồng bộ hệ thống */}
           <div className="topbar-left-text desktop-only">
-            {/*<h2 style={{ color: "red" }}>{currentHeader.title}</h2> {/* TEST CACHE RED COLOR - XÓA SAU */}
+            <h2 style={{ color: "var(--primary)", fontWeight: "800" }}>
+              {currentHeader.title}
+            </h2>
             <p>{currentHeader.subtitle}</p>
           </div>
 
+          {/* 2. GIAO DIỆN ĐIỆN THOẠI: Phục hồi H2 và áp dụng màu xanh dương đậm */}
           <div className="mobile-only" style={{ flexDirection: "column", gap: "12px" }}>
             <div
               className="mobile-profile-header"
@@ -144,8 +148,12 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
             </div>
 
             <div className="mobile-page-title">
-              {/* <h2 style={{ fontSize: "1.15rem", margin: "0 0 4px 0", color: "red", fontWeight: "800" }}>{currentHeader.title}</h2>  */}{/* TEST CACHE RED COLOR - XÓA SAU */}
-              <p style={{ fontSize: "0.8rem", margin: 0, color: "var(--text-muted)" }}>{currentHeader.subtitle}</p>
+              <h2 style={{ fontSize: "1.15rem", margin: "0 0 4px 0", color: "var(--primary)", fontWeight: "800" }}>
+                {currentHeader.title}
+              </h2>
+              <p style={{ fontSize: "0.8rem", margin: 0, color: "var(--text-muted)" }}>
+                {currentHeader.subtitle}
+              </p>
             </div>
           </div>
         </div>
