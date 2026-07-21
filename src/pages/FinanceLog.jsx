@@ -24,6 +24,7 @@ function FinanceLog() {
   });
 
   const [editingInvoice, setEditingInvoice] = useState(null);
+  const [viewingInvoice, setViewingInvoice] = useState(null);
 
   useEffect(() => {
     api
@@ -247,12 +248,12 @@ function FinanceLog() {
               <table className="FinanceLog-style-34">
                 <thead>
                   <tr className="FinanceLog-style-35">
-                    <th className="FinanceLog-style-36">Mã/Ngày</th>
+                    <th className="FinanceLog-style-36">Mã / Ngày</th>
                     <th className="FinanceLog-style-37">Học viên / Nội dung</th>
-                    <th className="FinanceLog-style-38">Số tiền đã nộp</th>
-                    {/* Thêm col-optional để ẩn trên Mobile */}
-                    <th className="FinanceLog-style-39 col-optional">Trạng thái</th>
-                    <th className="FinanceLog-style-40">Thao tác</th>
+                    {/* Thêm mobile-hidden để ẩn trên điện thoại */}
+                    <th className="FinanceLog-style-38 mobile-hidden">Số tiền đã nộp</th>
+                    <th className="FinanceLog-style-39 mobile-hidden">Trạng thái</th>
+                    <th className="FinanceLog-style-40 mobile-hidden">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -264,7 +265,11 @@ function FinanceLog() {
                     </tr>
                   )}
                   {invoices.map((inv) => (
-                    <tr key={inv.id} className="FinanceLog-style-42">
+                    <tr 
+                      key={inv.id} 
+                      className="FinanceLog-style-42"
+                      onClick={() => setViewingInvoice(inv)} /* Click để mở Menu chi tiết */
+                    >
                       <td className="FinanceLog-style-43">
                         <strong style={{ fontSize: "0.75rem" }}>INV-{inv.id}</strong>
                         <span className="FinanceLog-style-44">{inv.date}</span>
@@ -274,9 +279,11 @@ function FinanceLog() {
                         <span className="FinanceLog-style-47">
                           {inv.course}
                         </span>
-                        {inv.notes && <span className="FinanceLog-style-48">Lưu ý: {inv.notes}</span>}
+                        {/* Ẩn ghi chú ra khỏi màn hình ngoài cho gọn */}
                       </td>
-                      <td className="FinanceLog-style-49">
+                      
+                      {/* 3 Cột này sẽ bị ẩn trên điện thoại */}
+                      <td className="FinanceLog-style-49 mobile-hidden">
                         {(inv.amount > 0 || (!inv.amount && !inv.amountJpy && !inv.amountCny)) && (
                           <div className="FinanceLog-style-50">{(inv.amount || 0).toLocaleString("vi-VN")} đ</div>
                         )}
@@ -287,22 +294,21 @@ function FinanceLog() {
                           <div className="FinanceLog-style-52">{inv.amountCny.toLocaleString("vi-VN")} ¥</div>
                         )}
                       </td>
-                      {/* Thêm col-optional để ẩn trên Mobile */}
-                      <td className="FinanceLog-style-53 col-optional">
+                      <td className="FinanceLog-style-53 mobile-hidden">
                         <span className="FinanceLog-style-54">{inv.status}</span>
                       </td>
-                      <td className="FinanceLog-style-55">
+                      <td className="FinanceLog-style-55 mobile-hidden">
                         <div className="FinanceLog-style-56">
                           <button
                             title="Sửa"
-                            onClick={() => setEditingInvoice({ ...inv })}
+                            onClick={(e) => { e.stopPropagation(); setEditingInvoice({ ...inv }); }}
                             className="FinanceLog-style-57"
                           >
                             <i className="fa-solid fa-pen"></i>
                           </button>
                           <button
                             title="Xóa"
-                            onClick={() => handleDelete(inv.id)}
+                            onClick={(e) => { e.stopPropagation(); handleDelete(inv.id); }}
                             className="FinanceLog-style-58"
                           >
                             <i className="fa-solid fa-trash"></i>
@@ -414,6 +420,84 @@ function FinanceLog() {
             <div className="FinanceLog-style-78">
               <button className="FinanceLog-style-79" onClick={handleSaveEdit}>
                 <i className="fa-solid fa-floppy-disk"></i> Lưu thay đổi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MODAL XEM CHI TIẾT HÓA ĐƠN (Dành cho Mobile khi bấm vào) 
+      ======================================================== */}
+      {viewingInvoice && (
+        <div className="FinanceLog-style-59" onClick={() => setViewingInvoice(null)}>
+          <div className="FinanceLog-style-60" onClick={(e) => e.stopPropagation()}>
+            <div className="FinanceLog-style-61">
+              <h3 className="FinanceLog-style-62">
+                <i className="fa-solid fa-circle-info"></i> Chi tiết Giao dịch
+              </h3>
+              <button onClick={() => setViewingInvoice(null)} className="FinanceLog-style-63">✖</button>
+            </div>
+            
+            <div className="FinanceLog-style-64" style={{ gap: '14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
+                <span style={{ color: '#64748b', fontWeight: '700', fontSize: '0.85rem' }}>Mã Hóa Đơn:</span>
+                <strong style={{ color: '#0f172a' }}>INV-{viewingInvoice.id}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
+                <span style={{ color: '#64748b', fontWeight: '700', fontSize: '0.85rem' }}>Ngày nộp:</span>
+                <strong style={{ color: '#0f172a' }}>{viewingInvoice.date}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
+                <span style={{ color: '#64748b', fontWeight: '700', fontSize: '0.85rem' }}>Học viên:</span>
+                <strong style={{ color: 'var(--primary)' }}>{viewingInvoice.studentName}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
+                <span style={{ color: '#64748b', fontWeight: '700', fontSize: '0.85rem' }}>Nội dung:</span>
+                <strong style={{ color: '#0f172a', textAlign: 'right', maxWidth: '60%' }}>{viewingInvoice.course}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
+                <span style={{ color: '#64748b', fontWeight: '700', fontSize: '0.85rem' }}>Hình thức:</span>
+                <strong style={{ color: '#0f172a', textAlign: 'right', maxWidth: '60%' }}>{viewingInvoice.method}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px', alignItems: 'flex-start' }}>
+                <span style={{ color: '#64748b', fontWeight: '700', fontSize: '0.85rem' }}>Số tiền đã nộp:</span>
+                <div style={{ textAlign: 'right' }}>
+                  {(viewingInvoice.amount > 0 || (!viewingInvoice.amount && !viewingInvoice.amountJpy && !viewingInvoice.amountCny)) && (
+                    <div style={{ fontWeight: '800', color: 'var(--primary)', marginBottom: '4px' }}>{(viewingInvoice.amount || 0).toLocaleString("vi-VN")} đ</div>
+                  )}
+                  {viewingInvoice.amountJpy > 0 && (
+                    <div style={{ fontWeight: '800', color: '#059669', marginBottom: '4px' }}>{viewingInvoice.amountJpy.toLocaleString("vi-VN")} ¥ (JPY)</div>
+                  )}
+                  {viewingInvoice.amountCny > 0 && (
+                    <div style={{ fontWeight: '800', color: '#ea580c' }}>{viewingInvoice.amountCny.toLocaleString("vi-VN")} ¥ (CNY)</div>
+                  )}
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
+                <span style={{ color: '#64748b', fontWeight: '700', fontSize: '0.85rem' }}>Trạng thái:</span>
+                <span className="FinanceLog-style-54">{viewingInvoice.status}</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ color: '#64748b', fontWeight: '700', fontSize: '0.85rem' }}>Ghi chú:</span>
+                <p style={{ margin: 0, fontSize: '0.9rem', color: '#334155', backgroundColor: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', whiteSpace: 'pre-wrap' }}>
+                  {viewingInvoice.notes || "Không có ghi chú"}
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
+              <button 
+                style={{ flex: 1, padding: '12px', backgroundColor: '#ef4444', color: 'white', borderRadius: '8px', border: 'none', fontWeight: '700' }}
+                onClick={() => { handleDelete(viewingInvoice.id); setViewingInvoice(null); }}
+              >
+                <i className="fa-solid fa-trash"></i> Xóa
+              </button>
+              <button 
+                style={{ flex: 1, padding: '12px', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '8px', border: 'none', fontWeight: '700' }}
+                onClick={() => { setEditingInvoice(viewingInvoice); setViewingInvoice(null); }}
+              >
+                <i className="fa-solid fa-pen"></i> Chỉnh sửa
               </button>
             </div>
           </div>
