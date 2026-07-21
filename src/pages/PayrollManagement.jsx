@@ -17,6 +17,8 @@ function PayrollManagement() {
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [payrolls, setPayrolls] = useState([]);
+    // THÊM DÒNG NÀY ĐỂ KÍCH HOẠT MENU CHI TIẾT TRÊN DI ĐỘNG:
+    const [viewingPayroll, setViewingPayroll] = useState(null);
     
     const [staffSuggestions, setStaffSuggestions] = useState([]);
     const [isLoadingStaff, setIsLoadingStaff] = useState(false);
@@ -290,12 +292,13 @@ function PayrollManagement() {
                     <table className="modal-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                         <thead>
                             <tr style={{ backgroundColor: 'var(--bg-app)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                <th style={{ padding: '16px' }}>MÃ / NGÀY TRẢ</th>
-                                <th style={{ padding: '16px' }}>THÔNG TIN LÀM VIỆC</th>
-                                <th style={{ padding: '16px' }}>CHI TIẾT LƯƠNG</th>
-                                <th style={{ padding: '16px' }}>TỔNG THANH TOÁN</th>
-                                <th style={{ padding: '16px' }}>TRẠNG THÁI</th>
-                                <th style={{ padding: '16px', textAlign: 'center' }}>THAO TÁC</th>
+                                <th className="col-code" style={{ padding: '16px' }}>MÃ / NGÀY</th>
+                                <th className="col-info" style={{ padding: '16px' }}>THÔNG TIN LÀM VIỆC</th>
+                                {/* Thêm col-optional để ẩn Chi tiết & Trạng thái trên Mobile */}
+                                <th className="col-optional" style={{ padding: '16px' }}>CHI TIẾT LƯƠNG</th>
+                                <th className="col-amount" style={{ padding: '16px' }}>SỐ TIỀN</th>
+                                <th className="col-optional" style={{ padding: '16px' }}>TRẠNG THÁI</th>
+                                <th className="col-optional" style={{ padding: '16px', textAlign: 'center' }}>THAO TÁC</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -303,19 +306,27 @@ function PayrollManagement() {
                                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>Chưa có bản ghi thanh toán lương nào.</td></tr>
                             )}
                             {filteredPayrolls.map((p) => (
-                                <tr key={p.id} style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'white' }}>
-                                    <td style={{ padding: '16px' }}>
-                                        <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.9rem' }}>#PR-{p.id.toString().slice(-4)}</strong>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(p.paymentDate).toLocaleDateString('vi-VN')}</span>
+                                <tr 
+                                    key={p.id} 
+                                    className="payroll-row-clickable"
+                                    onClick={() => setViewingPayroll(p)} /* Bấm vào dòng để mở Menu chi tiết */
+                                    style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'white' }}
+                                >
+                                    {/* CỘT 1: MÃ / NGÀY */}
+                                    <td className="col-code" style={{ padding: '16px' }}>
+                                        <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.85rem' }}>#PR-{p.id.toString().slice(-4)}</strong>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(p.paymentDate).toLocaleDateString('vi-VN')}</span>
                                     </td>
 
-                                    <td style={{ padding: '16px' }}>
-                                        <strong style={{ display: 'block', color: 'var(--primary)', fontSize: '0.95rem', marginBottom: '4px' }}>{p.staffName}</strong>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>Vị trí: {p.role === 'teacher' ? 'Giáo viên' : p.role === 'ta' ? 'Trợ giảng' : 'Sale'}</span>
-                                        {p.courseName && <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>Khóa: {p.courseName} {p.sessionsCount && `(${p.sessionsCount} buổi)`}</span>}
+                                    {/* CỘT 2: THÔNG TIN LÀM VIỆC */}
+                                    <td className="col-info" style={{ padding: '16px' }}>
+                                        <strong style={{ display: 'block', color: 'var(--primary)', fontSize: '0.9rem', marginBottom: '2px' }}>{p.staffName}</strong>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Vị trí: {p.role === 'teacher' ? 'Giáo viên' : p.role === 'ta' ? 'Trợ giảng' : 'Sale'}</span>
+                                        {p.courseName && <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block' }}>Khóa: {p.courseName}</span>}
                                     </td>
 
-                                    <td style={{ padding: '16px' }}>
+                                    {/* CỘT PHỤ (Ẩn trên Mobile): CHI TIẾT LƯƠNG */}
+                                    <td className="col-optional" style={{ padding: '16px' }}>
                                         <div style={{ fontSize: '0.85rem', color: 'var(--text-main)' }}>
                                             Cứng: <strong style={{ color: '#475569' }}>{(parseInt(p.baseSalary) || 0).toLocaleString('vi-VN')} đ</strong>
                                         </div>
@@ -330,20 +341,23 @@ function PayrollManagement() {
                                         </div>
                                     </td>
 
-                                    <td style={{ padding: '16px', fontWeight: '800', color: 'var(--primary)', fontSize: '1.1rem' }}>
-                                        {(p.amount || 0).toLocaleString('vi-VN')} {p.currency || 'đ'}
+                                    {/* CỘT 3: SỐ TIỀN */}
+                                    <td className="col-amount" style={{ padding: '16px', fontWeight: '800', color: 'var(--success)', fontSize: '1rem' }}>
+                                        {(p.amount || 0).toLocaleString('vi-VN')} <span style={{fontSize: '0.75rem'}}>{p.currency || 'đ'}</span>
                                     </td>
 
-                                    <td style={{ padding: '16px' }}>
+                                    {/* CỘT PHỤ (Ẩn trên Mobile): TRẠNG THÁI */}
+                                    <td className="col-optional" style={{ padding: '16px' }}>
                                         <span className={`status-badge ${p.status === 'Đã thanh toán' ? 'status-paid' : 'status-pending'}`}>
                                             {p.status}
                                         </span>
                                     </td>
 
-                                    <td style={{ padding: '16px' }}>
+                                    {/* CỘT PHỤ (Ẩn trên Mobile): THAO TÁC */}
+                                    <td className="col-optional" style={{ padding: '16px' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                            <button className="payroll-action-btn btn-edit" onClick={() => openEditModal(p)} title="Sửa hóa đơn"><i className="fa-solid fa-pen"></i></button>
-                                            <button className="payroll-action-btn btn-delete" onClick={() => handleDelete(p.id, p.staffName)} title="Xóa hóa đơn"><i className="fa-solid fa-trash"></i></button>
+                                            <button className="payroll-action-btn btn-edit" onClick={(e) => { e.stopPropagation(); openEditModal(p); }} title="Sửa"><i className="fa-solid fa-pen"></i></button>
+                                            <button className="payroll-action-btn btn-delete" onClick={(e) => { e.stopPropagation(); handleDelete(p.id, p.staffName); }} title="Xóa"><i className="fa-solid fa-trash"></i></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -489,6 +503,99 @@ function PayrollManagement() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* ========================================================
+                MODAL XEM CHI TIẾT LƯƠNG (Hiện ra khi bấm vào dòng)
+            ======================================================== */}
+            {viewingPayroll && (
+                <div className="payroll-modal-overlay" onClick={() => setViewingPayroll(null)}>
+                    <div className="payroll-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px' }}>
+                            <h3 style={{ margin: 0, color: 'var(--primary)', fontWeight: '800', fontSize: '1.1rem' }}>
+                                <i className="fa-solid fa-receipt" style={{ marginRight: '8px' }}></i>
+                                Phiếu lương #PR-{viewingPayroll.id.toString().slice(-4)}
+                            </h3>
+                            <button onClick={() => setViewingPayroll(null)} style={{ background: 'none', border: 'none', fontSize: '1.3rem', color: 'var(--text-muted)', cursor: 'pointer' }}>✖</button>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
+                                <span style={{ color: '#64748b', fontWeight: '700' }}>Tên nhân sự:</span>
+                                <strong style={{ color: 'var(--primary)', fontSize: '1rem' }}>{viewingPayroll.staffName}</strong>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
+                                <span style={{ color: '#64748b', fontWeight: '700' }}>Vị trí làm việc:</span>
+                                <strong>{viewingPayroll.role === 'teacher' ? 'Giáo viên' : viewingPayroll.role === 'ta' ? 'Trợ giảng' : 'Chuyên viên Sale'}</strong>
+                            </div>
+                            {viewingPayroll.courseName && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
+                                    <span style={{ color: '#64748b', fontWeight: '700' }}>Khóa phụ trách:</span>
+                                    <strong>{viewingPayroll.courseName} {viewingPayroll.sessionsCount && `(${viewingPayroll.sessionsCount} buổi)`}</strong>
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
+                                <span style={{ color: '#64748b', fontWeight: '700' }}>Lương cứng cơ bản:</span>
+                                <strong>{(parseInt(viewingPayroll.baseSalary) || 0).toLocaleString('vi-VN')} đ</strong>
+                            </div>
+
+                            {/* Danh sách các khoản thưởng / phạt */}
+                            {viewingPayroll.adjustments && viewingPayroll.adjustments.some(a => a.type !== 'Không') && (
+                                <div style={{ backgroundColor: '#f8fafc', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                    <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#475569', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>Khoản điều chỉnh:</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        {viewingPayroll.adjustments.map((adj, i) => adj.type !== 'Không' && (
+                                            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                                                <span>{adj.type}:</span>
+                                                <strong style={{ color: adj.type === 'Phạt' ? '#ef4444' : '#10b981' }}>
+                                                    {adj.type === 'Phạt' ? '-' : '+'}{(parseInt(adj.amount) || 0).toLocaleString('vi-VN')} đ
+                                                </strong>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f1f5f9', padding: '12px', borderRadius: '8px' }}>
+                                <span style={{ fontWeight: '700', color: '#334155' }}>TỔNG THANH TOÁN:</span>
+                                <strong style={{ fontSize: '1.25rem', color: 'var(--success)' }}>
+                                    {(viewingPayroll.amount || 0).toLocaleString('vi-VN')} {viewingPayroll.currency || 'đ'}
+                                </strong>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px', marginTop: '4px' }}>
+                                <span style={{ color: '#64748b', fontWeight: '700' }}>Trạng thái:</span>
+                                <span className={`status-badge ${viewingPayroll.status === 'Đã thanh toán' ? 'status-paid' : 'status-pending'}`}>{viewingPayroll.status}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
+                                <span style={{ color: '#64748b', fontWeight: '700' }}>Ngày chi trả:</span>
+                                <span>{new Date(viewingPayroll.paymentDate).toLocaleDateString('vi-VN')}</span>
+                            </div>
+                            {viewingPayroll.notes && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <span style={{ color: '#64748b', fontWeight: '700' }}>Ghi chú thêm:</span>
+                                    <p style={{ margin: 0, padding: '10px', backgroundColor: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.85rem', whiteSpace: 'pre-wrap' }}>{viewingPayroll.notes}</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Nút Thao tác trong Modal */}
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
+                            <button 
+                                style={{ flex: 1, padding: '12px', backgroundColor: '#ef4444', color: 'white', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}
+                                onClick={() => { handleDelete(viewingPayroll.id, viewingPayroll.staffName); setViewingPayroll(null); }}
+                            >
+                                <i className="fa-solid fa-trash"></i> Xóa phiếu
+                            </button>
+                            <button 
+                                style={{ flex: 1, padding: '12px', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}
+                                onClick={() => { openEditModal(viewingPayroll); setViewingPayroll(null); }}
+                            >
+                                <i className="fa-solid fa-pen"></i> Chỉnh sửa
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
