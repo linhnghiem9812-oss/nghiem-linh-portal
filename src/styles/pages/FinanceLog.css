@@ -569,9 +569,14 @@
     overflow-x: hidden !important; 
   }
 
+  /* =========================================
+     ÉP BẢNG TÀI CHÍNH DÃN FULL 100% MÀN HÌNH
+  ========================================= */
   .FinanceLog-style-34 {
-    width: 100% !important;
-    table-layout: fixed !important; /* Ép cứng tỷ lệ cột để chia chính xác 100% */
+      display: table !important;
+      width: 100% !important;
+      min-width: 100% !important;
+      table-layout: fixed !important;
   }
 
   /* Ẩn hoàn toàn 3 cột: Số tiền, Trạng thái, Thao tác */

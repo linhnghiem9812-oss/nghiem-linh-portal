@@ -476,25 +476,32 @@
         /* Không cu?n ngang n?a vì dã siêu g?n */
     }
 
+    /* =========================================
+       ÉP BẢNG GIÁO VIÊN DÃN FULL 100% MÀN HÌNH
+    ========================================= */
     .TeacherProfile-style-20 {
+        display: table !important;
         width: 100% !important;
         min-width: 100% !important;
-        table-layout: fixed !important; /* Ép các cột dãn đều */
+        table-layout: fixed !important; /* Bắt buộc chia đều cột */
     }
 
-    /* Thu nh? ch? và padding c?a 3 c?t còn l?i d? không b? v? */
+    /* Hủy lệnh cấm xuống dòng để bảng được dãn tự do */
     .TeacherProfile-style-20 th,
     .TeacherProfile-style-20 td {
         padding: 12px 8px !important;
         font-size: 0.85rem !important;
-        white-space: nowrap !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
     }
 
-    /* C?t STT cho nh? l?i */
-    .TeacherProfile-style-20 td:first-child,
-    .TeacherProfile-style-20 th:first-child {
-        width: 35px !important;
-        text-align: center !important;
+    /* Chia tỷ lệ cứng cho 3 cột hiển thị */
+    .TeacherProfile-style-22, .TeacherProfile-style-33 { width: 15% !important; } /* Cột STT */
+    .TeacherProfile-style-23, .TeacherProfile-style-34 { width: 50% !important; } /* Cột Họ Tên */
+    .TeacherProfile-style-27, .TeacherProfile-style-39 { 
+        width: 35% !important; 
+        text-align: right !important; /* Đẩy lương về sát lề phải */
+        padding-right: 12px !important;
     }
 
     /* Làm n?i b?t tên Giáo viên và M?c luong */

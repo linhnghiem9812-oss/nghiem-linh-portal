@@ -470,26 +470,31 @@
     /* Tắt thanh cuộn ngang */
   }
 
+  /* =========================================
+     ÉP BẢNG TRỢ GIẢNG DÃN FULL 100% MÀN HÌNH
+  ========================================= */
   .TeachingAssistantProfile-style-25 {
-    width: 100% !important;
-    min-width: 100% !important;
-    table-layout: fixed !important;
+      display: table !important;
+      width: 100% !important;
+      min-width: 100% !important;
+      table-layout: fixed !important;
   }
 
-  /* Thu nhỏ chữ và padding của các cột còn lại */
   .TeachingAssistantProfile-style-25 th,
   .TeachingAssistantProfile-style-25 td {
-    padding: 12px 8px !important;
-    font-size: 0.85rem !important;
-    white-space: nowrap !important;
+      padding: 12px 8px !important;
+      font-size: 0.85rem !important;
+      white-space: normal !important;
+      word-wrap: break-word !important;
   }
 
-  /* Thu nhỏ cột STT */
-  .TeachingAssistantProfile-style-25 td:first-child,
-  .TeachingAssistantProfile-style-25 th:first-child {
-    width: 30px !important;
-    text-align: center !important;
-    padding: 12px 2px !important;
+  /* Chia tỷ lệ cứng cho 3 cột hiển thị */
+  .TeachingAssistantProfile-style-27, .TeachingAssistantProfile-style-37 { width: 15% !important; } /* Cột STT */
+  .TeachingAssistantProfile-style-28, .TeachingAssistantProfile-style-38 { width: 55% !important; } /* Cột Tên */
+  .TeachingAssistantProfile-style-32, .TeachingAssistantProfile-style-43 { 
+      width: 30% !important; 
+      text-align: right !important; /* Đẩy Trình độ về sát lề phải */
+      padding-right: 16px !important; 
   }
 
   /* Làm nổi bật Tên và Trình độ */
