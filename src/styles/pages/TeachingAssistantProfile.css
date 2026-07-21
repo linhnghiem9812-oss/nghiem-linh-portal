@@ -472,7 +472,8 @@
 
   .TeachingAssistantProfile-style-25 {
     width: 100% !important;
-    table-layout: auto !important;
+    min-width: 100% !important;
+    table-layout: fixed !important;
   }
 
   /* Thu nhỏ chữ và padding của các cột còn lại */
