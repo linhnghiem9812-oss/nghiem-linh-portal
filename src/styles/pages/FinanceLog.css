@@ -562,51 +562,43 @@
   }
 
   /* ========================================================
-     4. TỐI ƯU BẢNG NHẬT KÝ GIỐNG TRANG GIÁO VIÊN/TRỢ GIẢNG
+     4. TỐI ƯU BẢNG NHẬT KÝ (CHỈ HIỆN 2 CỘT)
   ======================================================== */
   .FinanceLog-style-33 {
     width: 100% !important;
-    overflow-x: hidden !important;
-    /* Khóa cuộn ngang */
+    overflow-x: hidden !important; 
   }
 
   .FinanceLog-style-34 {
     width: 100% !important;
-    table-layout: auto !important;
-    /* Ép bảng co dãn vừa màn hình */
+    table-layout: fixed !important; /* Ép cứng tỷ lệ cột để chia chính xác 100% */
   }
 
-  /* Ẩn các cột phụ trên mobile để không tràn */
-  .col-optional {
+  /* Ẩn hoàn toàn 3 cột: Số tiền, Trạng thái, Thao tác */
+  .mobile-hidden {
     display: none !important;
   }
 
-  /* Thu nhỏ chữ và padding của các ô trong bảng */
-  .FinanceLog-style-34 th,
-  .FinanceLog-style-34 td {
-    padding: 12px 6px !important;
-    font-size: 0.8rem !important;
+  /* Cột 1: Mã / Ngày (Chiếm 35% chiều rộng) */
+  .FinanceLog-style-36,
+  .FinanceLog-style-43 {
+    width: 35% !important;
+    padding: 14px 10px !important;
     white-space: normal !important;
-    /* Cho phép rớt dòng */
+    word-wrap: break-word !important;
   }
 
-  /* Nhấn mạnh tên học viên */
-  .FinanceLog-style-46 {
-    font-weight: 800 !important;
-    color: var(--primary, #2563eb) !important;
-    font-size: 0.85rem !important;
+  /* Cột 2: Học viên / Nội dung (Chiếm 65% chiều rộng) */
+  .FinanceLog-style-37,
+  .FinanceLog-style-45 {
+    width: 65% !important;
+    padding: 14px 10px !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
   }
 
-  /* Thu gọn nút thao tác */
-  .FinanceLog-style-56 {
-    gap: 4px !important;
-    justify-content: center !important;
-  }
-
-  .FinanceLog-style-57,
-  .FinanceLog-style-58 {
-    width: 28px !important;
-    height: 28px !important;
-    font-size: 0.75rem !important;
+  /* Biến các dòng (row) thành dạng có thể Click được */
+  .FinanceLog-style-42 {
+    cursor: pointer !important;
   }
 }
