@@ -19,6 +19,19 @@ function PayrollManagement() {
     const [payrolls, setPayrolls] = useState([]);
     // THÊM DÒNG NÀY ĐỂ KÍCH HOẠT MENU CHI TIẾT TRÊN DI ĐỘNG:
     const [viewingPayroll, setViewingPayroll] = useState(null);
+
+    // STATE LỌC TRẠNG THÁI (Đồng bộ với Học viên)
+    const [statusFilter, setStatusFilter] = useState('all');
+
+    // LOGIC PHÂN TRANG (PAGINATION)
+    const [currentPage, setCurrentPage] = useState(1);
+    const [inputPage, setInputPage] = useState("1");
+    const rowsPerPage = 10;
+
+    useEffect(() => {
+        setCurrentPage(1);
+        setInputPage("1");
+    }, [searchTerm, activeTab, statusFilter, payrolls.length]);
     
     const [staffSuggestions, setStaffSuggestions] = useState([]);
     const [isLoadingStaff, setIsLoadingStaff] = useState(false);
@@ -222,30 +235,74 @@ function PayrollManagement() {
         }
     };
 
+    // SỬA LỖI TAB SALE: Bắt cả trường hợp role là 'sale' hoặc 'sales'
     const filteredPayrolls = payrolls.filter(p => {
-        const matchTab = activeTab === 'all' || p.role === activeTab;
+        const pRole = p.role ? p.role.toLowerCase() : '';
+        const matchTab = activeTab === 'all' || pRole === activeTab || (activeTab === 'sales' && pRole === 'sale');
+        
         const matchSearch = p.staffName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             p.courseName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             p.notes?.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchTab && matchSearch;
+            
+        // Áp dụng thêm bộ lọc trạng thái (Thẻ KPI)
+        const matchStatus = statusFilter === 'all' || p.status === statusFilter;
+        
+        return matchTab && matchSearch && matchStatus;
     });
 
+    // Tính toán dữ liệu hiển thị cho trang hiện tại
+    const totalPages = Math.ceil(filteredPayrolls.length / rowsPerPage) || 1;
+    const indexOfLastPayroll = currentPage * rowsPerPage;
+    const indexOfFirstPayroll = indexOfLastPayroll - rowsPerPage;
+    const currentPayrolls = filteredPayrolls.slice(indexOfFirstPayroll, indexOfLastPayroll);
+
+    // Các hàm điều hướng trang
+    const goToFirstPage = () => { setCurrentPage(1); setInputPage("1"); };
+    const goToLastPage = () => { setCurrentPage(totalPages); setInputPage(totalPages.toString()); };
+    const goToPrevPage = () => { if (currentPage > 1) { setCurrentPage(currentPage - 1); setInputPage((currentPage - 1).toString()); } };
+    const goToNextPage = () => { if (currentPage < totalPages) { setCurrentPage(currentPage + 1); setInputPage((currentPage + 1).toString()); } };
+
+    const handlePageInput = (e) => setInputPage(e.target.value);
+    const handlePageSubmit = (e) => {
+        if (e.key === 'Enter' || e.type === 'blur') {
+            let page = parseInt(inputPage, 10);
+            if (isNaN(page) || page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            setCurrentPage(page);
+            setInputPage(page.toString());
+        }
+    };
+
+    // Tính toán tiền cho Thẻ KPI
+    const totalAll = payrolls.reduce((sum, p) => sum + (p.amount || 0), 0);
     const totalPaid = payrolls.filter(p => p.status === 'Đã thanh toán').reduce((sum, p) => sum + (p.amount || 0), 0);
     const totalPending = payrolls.filter(p => p.status === 'Chờ duyệt').reduce((sum, p) => sum + (p.amount || 0), 0);
 
     return (
         <div className="payroll-container">
             <div className="payroll-kpi-grid">
-                <div className="payroll-kpi-card">
+                {/* THẺ 1: TOÀN BỘ */}
+                <div className="payroll-kpi-card" onClick={() => setStatusFilter('all')} style={{ cursor: 'pointer', border: statusFilter === 'all' ? '2px solid var(--primary)' : '1px solid transparent' }}>
                     <div className="payroll-kpi-info">
-                        <span>Tổng chi trả lương (Hệ thống)</span>
+                        <span>Tổng chi (Toàn bộ)</span>
+                        <strong style={{ color: 'var(--primary)' }}>{totalAll.toLocaleString('vi-VN')} đ</strong>
+                    </div>
+                    <div className="payroll-kpi-icon" style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)' }}>
+                        <i className="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                </div>
+                {/* THẺ 2: ĐÃ THANH TOÁN */}
+                <div className="payroll-kpi-card" onClick={() => setStatusFilter('Đã thanh toán')} style={{ cursor: 'pointer', border: statusFilter === 'Đã thanh toán' ? '2px solid var(--success)' : '1px solid transparent' }}>
+                    <div className="payroll-kpi-info">
+                        <span>Đã thanh toán</span>
                         <strong style={{ color: 'var(--success)' }}>{totalPaid.toLocaleString('vi-VN')} đ</strong>
                     </div>
                     <div className="payroll-kpi-icon" style={{ backgroundColor: 'var(--success-light)', color: 'var(--success)' }}>
-                        <i className="fa-solid fa-money-bill-wave"></i>
+                        <i className="fa-solid fa-check-circle"></i>
                     </div>
                 </div>
-                <div className="payroll-kpi-card">
+                {/* THẺ 3: CHỜ DUYỆT */}
+                <div className="payroll-kpi-card" onClick={() => setStatusFilter('Chờ duyệt')} style={{ cursor: 'pointer', border: statusFilter === 'Chờ duyệt' ? '2px solid #d97706' : '1px solid transparent' }}>
                     <div className="payroll-kpi-info">
                         <span>Đang chờ duyệt</span>
                         <strong style={{ color: '#d97706' }}>{totalPending.toLocaleString('vi-VN')} đ</strong>
@@ -254,10 +311,11 @@ function PayrollManagement() {
                         <i className="fa-solid fa-hourglass-half"></i>
                     </div>
                 </div>
+                {/* THẺ 4: TẠO MỚI */}
                 <div className="payroll-kpi-card" style={{ cursor: 'pointer', backgroundColor: 'var(--primary)', color: 'white' }} onClick={openAddModal}>
                     <div className="payroll-kpi-info">
                         <span style={{ color: 'rgba(255,255,255,0.8)' }}>Quản lý chi phí</span>
-                        <strong style={{ color: 'white' }}>Tạo hóa đơn trả lương</strong>
+                        <strong style={{ color: 'white' }}>Tạo hóa đơn mới</strong>
                     </div>
                     <div className="payroll-kpi-icon" style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }}>
                         <i className="fa-solid fa-plus"></i>
@@ -267,8 +325,9 @@ function PayrollManagement() {
 
             <div className="card" style={{ padding: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '20px' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-main)', margin: 0 }}>
-                        <i className="fa-solid fa-file-invoice-dollar" style={{ color: 'var(--primary)', marginRight: '8px' }}></i>
+                    {/* TIÊU ĐỀ THU NHỎ & ĐỔI MÀU XANH PRIMARY */}
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--primary)', margin: 0 }}>
+                        <i className="fa-solid fa-file-invoice-dollar" style={{ marginRight: '8px' }}></i>
                         Danh sách Hóa đơn Thanh toán
                     </h3>
                     <input
@@ -285,7 +344,8 @@ function PayrollManagement() {
                     <button className={`payroll-tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>Tất cả</button>
                     <button className={`payroll-tab-btn ${activeTab === 'teacher' ? 'active' : ''}`} onClick={() => setActiveTab('teacher')}>Giáo viên</button>
                     <button className={`payroll-tab-btn ${activeTab === 'ta' ? 'active' : ''}`} onClick={() => setActiveTab('ta')}>Trợ giảng</button>
-                    <button className={`payroll-tab-btn ${activeTab === 'sales' ? 'active' : ''}`} onClick={() => setActiveTab('sales')}>Chuyên viên Sale</button>
+                    {/* ĐỔI TÊN TAB THÀNH "SALE" */}
+                    <button className={`payroll-tab-btn ${activeTab === 'sales' ? 'active' : ''}`} onClick={() => setActiveTab('sales')}>Sale</button>
                 </div>
 
                 <div style={{ overflowX: 'auto' }}>
@@ -294,7 +354,6 @@ function PayrollManagement() {
                             <tr style={{ backgroundColor: 'var(--bg-app)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                                 <th className="col-code" style={{ padding: '16px' }}>MÃ / NGÀY</th>
                                 <th className="col-info" style={{ padding: '16px' }}>THÔNG TIN LÀM VIỆC</th>
-                                {/* Thêm col-optional để ẩn Chi tiết & Trạng thái trên Mobile */}
                                 <th className="col-optional" style={{ padding: '16px' }}>CHI TIẾT LƯƠNG</th>
                                 <th className="col-amount" style={{ padding: '16px' }}>SỐ TIỀN</th>
                                 <th className="col-optional" style={{ padding: '16px' }}>TRẠNG THÁI</th>
@@ -302,30 +361,27 @@ function PayrollManagement() {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredPayrolls.length === 0 && (
+                            {currentPayrolls.length === 0 && (
                                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>Chưa có bản ghi thanh toán lương nào.</td></tr>
                             )}
-                            {filteredPayrolls.map((p) => (
+                            {currentPayrolls.map((p) => (
                                 <tr 
                                     key={p.id} 
                                     className="payroll-row-clickable"
-                                    onClick={() => setViewingPayroll(p)} /* Bấm vào dòng để mở Menu chi tiết */
+                                    onClick={() => setViewingPayroll(p)} 
                                     style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'white' }}
                                 >
-                                    {/* CỘT 1: MÃ / NGÀY */}
                                     <td className="col-code" style={{ padding: '16px' }}>
                                         <strong style={{ display: 'block', color: 'var(--text-main)', fontSize: '0.85rem' }}>#PR-{p.id.toString().slice(-4)}</strong>
                                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(p.paymentDate).toLocaleDateString('vi-VN')}</span>
                                     </td>
 
-                                    {/* CỘT 2: THÔNG TIN LÀM VIỆC */}
                                     <td className="col-info" style={{ padding: '16px' }}>
                                         <strong style={{ display: 'block', color: 'var(--primary)', fontSize: '0.9rem', marginBottom: '2px' }}>{p.staffName}</strong>
                                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Vị trí: {p.role === 'teacher' ? 'Giáo viên' : p.role === 'ta' ? 'Trợ giảng' : 'Sale'}</span>
                                         {p.courseName && <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block' }}>Khóa: {p.courseName}</span>}
                                     </td>
 
-                                    {/* CỘT PHỤ (Ẩn trên Mobile): CHI TIẾT LƯƠNG */}
                                     <td className="col-optional" style={{ padding: '16px' }}>
                                         <div style={{ fontSize: '0.85rem', color: 'var(--text-main)' }}>
                                             Cứng: <strong style={{ color: '#475569' }}>{(parseInt(p.baseSalary) || 0).toLocaleString('vi-VN')} đ</strong>
@@ -341,19 +397,16 @@ function PayrollManagement() {
                                         </div>
                                     </td>
 
-                                    {/* CỘT 3: SỐ TIỀN */}
                                     <td className="col-amount" style={{ padding: '16px', fontWeight: '800', color: 'var(--success)', fontSize: '1rem' }}>
                                         {(p.amount || 0).toLocaleString('vi-VN')} <span style={{fontSize: '0.75rem'}}>{p.currency || 'đ'}</span>
                                     </td>
 
-                                    {/* CỘT PHỤ (Ẩn trên Mobile): TRẠNG THÁI */}
                                     <td className="col-optional" style={{ padding: '16px' }}>
                                         <span className={`status-badge ${p.status === 'Đã thanh toán' ? 'status-paid' : 'status-pending'}`}>
                                             {p.status}
                                         </span>
                                     </td>
 
-                                    {/* CỘT PHỤ (Ẩn trên Mobile): THAO TÁC */}
                                     <td className="col-optional" style={{ padding: '16px' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                                             <button className="payroll-action-btn btn-edit" onClick={(e) => { e.stopPropagation(); openEditModal(p); }} title="Sửa"><i className="fa-solid fa-pen"></i></button>
@@ -365,6 +418,40 @@ function PayrollManagement() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* THANH ĐIỀU HƯỚNG PHÂN TRANG */}
+                {filteredPayrolls.length > rowsPerPage && (
+                    <div className="Payroll-pagination">
+                        <button onClick={goToFirstPage} disabled={currentPage === 1} title="Trang đầu">
+                            <i className="fa-solid fa-angles-left"></i>
+                        </button>
+                        <button onClick={goToPrevPage} disabled={currentPage === 1} title="Trang trước">
+                            <i className="fa-solid fa-angle-left"></i>
+                        </button>
+                        
+                        <div className="Payroll-pagination-info">
+                            Trang 
+                            <input 
+                                type="number" 
+                                className="Payroll-pagination-input"
+                                value={inputPage} 
+                                onChange={handlePageInput} 
+                                onBlur={handlePageSubmit} 
+                                onKeyDown={handlePageSubmit} 
+                                min="1"
+                                max={totalPages}
+                            /> 
+                            / {totalPages}
+                        </div>
+
+                        <button onClick={goToNextPage} disabled={currentPage === totalPages} title="Trang sau">
+                            <i className="fa-solid fa-angle-right"></i>
+                        </button>
+                        <button onClick={goToLastPage} disabled={currentPage === totalPages} title="Trang cuối">
+                            <i className="fa-solid fa-angles-right"></i>
+                        </button>
+                    </div>
+                )}
             </div>
 
             {showModal && (
