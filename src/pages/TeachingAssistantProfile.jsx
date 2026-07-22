@@ -24,6 +24,11 @@ function TeachingAssistantProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
+  // STATE MỚI: QUẢN LÝ PHÂN TRANG
+  const [currentPage, setCurrentPage] = useState(1);
+  const [inputPage, setInputPage] = useState("1");
+  const rowsPerPage = 10;
+
   const [visibleColumns, setVisibleColumns] = useState({
     email: true,
     education: true,
@@ -40,6 +45,35 @@ function TeachingAssistantProfile() {
 
   const toggleColumn = (key) =>
     setVisibleColumns((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  // ========================================================
+  // LOGIC PHÂN TRANG (PAGINATION)
+  // ========================================================
+  React.useEffect(() => {
+    setCurrentPage(1);
+    setInputPage("1");
+  }, [tas.length]);
+
+  const totalPages = Math.ceil(tas.length / rowsPerPage) || 1;
+  const indexOfLastTA = currentPage * rowsPerPage;
+  const indexOfFirstTA = indexOfLastTA - rowsPerPage;
+  const currentTAs = tas.slice(indexOfFirstTA, indexOfLastTA);
+
+  const goToFirstPage = () => { setCurrentPage(1); setInputPage("1"); };
+  const goToLastPage = () => { setCurrentPage(totalPages); setInputPage(totalPages.toString()); };
+  const goToPrevPage = () => { if (currentPage > 1) { setCurrentPage(currentPage - 1); setInputPage((currentPage - 1).toString()); } };
+  const goToNextPage = () => { if (currentPage < totalPages) { setCurrentPage(currentPage + 1); setInputPage((currentPage + 1).toString()); } };
+
+  const handlePageInput = (e) => setInputPage(e.target.value);
+  const handlePageSubmit = (e) => {
+    if (e.key === 'Enter' || e.type === 'blur') {
+      let page = parseInt(inputPage, 10);
+      if (isNaN(page) || page < 1) page = 1;
+      if (page > totalPages) page = totalPages;
+      setCurrentPage(page);
+      setInputPage(page.toString());
+    }
+  };
 
   const handleSaveTA = async (e) => {
     e.preventDefault();
@@ -259,24 +293,23 @@ function TeachingAssistantProfile() {
               </tr>
             </thead>
             <tbody>
-              {tas && tas.length === 0 && (
+              {currentTAs.length === 0 && (
                 <tr>
                   <td colSpan="8" className="TeachingAssistantProfile-style-35">
                     Chưa có trợ giảng trong hệ thống.
                   </td>
                 </tr>
               )}
-              {tas &&
-                tas.map((t, idx) => (
+              {currentTAs.map((t, idx) => {
+                const absoluteIndex = indexOfFirstTA + idx + 1; 
+                return (
                   <tr key={t.id || idx} className="TeachingAssistantProfile-style-36" onClick={() => {
                           setSelectedTA({ ...t });
                           setIsEditing(false);
                         }}>
-                    <td className="TeachingAssistantProfile-style-37">{idx + 1}</td>
+                    <td className="TeachingAssistantProfile-style-37">{absoluteIndex}</td>
                     <td className="TeachingAssistantProfile-style-38 ta-name-cell">
-                      <span
-                        className="TeachingAssistantProfile-style-39"
-                      >
+                      <span className="TeachingAssistantProfile-style-39">
                         {t.name || "---"}
                       </span>
                     </td>
@@ -317,9 +350,46 @@ function TeachingAssistantProfile() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
             </tbody>
           </table>
+
+          {/* ========================================================
+              THANH ĐIỀU HƯỚNG PHÂN TRANG (ĐẶT DƯỚI BẢNG)
+          ======================================================== */}
+          {tas.length > rowsPerPage && (
+            <div className="TeachingAssistantProfile-pagination">
+              <button onClick={goToFirstPage} disabled={currentPage === 1} title="Trang đầu">
+                <i className="fa-solid fa-angles-left"></i>
+              </button>
+              <button onClick={goToPrevPage} disabled={currentPage === 1} title="Trang trước">
+                <i className="fa-solid fa-angle-left"></i>
+              </button>
+              
+              <div className="TeachingAssistantProfile-pagination-info">
+                Trang 
+                <input 
+                  type="number" 
+                  className="TeachingAssistantProfile-pagination-input"
+                  value={inputPage} 
+                  onChange={handlePageInput} 
+                  onBlur={handlePageSubmit} 
+                  onKeyDown={handlePageSubmit} 
+                  min="1"
+                  max={totalPages}
+                /> 
+                / {totalPages}
+              </div>
+
+              <button onClick={goToNextPage} disabled={currentPage === totalPages} title="Trang sau">
+                <i className="fa-solid fa-angle-right"></i>
+              </button>
+              <button onClick={goToLastPage} disabled={currentPage === totalPages} title="Trang cuối">
+                <i className="fa-solid fa-angles-right"></i>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
