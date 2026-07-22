@@ -22,6 +22,12 @@ function StudentCare() {
     priority: "Tạo mới",
   });
   const [editingTicket, setEditingTicket] = useState(null);
+
+  // STATE MỚI: QUẢN LÝ PHÂN TRANG
+  const [currentPage, setCurrentPage] = useState(1);
+  const [inputPage, setInputPage] = useState("1");
+  const rowsPerPage = 10;
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
@@ -80,6 +86,39 @@ function StudentCare() {
     else matchStatus = s.status === statusFilter;
     return matchName && matchStatus;
   });
+
+  // ========================================================
+  // LOGIC PHÂN TRANG (PAGINATION)
+  // ========================================================
+  // 1. Tự động quay về trang 1 nếu người dùng tìm kiếm hoặc lọc
+  useEffect(() => {
+    setCurrentPage(1);
+    setInputPage("1");
+  }, [searchTerm, statusFilter]);
+
+  // 2. Tính toán dữ liệu hiển thị cho trang hiện tại
+  const totalPages = Math.ceil(filteredStudents.length / rowsPerPage) || 1;
+  const indexOfLastStudent = currentPage * rowsPerPage;
+  const indexOfFirstStudent = indexOfLastStudent - rowsPerPage;
+  const currentStudents = filteredStudents.slice(indexOfFirstStudent, indexOfLastStudent);
+
+  // 3. Các hàm điều hướng
+  const goToFirstPage = () => { setCurrentPage(1); setInputPage("1"); };
+  const goToLastPage = () => { setCurrentPage(totalPages); setInputPage(totalPages.toString()); };
+  const goToPrevPage = () => { if (currentPage > 1) { setCurrentPage(currentPage - 1); setInputPage((currentPage - 1).toString()); } };
+  const goToNextPage = () => { if (currentPage < totalPages) { setCurrentPage(currentPage + 1); setInputPage((currentPage + 1).toString()); } };
+
+  // 4. Xử lý khi người dùng nhập số vào ô Input
+  const handlePageInput = (e) => setInputPage(e.target.value);
+  const handlePageSubmit = (e) => {
+    if (e.key === 'Enter' || e.type === 'blur') {
+      let page = parseInt(inputPage, 10);
+      if (isNaN(page) || page < 1) page = 1;
+      if (page > totalPages) page = totalPages;
+      setCurrentPage(page);
+      setInputPage(page.toString());
+    }
+  };
 
   const sortedClasses = [...classes].sort((a, b) => {
     if (!a.startDate) return 1;
@@ -335,12 +374,17 @@ function StudentCare() {
               </tr>
             </thead>
             <tbody className="StudentCare-style-36">
-              {filteredStudents.length === 0 && <tr><td colSpan="12" className="StudentCare-style-37">Chưa có học viên nào trong CSDL.</td></tr>}
-              {filteredStudents.map((s, index) => {
+              {currentStudents.length === 0 && <tr><td colSpan="12" className="StudentCare-style-37">Chưa có học viên nào phù hợp.</td></tr>}
+              
+              {/* ĐỔI TỪ filteredStudents SANG currentStudents ĐỂ HIỂN THỊ ĐÚNG 10 DÒNG */}
+              {currentStudents.map((s, index) => {
                 const badgeStyle = getStatusBadge(s.status);
+                // Tính toán lại STT liên tục giữa các trang
+                const absoluteIndex = indexOfFirstStudent + index + 1; 
+
                 return (
                   <tr key={s.id} className="StudentCare-style-38">
-                    <td className="StudentCare-style-39">{index + 1}</td>
+                    <td className="StudentCare-style-39">{absoluteIndex}</td>
                     <td className="StudentCare-style-40"><span className="StudentCare-style-41" onClick={() => openModal("view", s)}>{s.name || "---"}</span></td>
                     <td className="StudentCare-style-42">{s.phone || "---"}</td>
                     {visibleColumns.email && <td className="StudentCare-style-43">{s.email || "---"}</td>}
@@ -359,6 +403,42 @@ function StudentCare() {
               })}
             </tbody>
           </table>
+
+          {/* ========================================================
+              THANH ĐIỀU HƯỚNG PHÂN TRANG (ĐẶT DƯỚI BẢNG)
+          ======================================================== */}
+          {filteredStudents.length > rowsPerPage && (
+            <div className="StudentCare-pagination">
+              <button onClick={goToFirstPage} disabled={currentPage === 1} title="Trang đầu">
+                <i className="fa-solid fa-angles-left"></i>
+              </button>
+              <button onClick={goToPrevPage} disabled={currentPage === 1} title="Trang trước">
+                <i className="fa-solid fa-angle-left"></i>
+              </button>
+              
+              <div className="StudentCare-pagination-info">
+                Trang 
+                <input 
+                  type="number" 
+                  className="StudentCare-pagination-input"
+                  value={inputPage} 
+                  onChange={handlePageInput} 
+                  onBlur={handlePageSubmit} 
+                  onKeyDown={handlePageSubmit} 
+                  min="1"
+                  max={totalPages}
+                /> 
+                / {totalPages}
+              </div>
+
+              <button onClick={goToNextPage} disabled={currentPage === totalPages} title="Trang sau">
+                <i className="fa-solid fa-angle-right"></i>
+              </button>
+              <button onClick={goToLastPage} disabled={currentPage === totalPages} title="Trang cuối">
+                <i className="fa-solid fa-angles-right"></i>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
