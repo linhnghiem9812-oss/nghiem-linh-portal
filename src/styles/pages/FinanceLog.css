@@ -457,9 +457,71 @@
   box-sizing: border-box !important;
 }
 
-/* =========================================================================
-   KHÓA TRÀN MÀN HÌNH TUYỆT ĐỐI CHO ĐIỆN THOẠI (< 768px)
-========================================================================= */
+/* =========================================
+   THANH ĐIỀU HƯỚNG PHÂN TRANG (PAGINATION)
+========================================= */
+.FinanceLog-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 16px 0;
+  border-top: 1px dashed var(--border-color);
+  width: 100%;
+}
+
+.FinanceLog-pagination button {
+  padding: 8px 14px;
+  background-color: var(--primary-light, #eff6ff);
+  color: var(--primary, #2563eb);
+  border: 1px solid var(--primary, #2563eb);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.FinanceLog-pagination button:hover:not(:disabled) {
+  background-color: var(--primary, #2563eb);
+  color: white;
+}
+
+.FinanceLog-pagination button:disabled {
+  background-color: #f1f5f9;
+  color: #94a3b8;
+  border-color: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.FinanceLog-pagination-info {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.FinanceLog-pagination-input {
+  width: 50px;
+  text-align: center;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin: 0 8px;
+  font-weight: 800;
+  color: var(--primary, #2563eb);
+  outline: none;
+}
+
+.FinanceLog-pagination-input:focus {
+  border-color: var(--primary, #2563eb);
+  box-shadow: 0 0 0 2px var(--primary-light, #eff6ff);
+}
+
 /* =========================================================================
    KHÓA TRÀN MÀN HÌNH TUYỆT ĐỐI CHO ĐIỆN THOẠI (< 768px)
 ========================================================================= */
@@ -570,7 +632,7 @@
   }
 
   /* =========================================
-     ÉP BẢNG TÀI CHÍNH DÃN FULL 100% MÀN HÌNH
+     ÉP BẢNG TÀI CHÍNH DÃN FULL 100% MÀN HÌNH & CHIA 3 CỘT
   ========================================= */
   .FinanceLog-style-34 {
       display: table !important;
@@ -579,27 +641,45 @@
       table-layout: fixed !important;
   }
 
-  /* Ẩn hoàn toàn 3 cột: Số tiền, Trạng thái, Thao tác */
+  /* Chỉ ẩn 2 cột: Trạng thái, Thao tác */
   .mobile-hidden {
     display: none !important;
   }
 
-  /* Cột 1: Mã / Ngày (Chiếm 35% chiều rộng) */
+  /* Cột 1: Mã / Ngày (Chiếm 25% chiều rộng) */
   .FinanceLog-style-36,
   .FinanceLog-style-43 {
-    width: 35% !important;
-    padding: 14px 10px !important;
+    width: 25% !important;
+    padding: 14px 6px !important;
     white-space: normal !important;
     word-wrap: break-word !important;
   }
 
-  /* Cột 2: Học viên / Nội dung (Chiếm 65% chiều rộng) */
+  /* Cột 2: Học viên / Nội dung (Chiếm 45% chiều rộng) */
   .FinanceLog-style-37,
   .FinanceLog-style-45 {
-    width: 65% !important;
-    padding: 14px 10px !important;
+    width: 45% !important;
+    padding: 14px 6px !important;
     white-space: normal !important;
     word-wrap: break-word !important;
+  }
+
+  /* Cột 3: Số tiền đã nộp (Chiếm 30% chiều rộng) */
+  .FinanceLog-style-38,
+  .FinanceLog-style-49 {
+    display: table-cell !important; /* Buộc hiển thị trên điện thoại */
+    width: 30% !important;
+    padding: 14px 6px !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    text-align: right !important; /* Đẩy tiền sang phải cho dễ nhìn */
+  }
+
+  /* Thu nhỏ cỡ chữ phần số tiền trên mobile một chút */
+  .FinanceLog-style-50, 
+  .FinanceLog-style-51, 
+  .FinanceLog-style-52 {
+      font-size: 0.8rem !important;
   }
 
   /* Biến các dòng (row) thành dạng có thể Click được */
