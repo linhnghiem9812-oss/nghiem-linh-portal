@@ -27,6 +27,11 @@ function TeacherProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
+  // STATE MỚI: QUẢN LÝ PHÂN TRANG
+  const [currentPage, setCurrentPage] = useState(1);
+  const [inputPage, setInputPage] = useState("1");
+  const rowsPerPage = 10;
+
   // Mặc định ẩn địa chỉ và ghi chú để bảng gọn gàng vừa màn hình
   const [visibleColumns, setVisibleColumns] = useState({
     email: true,
@@ -48,6 +53,36 @@ function TeacherProfile() {
 
   const toggleColumn = (key) =>
     setVisibleColumns((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  // ========================================================
+  // LOGIC PHÂN TRANG (PAGINATION)
+  // ========================================================
+  // Tự động quay về trang 1 nếu mảng giáo viên thay đổi
+  React.useEffect(() => {
+    setCurrentPage(1);
+    setInputPage("1");
+  }, [teachers.length]);
+
+  const totalPages = Math.ceil(teachers.length / rowsPerPage) || 1;
+  const indexOfLastTeacher = currentPage * rowsPerPage;
+  const indexOfFirstTeacher = indexOfLastTeacher - rowsPerPage;
+  const currentTeachers = teachers.slice(indexOfFirstTeacher, indexOfLastTeacher);
+
+  const goToFirstPage = () => { setCurrentPage(1); setInputPage("1"); };
+  const goToLastPage = () => { setCurrentPage(totalPages); setInputPage(totalPages.toString()); };
+  const goToPrevPage = () => { if (currentPage > 1) { setCurrentPage(currentPage - 1); setInputPage((currentPage - 1).toString()); } };
+  const goToNextPage = () => { if (currentPage < totalPages) { setCurrentPage(currentPage + 1); setInputPage((currentPage + 1).toString()); } };
+
+  const handlePageInput = (e) => setInputPage(e.target.value);
+  const handlePageSubmit = (e) => {
+    if (e.key === 'Enter' || e.type === 'blur') {
+      let page = parseInt(inputPage, 10);
+      if (isNaN(page) || page < 1) page = 1;
+      if (page > totalPages) page = totalPages;
+      setCurrentPage(page);
+      setInputPage(page.toString());
+    }
+  };
 
   const handleInputChange = (e) =>
     setFormInput({ ...formInput, [e.target.name]: e.target.value });
@@ -312,24 +347,24 @@ function TeacherProfile() {
               </tr>
             </thead>
             <tbody>
-              {teachers && teachers.length === 0 && (
+              {currentTeachers.length === 0 && (
                 <tr>
                   <td colSpan="10" style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
                     Chưa có giáo viên nào trong CSDL.
                   </td>
                 </tr>
               )}
-              {teachers &&
-                teachers.map((t, idx) => (
+              {currentTeachers.map((t, idx) => {
+                // Tính toán lại STT liên tục giữa các trang
+                const absoluteIndex = indexOfFirstTeacher + idx + 1; 
+                return (
                   <tr key={t.id || idx} className="TeacherProfile-style-32" onClick={() => {
                           setSelectedTeacher({ ...t });
                           setIsEditing(false);
                         }}>
-                    <td className="TeacherProfile-style-33">{idx + 1}</td>
+                    <td className="TeacherProfile-style-33">{absoluteIndex}</td>
                     <td className="TeacherProfile-style-34 teacher-name-cell">
-                      <span
-                        className="TeacherProfile-style-35"
-                      >
+                      <span className="TeacherProfile-style-35">
                         {t.name || "---"}
                       </span>
                     </td>
@@ -364,7 +399,8 @@ function TeacherProfile() {
                     <td className="TeacherProfile-style-43 col-optional">
                       <div className="TeacherProfile-style-44">
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation(); // Tránh kích hoạt click row
                             setSelectedTeacher({ ...t });
                             setIsEditing(true);
                           }}
@@ -374,7 +410,10 @@ function TeacherProfile() {
                           <i className="fa-solid fa-pen"></i>
                         </button>
                         <button
-                          onClick={() => handleDeleteTeacher(t.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTeacher(t.id);
+                          }}
                           title="Xóa"
                           className="TeacherProfile-style-46"
                         >
@@ -383,9 +422,46 @@ function TeacherProfile() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
             </tbody>
           </table>
+
+          {/* ========================================================
+              THANH ĐIỀU HƯỚNG PHÂN TRANG (ĐẶT DƯỚI BẢNG)
+          ======================================================== */}
+          {teachers.length > rowsPerPage && (
+            <div className="TeacherProfile-pagination">
+              <button onClick={goToFirstPage} disabled={currentPage === 1} title="Trang đầu">
+                <i className="fa-solid fa-angles-left"></i>
+              </button>
+              <button onClick={goToPrevPage} disabled={currentPage === 1} title="Trang trước">
+                <i className="fa-solid fa-angle-left"></i>
+              </button>
+              
+              <div className="TeacherProfile-pagination-info">
+                Trang 
+                <input 
+                  type="number" 
+                  className="TeacherProfile-pagination-input"
+                  value={inputPage} 
+                  onChange={handlePageInput} 
+                  onBlur={handlePageSubmit} 
+                  onKeyDown={handlePageSubmit} 
+                  min="1"
+                  max={totalPages}
+                /> 
+                / {totalPages}
+              </div>
+
+              <button onClick={goToNextPage} disabled={currentPage === totalPages} title="Trang sau">
+                <i className="fa-solid fa-angle-right"></i>
+              </button>
+              <button onClick={goToLastPage} disabled={currentPage === totalPages} title="Trang cuối">
+                <i className="fa-solid fa-angles-right"></i>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
