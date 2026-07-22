@@ -26,6 +26,39 @@ function FinanceLog() {
   const [editingInvoice, setEditingInvoice] = useState(null);
   const [viewingInvoice, setViewingInvoice] = useState(null);
 
+  // ========================================================
+  // LOGIC PHÂN TRANG (PAGINATION)
+  // ========================================================
+  const [currentPage, setCurrentPage] = useState(1);
+  const [inputPage, setInputPage] = useState("1");
+  const rowsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+    setInputPage("1");
+  }, [invoices.length]);
+
+  const totalPages = Math.ceil(invoices.length / rowsPerPage) || 1;
+  const indexOfLastInvoice = currentPage * rowsPerPage;
+  const indexOfFirstInvoice = indexOfLastInvoice - rowsPerPage;
+  const currentInvoices = invoices.slice(indexOfFirstInvoice, indexOfLastInvoice);
+
+  const goToFirstPage = () => { setCurrentPage(1); setInputPage("1"); };
+  const goToLastPage = () => { setCurrentPage(totalPages); setInputPage(totalPages.toString()); };
+  const goToPrevPage = () => { if (currentPage > 1) { setCurrentPage(currentPage - 1); setInputPage((currentPage - 1).toString()); } };
+  const goToNextPage = () => { if (currentPage < totalPages) { setCurrentPage(currentPage + 1); setInputPage((currentPage + 1).toString()); } };
+
+  const handlePageInput = (e) => setInputPage(e.target.value);
+  const handlePageSubmit = (e) => {
+    if (e.key === 'Enter' || e.type === 'blur') {
+      let page = parseInt(inputPage, 10);
+      if (isNaN(page) || page < 1) page = 1;
+      if (page > totalPages) page = totalPages;
+      setCurrentPage(page);
+      setInputPage(page.toString());
+    }
+  };
+
   useEffect(() => {
     api
       .get("/invoices")
@@ -250,21 +283,21 @@ function FinanceLog() {
                   <tr className="FinanceLog-style-35">
                     <th className="FinanceLog-style-36">Mã / Ngày</th>
                     <th className="FinanceLog-style-37">Học viên / Nội dung</th>
-                    {/* Thêm mobile-hidden để ẩn trên điện thoại */}
-                    <th className="FinanceLog-style-38 mobile-hidden">Số tiền đã nộp</th>
+                    {/* ĐÃ XÓA mobile-hidden Ở ĐÂY ĐỂ HIỂN THỊ CỘT TIỀN TRÊN ĐIỆN THOẠI */}
+                    <th className="FinanceLog-style-38">Số tiền đã nộp</th>
                     <th className="FinanceLog-style-39 mobile-hidden">Trạng thái</th>
                     <th className="FinanceLog-style-40 mobile-hidden">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {invoices.length === 0 && (
+                  {currentInvoices.length === 0 && (
                     <tr>
                       <td colSpan="5" className="FinanceLog-style-41">
                         Chưa có hóa đơn nào được ghi nhận.
                       </td>
                     </tr>
                   )}
-                  {invoices.map((inv) => (
+                  {currentInvoices.map((inv) => (
                     <tr 
                       key={inv.id} 
                       className="FinanceLog-style-42"
@@ -279,11 +312,10 @@ function FinanceLog() {
                         <span className="FinanceLog-style-47">
                           {inv.course}
                         </span>
-                        {/* Ẩn ghi chú ra khỏi màn hình ngoài cho gọn */}
                       </td>
                       
-                      {/* 3 Cột này sẽ bị ẩn trên điện thoại */}
-                      <td className="FinanceLog-style-49 mobile-hidden">
+                      {/* ĐÃ XÓA mobile-hidden Ở ĐÂY ĐỂ HIỂN THỊ DỮ LIỆU TIỀN TRÊN ĐIỆN THOẠI */}
+                      <td className="FinanceLog-style-49">
                         {(inv.amount > 0 || (!inv.amount && !inv.amountJpy && !inv.amountCny)) && (
                           <div className="FinanceLog-style-50">{(inv.amount || 0).toLocaleString("vi-VN")} đ</div>
                         )}
@@ -294,6 +326,8 @@ function FinanceLog() {
                           <div className="FinanceLog-style-52">{inv.amountCny.toLocaleString("vi-VN")} ¥</div>
                         )}
                       </td>
+                      
+                      {/* 2 Cột Trạng thái và Thao tác vẫn ẩn trên điện thoại */}
                       <td className="FinanceLog-style-53 mobile-hidden">
                         <span className="FinanceLog-style-54">{inv.status}</span>
                       </td>
@@ -319,6 +353,42 @@ function FinanceLog() {
                   ))}
                 </tbody>
               </table>
+
+            {/* ========================================================
+                THANH ĐIỀU HƯỚNG PHÂN TRANG (ĐẶT DƯỚI BẢNG)
+            ======================================================== */}
+            {invoices.length > rowsPerPage && (
+              <div className="FinanceLog-pagination">
+                <button onClick={goToFirstPage} disabled={currentPage === 1} title="Trang đầu">
+                  <i className="fa-solid fa-angles-left"></i>
+                </button>
+                <button onClick={goToPrevPage} disabled={currentPage === 1} title="Trang trước">
+                  <i className="fa-solid fa-angle-left"></i>
+                </button>
+                
+                <div className="FinanceLog-pagination-info">
+                  Trang 
+                  <input 
+                    type="number" 
+                    className="FinanceLog-pagination-input"
+                    value={inputPage} 
+                    onChange={handlePageInput} 
+                    onBlur={handlePageSubmit} 
+                    onKeyDown={handlePageSubmit} 
+                    min="1"
+                    max={totalPages}
+                  /> 
+                  / {totalPages}
+                </div>
+
+                <button onClick={goToNextPage} disabled={currentPage === totalPages} title="Trang sau">
+                  <i className="fa-solid fa-angle-right"></i>
+                </button>
+                <button onClick={goToLastPage} disabled={currentPage === totalPages} title="Trang cuối">
+                  <i className="fa-solid fa-angles-right"></i>
+                </button>
+              </div>
+            )}
             </div>
           </div>
         </div>
