@@ -429,39 +429,63 @@
   gap: 4px;
 }
 
+/* =========================================================================
+   RESPONSIVE CHO ĐIỆN THOẠI (< 768px) - SỬA LỖI ĐƠ KHÔNG CUỘN ĐƯỢC
+========================================================================= */
 @media (max-width: 768px) {
+  /* 1. CHÌA KHÓA: Bật tính năng cuộn dọc (auto) cho TOÀN BỘ Modal */
   .ClassReports-style-26 {
     width: 95% !important;
-    max-height: 95vh !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important; /* Cho phép vuốt toàn bộ hộp thoại */
+    display: block !important;   /* Xóa ép khuôn flex để nội dung tự do giãn */
   }
   
   .ClassReports-style-30 {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr 1fr !important; /* Xếp thành 2 cột cho gọn, tiết kiệm không gian */
   }
   
   .ClassReports-style-49 {
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
-    overflow-y: auto !important; /* Allow the whole area to scroll if stacked */
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+    overflow: visible !important; 
   }
 
+  /* 2. Gỡ bỏ lệnh cấm tràn (hidden) của các thẻ chứa danh sách */
+  .ClassReports-style-50,
+  .ClassReports-style-57 {
+    overflow: visible !important; 
+  }
+
+  /* 3. Xả toàn bộ chiều cao của danh sách Học viên/Buổi học */
   .ClassReports-style-52,
   .ClassReports-style-59 {
-    overflow-y: visible !important; /* Let the parent scroll */
+    overflow-y: visible !important;
+    max-height: none !important;
   }
   
+  /* Căn chỉnh lại viền cho lưới thông tin 2 cột */
   .ClassReports-style-31, 
   .ClassReports-style-34, 
   .ClassReports-style-37, 
   .ClassReports-style-40, 
   .ClassReports-style-43, 
   .ClassReports-style-46 {
-    border-right: none !important;
+    border-right: 1px solid var(--border-color) !important;
     border-top: none !important;
     border-bottom: 1px solid var(--border-color) !important;
-    padding: 12px 20px !important;
+    padding: 12px 16px !important;
   }
   
+  /* Xóa viền phải của cột thứ 2 (cột chẵn) để màn hình không bị vạch kẻ thừa */
+  .ClassReports-style-34,
+  .ClassReports-style-40,
+  .ClassReports-style-46 {
+    border-right: none !important;
+  }
+
+  .ClassReports-style-43,
   .ClassReports-style-46 {
     border-bottom: none !important;
   }
