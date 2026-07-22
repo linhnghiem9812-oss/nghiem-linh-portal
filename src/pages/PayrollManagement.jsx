@@ -59,7 +59,11 @@ function PayrollManagement() {
     useEffect(() => {
         const fetchPayrolls = async () => {
             try {
-                const res = await api.get('/payroll');
+                const savedSession = localStorage.getItem("nl_real_session");
+                const userRole = savedSession ? JSON.parse(savedSession)?.role : null;
+                const res = await api.get('/payroll', {
+                    headers: { 'X-User-Role': userRole || '' }
+                });
                 setPayrolls(res.data || []);
             } catch (err) {
                 console.error("Lỗi tải dữ liệu lương: ", err);

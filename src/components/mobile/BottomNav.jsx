@@ -72,14 +72,14 @@ function BottomNav({ activeTab, setActiveTab }) {
                     </button>
                 )}
 
-                {/* NÚT 3: KHỐI QUẢN LÝ / LƯƠNG */}
+                {/* NÚT 3: KHỐI QUẢN LÝ / LỚP CỦA TÔI */}
                 {isTeacher ? (
                     <button
-                        className={`bottom-nav-item ${!activeModal && activeTab === "payroll" ? "active" : ""}`}
-                        onClick={() => handleNavClick("payroll")}
+                        className={`bottom-nav-item ${!activeModal && activeTab === "my-class" ? "active" : ""}`}
+                        onClick={() => handleNavClick("my-class")}
                     >
-                        <i className="fa-solid fa-wallet"></i>
-                        <span>Tiền lương</span>
+                        <i className="fa-solid fa-chalkboard-user"></i>
+                        <span>Lớp của tôi</span>
                     </button>
                 ) : (
                     <button

@@ -22,6 +22,13 @@ import PayrollManagement from "./pages/PayrollManagement";
 import InstallApp from "./pages/InstallApp"; // Trang Cài đặt App
 import "./styles/globals.css";
 
+export const ALLOWED_TABS = {
+  teacher: ["my-class", "reports", "profile", "install-app"],
+  sales: ["crm", "sales", "care", "classes", "reports", "my-class", "profile", "install-app"],
+  manager: ["crm", "sales", "care", "teachers", "tas", "classes", "reports", "my-class", "finance", "profile", "install-app"],
+  admin: ["crm", "sales", "care", "teachers", "tas", "classes", "reports", "my-class", "finance", "payroll", "profile", "install-app"]
+};
+
 function App() {
   const { currentUser, currentRole } = useAuth();
 
@@ -35,9 +42,22 @@ function App() {
     return savedTab || "";
   });
 
+  // Kiểm tra quyền truy cập tab theo Vai trò (Role Guard & Auto Redirect)
+  useEffect(() => {
+    if (currentUser && currentRole) {
+      const allowed = ALLOWED_TABS[currentRole] || ALLOWED_TABS.teacher;
+      if (!activeTab || !allowed.includes(activeTab)) {
+        const defaultTab = currentRole === "teacher" ? "my-class" : "reports";
+        setActiveTab(defaultTab);
+      }
+    }
+  }, [currentUser, currentRole, activeTab]);
+
   // 2. Tự động lưu lại tên Tab mỗi khi bạn nhấp chuyển trang
   useEffect(() => {
-    localStorage.setItem("current_tab", activeTab);
+    if (activeTab) {
+      localStorage.setItem("current_tab", activeTab);
+    }
   }, [activeTab]);
 
   const [theme, setTheme] = useState("light");

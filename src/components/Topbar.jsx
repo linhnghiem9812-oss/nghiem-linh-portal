@@ -2,6 +2,7 @@ import "../styles/components/Topbar.css";
 import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNotification } from "../context/NotificationContext";
+import { ALLOWED_TABS } from "../App";
 
 import adminAvatarImg from "../assets/admin_avatar.jpg";
 
@@ -89,7 +90,12 @@ function Topbar({ activeTab, setActiveTab, theme, toggleTheme, isCollapsed }) {
 
   const handleNavigate = (tab) => {
     if (tab) {
-      setActiveTab(tab);
+      const allowed = ALLOWED_TABS[currentRole] || [];
+      if (allowed.includes(tab)) {
+        setActiveTab(tab);
+      } else {
+        alert("Bạn không có quyền truy cập vào trang này!");
+      }
       setViewingNotif(null);
       setShowNotif(false);
     }

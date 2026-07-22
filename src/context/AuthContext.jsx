@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       const response = await api.post("/auth/login", { username, password });
+      localStorage.removeItem("current_tab"); // Reset tab khi đăng nhập tài khoản mới
       setCurrentUser(response.data); // Backend trả về thông tin User
       return { success: true };
     } catch (error) {
@@ -102,6 +103,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    localStorage.removeItem("current_tab");
     setCurrentUser(null);
   };
 
