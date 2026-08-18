@@ -17,6 +17,7 @@ function CRM() {
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
   const [uniqueSalesOptions, setUniqueSalesOptions] = useState([]);
   const [isLoadingSales, setIsLoadingSales] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- LẤY DANH SÁCH SALE TỪ BACKEND ---
   useEffect(() => {
@@ -109,6 +110,7 @@ function CRM() {
       addNotification("Vui lòng nhập Số điện thoại liên hệ!", "error", "crm");
       return;
     }
+    setIsSubmitting(true);
     const newRecord = {
       ...formData,
       fee: formData.fee ? formData.fee.toString() : "0",
@@ -126,7 +128,10 @@ function CRM() {
         receiveDate: defaultDate, saleInCharge: "",
       });
     } catch (err) {
-      addNotification("Lỗi khi đẩy khách hàng lên database. Vui lòng kiểm tra lại!", "error", "crm");
+      const errorMsg = err.response?.data?.message || "Lỗi mạng hoặc Timeout. Không thể gửi dữ liệu!";
+      addNotification(errorMsg, "error", "crm");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -415,8 +420,8 @@ function CRM() {
             />
           </div>
           <div className="CRM-style-33">
-            <button type="submit" className="btn btn-primary CRM-style-34">
-              LƯU THÔNG TIN KHÁCH HÀNG
+            <button type="submit" className="btn btn-primary CRM-style-34" disabled={isSubmitting}>
+              {isSubmitting ? "ĐANG LƯU DỮ LIỆU..." : "LƯU THÔNG TIN KHÁCH HÀNG"}
             </button>
           </div>
         </form>
