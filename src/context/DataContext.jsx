@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "./AuthContext";
 
 const DataContext = createContext();
 
@@ -12,14 +13,23 @@ export function DataProvider({ children }) {
   const [teachers, setTeachers] = useState([]);
   const [tas, setTas] = useState([]);
   const [classes, setClasses] = useState([]);
+  const { currentUser } = useAuth(); // Lắng nghe phiên bản đăng nhập
 
-  // CHẶN LẶP: Chỉ gọi API đúng 1 lần duy nhất khi nạp ứng dụng nhờ dependency array []
   useEffect(() => {
+    // Nếu chưa đăng nhập / Token chưa có -> Xóa data cũ và ngắt luồng gọi API
+    if (!currentUser) {
+      setCustomers([]);
+      setTeachers([]);
+      setTas([]);
+      setClasses([]);
+      return; 
+    }
+
     // Nạp khách hàng CRM
     api
       .get("/customers")
       .then((res) => setCustomers(res.data))
-      .catch(() => console.log("Chưa thể nạp dữ liệu khách hàng."));
+      .catch((err) => console.log("Lỗi KH:", err.response?.data?.message));
 
     // Nạp giáo viên
     api
@@ -44,8 +54,8 @@ export function DataProvider({ children }) {
     api
       .get("/classes")
       .then((res) => setClasses(res.data))
-      .catch(() => console.log("Chưa thể nạp dữ liệu lớp học."));
-  }, []);
+      .catch((err) => console.log("Lỗi Lớp:", err.response?.data?.message));
+  }, [currentUser]);
 
   const addCustomer = async (newCustomer) => {
     // Tránh ghi đè trùng lặp dữ liệu bằng callback state ngắn gọn
