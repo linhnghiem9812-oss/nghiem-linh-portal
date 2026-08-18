@@ -58,27 +58,28 @@ function ClassReports() {
   }, []);
   useEffect(() => {
     if (classes && classes.length > 0) {
-      classes.forEach((c) => {
-        api
-          .get(`/sessions/class/${c.id}`)
-          .then((res) => {
-            const rawSessions = (res.data || []).filter(Boolean);
+      api.get("/sessions/all-classes")
+        .then((res) => {
+          const allSessions = res.data || [];
+          const newProgressMap = {};
+          
+          classes.forEach((c) => {
+            const classSessions = allSessions.filter(s => s && s.classId === c.id);
             const uniqueMap = new Map();
-            rawSessions.forEach((s) => {
+            classSessions.forEach((s) => {
               if (s && s.sessionNum) uniqueMap.set(s.sessionNum, s);
             });
             const sessions = Array.from(uniqueMap.values());
             const completedCount = sessions.filter(
-              (s) =>
-                s && (s.status === "completed" || s.status === "cancelled"),
+              (s) => s && (s.status === "completed" || s.status === "cancelled")
             ).length;
-            setProgressMap((prev) => ({
-              ...prev,
-              [c.id]: completedCount,
-            }));
-          })
-          .catch(() => { });
-      });
+            
+            newProgressMap[c.id] = completedCount;
+          });
+          
+          setProgressMap(newProgressMap);
+        })
+        .catch(() => {});
     }
   }, [classes]);
   useEffect(() => {
@@ -87,44 +88,43 @@ function ClassReports() {
         (s) => s && s.classCode === selectedReport.classCode,
       );
       setReportStudents(studentsInReport);
-      api
-        .get(`/sessions/class/${selectedReport.id}`)
-        .then((res) => {
-          const rawSessions = (res.data || []).filter(Boolean);
-          const uniqueSessionsMap = new Map();
-          rawSessions.forEach((s) => {
-            if (s && s.sessionNum) {
-              uniqueSessionsMap.set(s.sessionNum, s);
-            }
-          });
-          const sessions = Array.from(uniqueSessionsMap.values());
-          setReportSessions(sessions);
-          sessions.forEach((session) => {
-            if (
-              session &&
-              (session.status === "completed" || session.status === "cancelled")
-            ) {
-              api
-                .get(`/attendance/${selectedReport.id}/${session.sessionNum}`)
-                .then((attRes) => {
-                  const records = attRes.data || [];
-                  // LƯỚI BẢO VỆ 2: Loại bỏ bản ghi điểm danh trùng lặp bị kẹt trong DB cũ
-                  const presentIds = new Set();
-                  records.forEach((r) => {
-                    if (r && r.status === "present" && r.studentId) {
-                      presentIds.add(r.studentId);
-                    }
-                  });
-                  setAttendanceMap((prev) => ({
-                    ...prev,
-                    [session.sessionNum]: presentIds.size,
-                  }));
-                })
-                .catch(() => { });
-            }
-          });
-        })
-        .catch(() => setReportSessions([]));
+      
+      // Chạy 2 API lấy Sessions và lấy Attendance song song, KHÔNG dùng vòng lặp
+      Promise.all([
+        api.get(`/sessions/class/${selectedReport.id}`).catch(() => ({ data: [] })),
+        api.get(`/attendance/class/${selectedReport.id}`).catch(() => ({ data: [] }))
+      ]).then(([sessionsRes, attendanceRes]) => {
+        
+        // 1. Xử lý Sessions
+        const rawSessions = (sessionsRes.data || []).filter(Boolean);
+        const uniqueSessionsMap = new Map();
+        rawSessions.forEach((s) => {
+          if (s && s.sessionNum) {
+            uniqueSessionsMap.set(s.sessionNum, s);
+          }
+        });
+        const sessions = Array.from(uniqueSessionsMap.values());
+        setReportSessions(sessions);
+        
+        // 2. Xử lý Attendance
+        const allAttendanceRecords = attendanceRes.data || [];
+        const newAttendanceMap = {};
+        
+        sessions.forEach((session) => {
+          if (session && (session.status === "completed" || session.status === "cancelled")) {
+             const sessionRecords = allAttendanceRecords.filter(r => r && r.sessionNum === session.sessionNum);
+             const presentIds = new Set();
+             sessionRecords.forEach((r) => {
+               if (r && r.status === "present" && r.studentId) {
+                 presentIds.add(r.studentId);
+               }
+             });
+             newAttendanceMap[session.sessionNum] = presentIds.size;
+          }
+        });
+        
+        setAttendanceMap(newAttendanceMap);
+      });
     }
   }, [selectedReport, allStudents]);
   let displayClasses = classes ? [...classes] : [];
