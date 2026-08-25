@@ -1,7 +1,7 @@
 .Customers-style-1 {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 58px;
   animation: fadeIn 0.3s ease-out;
 }
 
