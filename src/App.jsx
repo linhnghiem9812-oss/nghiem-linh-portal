@@ -58,6 +58,8 @@ function App() {
     if (activeTab) {
       localStorage.setItem("current_tab", activeTab);
     }
+    // Cuộn trang lên vị trí cao nhất mỗi khi tab thay đổi
+    window.scrollTo(0, 0);
   }, [activeTab]);
 
   const [theme, setTheme] = useState("light");
