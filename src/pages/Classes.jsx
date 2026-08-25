@@ -778,7 +778,7 @@ function Classes() {
 
                 {!collapsedMonths[monthLabel] && groupedClasses[monthLabel].map((c) => {
                   const count = allStudents.filter(
-                    (s) => s.classId === c.classCode,
+                    (s) => s.classCode === c.classCode,
                   ).length;
                   return (
                     <tr
