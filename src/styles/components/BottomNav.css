@@ -6,7 +6,7 @@
 }
 
 /* CHỈ HIỆN TRÊN ĐIỆN THOẠI & TABLET (Màn hình dưới 1024px) */
-@media (max-width: 1024px) {
+@media (max-width: 1025px) {
     .bottom-nav {
         position: fixed !important;
         bottom: 0 !important;
