@@ -1,6 +1,6 @@
 .Auth-style-1 {
   display: flex;
-  min-height: 200vh;
+  min-height: 100vh;
   background-color: var(--bg-app);
   align-items: center;
   justify-content: center;
