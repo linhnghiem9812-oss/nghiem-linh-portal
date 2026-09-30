@@ -29,9 +29,11 @@ function PayrollManagement() {
     const rowsPerPage = 10;
 
     useEffect(() => {
-        setCurrentPage(1);
-        setInputPage("1");
-    }, [searchTerm, activeTab, statusFilter, payrolls.length]);
+        const totalP = Math.ceil(payrolls.length / rowsPerPage) || 1; 
+        // We will do exact length after render but we can just use payrolls.length as a safe upper bound in this hook, 
+        // or actually since filteredPayrolls isn't defined yet, we'll move the useEffect down. 
+        // For now, I'll delete this useEffect and place it below filteredPayrolls!
+    }, []);
     
     const [staffSuggestions, setStaffSuggestions] = useState([]);
     const [isLoadingStaff, setIsLoadingStaff] = useState(false);
@@ -256,6 +258,15 @@ function PayrollManagement() {
 
     // Tính toán dữ liệu hiển thị cho trang hiện tại
     const totalPages = Math.ceil(filteredPayrolls.length / rowsPerPage) || 1;
+    
+    // Tự động điều chỉnh trang nếu tổng số trang bị thu hẹp do bộ lọc
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+            setInputPage(totalPages.toString());
+        }
+    }, [filteredPayrolls.length, currentPage, totalPages]);
+
     const indexOfLastPayroll = currentPage * rowsPerPage;
     const indexOfFirstPayroll = indexOfLastPayroll - rowsPerPage;
     const currentPayrolls = filteredPayrolls.slice(indexOfFirstPayroll, indexOfLastPayroll);

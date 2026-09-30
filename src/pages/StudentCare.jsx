@@ -90,11 +90,14 @@ function StudentCare() {
   // ========================================================
   // LOGIC PHÂN TRANG (PAGINATION)
   // ========================================================
-  // 1. Tự động quay về trang 1 nếu người dùng tìm kiếm hoặc lọc
+  // 1. Tự động điều chỉnh trang hiện tại nếu bị vượt quá tổng số trang sau khi lọc
   useEffect(() => {
-    setCurrentPage(1);
-    setInputPage("1");
-  }, [searchTerm, statusFilter]);
+    const totalP = Math.ceil(filteredStudents.length / rowsPerPage) || 1;
+    if (currentPage > totalP) {
+      setCurrentPage(totalP);
+      setInputPage(totalP.toString());
+    }
+  }, [filteredStudents.length, currentPage]);
 
   // 2. Tính toán dữ liệu hiển thị cho trang hiện tại
   const totalPages = Math.ceil(filteredStudents.length / rowsPerPage) || 1;

@@ -337,9 +337,7 @@ function ClassReports() {
                 </div>
                 <div className="ClassReports-style-59">
                   {reportSessions.filter(
-                    (s) =>
-                      s &&
-                      (s.status === "completed" || s.status === "cancelled"),
+                    (s) => s
                   ).length === 0 && (
                       <p className="ClassReports-style-60">
                         Chưa có lịch sử dạy được ghi nhận từ Giáo viên.
@@ -347,20 +345,17 @@ function ClassReports() {
                     )}
 
                   {reportSessions
-                    .filter(
-                      (s) =>
-                        s &&
-                        (s.status === "completed" || s.status === "cancelled"),
-                    )
+                    .filter((s) => s)
                     .sort((a, b) => b.sessionNum - a.sessionNum)
                     .map((session) => (
                       <div
                         key={session.sessionNum}
                         style={{
-                          border: `1px solid ${session.status === "completed" ? "#10b981" : "#ef4444"}`,
+                          border: `1px solid ${session.status === "completed" ? "#10b981" : session.status === "cancelled" ? "#ef4444" : "#f59e0b"}`,
                           borderRadius: "8px",
                           padding: "12px",
                           backgroundColor: "var(--bg-card)",
+                          opacity: session.status === "draft" ? 0.7 : 1,
                         }}
                       >
                         <div className="ClassReports-style-61">
@@ -384,18 +379,24 @@ function ClassReports() {
                                 color:
                                   session.status === "completed"
                                     ? "var(--success)"
-                                    : "var(--danger-text)",
+                                    : session.status === "cancelled"
+                                    ? "var(--danger-text)"
+                                    : "#b45309",
                                 backgroundColor:
                                   session.status === "completed"
                                     ? "var(--success-light)"
-                                    : "var(--danger-light)",
+                                    : session.status === "cancelled"
+                                    ? "var(--danger-light)"
+                                    : "#fef3c7",
                                 padding: "2px 8px",
                                 borderRadius: "4px",
                               }}
                             >
                               {session.status === "completed"
                                 ? "Đã hoàn thành"
-                                : "Nghỉ"}
+                                : session.status === "cancelled"
+                                ? "Nghỉ"
+                                : "Đang nháp"}
                             </span>
                           </div>
                         </div>

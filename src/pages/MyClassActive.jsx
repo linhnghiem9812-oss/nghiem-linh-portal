@@ -112,7 +112,15 @@ function MyClassActive() {
       try {
         const res = await api.get(`/sessions/class/${activeClass.id}`);
         const dbSessions = res.data || [];
-        const total = Math.max(1, parseInt(activeClass.totalSessions) || 19);
+        
+        let maxDbSessionNum = 0;
+        dbSessions.forEach(dbS => {
+           if (dbS && dbS.sessionNum && dbS.sessionNum > maxDbSessionNum) {
+               maxDbSessionNum = dbS.sessionNum;
+           }
+        });
+        const total = Math.max(1, parseInt(activeClass.totalSessions) || 19, maxDbSessionNum);
+        
         const fullSessions = Array.from(
           {
             length: total,
@@ -275,11 +283,42 @@ function MyClassActive() {
       })),
     );
   };
+  
+  const handleAddExtraSession = () => {
+    const nextSessionNum = sessionsData.length + 1;
+    const newSession = {
+      classId: activeClass.id,
+      sessionNum: nextSessionNum,
+      title: `BÀI ${nextSessionNum}`,
+      status: "draft",
+      notes: "",
+      hasLessonPlan: false,
+      lessonPlanUrl: "",
+    };
+    setSessionsData([...sessionsData, newSession]);
+    setSelectedSessionNum(nextSessionNum);
+  };
   const handleSaveAllData = async () => {
     if (isFetchingAttendance) return;
+    
+    let finalSessionToSave = { ...currentSession };
+    if (
+      finalSessionToSave.status === "draft" &&
+      finalSessionToSave.notes &&
+      finalSessionToSave.notes.trim().length > 0
+    ) {
+      const confirmChange = window.confirm(
+        "Hệ thống: Bạn đã điền báo cáo nhưng trạng thái vẫn là 'Chưa diễn ra'. Bạn có muốn đổi thành 'Đã hoàn thành' để báo cáo được ghi nhận không?"
+      );
+      if (confirmChange) {
+        finalSessionToSave.status = "completed";
+        handleUpdateSessionField("status", "completed");
+      }
+    }
+
     try {
       await api.post(`/sessions`, {
-        ...currentSession,
+        ...finalSessionToSave,
         classId: activeClass.id,
       });
 
@@ -304,9 +343,9 @@ function MyClassActive() {
       ).length;
       const totalCount = studentsAttendance.length;
       const statusText =
-        currentSession.status === "completed"
+        finalSessionToSave.status === "completed"
           ? "Đã hoàn thành"
-          : currentSession.status === "cancelled"
+          : finalSessionToSave.status === "cancelled"
             ? "Nghỉ"
             : "Chưa diễn ra";
       addNotification(
@@ -318,44 +357,15 @@ function MyClassActive() {
         {
           "Sĩ số điểm danh": `${presentCount} / ${totalCount} có mặt`,
           "Trạng thái buổi học": statusText,
-          "Tình trạng Giáo án": currentSession.hasLessonPlan
+          "Tình trạng Giáo án": finalSessionToSave.hasLessonPlan
             ? "Đã nộp"
             : "Chưa nộp",
-          "Bài tập / Ghi chú": currentSession.notes || "Không có ghi chú",
+          "Bài tập / Ghi chú": finalSessionToSave.notes || "Không có ghi chú",
         },
       );
-      const res = await api.get(`/sessions/class/${activeClass.id}`);
-      if (res.data && res.data.length > 0) {
-        const total = Math.max(1, parseInt(activeClass.totalSessions) || 19);
-        const fullSessions = Array.from(
-          {
-            length: total,
-          },
-          (_, i) => ({
-            classId: activeClass.id,
-            sessionNum: i + 1,
-            title: `BÀI ${i + 1}`,
-            status: "draft",
-            notes: "",
-            hasLessonPlan: false,
-            lessonPlanUrl: "",
-          }),
-        );
-        res.data.forEach((dbS) => {
-          if (
-            dbS &&
-            dbS.sessionNum &&
-            dbS.sessionNum >= 1 &&
-            dbS.sessionNum <= total
-          ) {
-            fullSessions[dbS.sessionNum - 1] = {
-              ...fullSessions[dbS.sessionNum - 1],
-              ...dbS,
-            };
-          }
-        });
-        setSessionsData(fullSessions);
-      }
+      
+      // Đã loại bỏ logic gọi lại api.get(`/sessions/class/...`) ở đây
+      // để tránh việc dữ liệu nháp ở các Buổi học khác bị ghi đè và làm mất (Overwritten data UX bug).
     } catch (error) {
       const errorMsg =
         error.response?.data?.message ||
@@ -531,6 +541,29 @@ function MyClassActive() {
                   </div>
                 );
               })}
+              {/* BUTTON THÊM BUỔI HỌC NGOẠI LỆ */}
+              <div
+                onClick={handleAddExtraSession}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "8px 6px",
+                  borderRadius: "10px",
+                  backgroundColor: "#f8fafc",
+                  border: "1px dashed #94a3b8",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  textAlign: "center",
+                  minHeight: "80px",
+                }}
+              >
+                <i className="fa-solid fa-plus" style={{ color: "#64748b", fontSize: "1.2rem", marginBottom: "4px" }}></i>
+                <strong style={{ fontSize: "0.75rem", color: "#64748b" }}>
+                  Thêm buổi
+                </strong>
+              </div>
             </div>
           </div>
 
