@@ -10,12 +10,13 @@ const api = axios.create({
 function FinanceLog() {
   const { addNotification } = useNotification();
   const [invoices, setInvoices] = useState([]);
+  const [courses, setCourses] = useState([]);
   const todayStr = new Date().toISOString().split("T")[0];
 
   const [formInvoice, setFormInvoice] = useState({
     date: todayStr,
     studentName: "",
-    course: "Khóa học HSK 1",
+    courseId: "",
     amount: "",
     amountJpy: "",
     amountCny: "",
@@ -60,6 +61,11 @@ function FinanceLog() {
   };
 
   useEffect(() => {
+    // Lấy danh sách khóa học
+    api.get("/courses")
+       .then(res => setCourses(res.data))
+       .catch(err => console.error("Không lấy được danh sách khóa học"));
+
     api
       .get("/invoices")
       .then((res) => {
@@ -68,6 +74,14 @@ function FinanceLog() {
       })
       .catch(() => console.log("Chưa có hóa đơn trong CSDL."));
   }, []);
+
+  const getCourseName = (inv) => {
+    if (inv.courseId) {
+      const course = courses.find((c) => c.id === parseInt(inv.courseId));
+      if (course) return course.name;
+    }
+    return inv.course || "N/A";
+  };
 
   const handleAddInvoice = async (e) => {
     e.preventDefault();
@@ -85,7 +99,7 @@ function FinanceLog() {
     const newInv = {
       date: formattedDate,
       studentName: formInvoice.studentName,
-      course: formInvoice.course,
+      courseId: formInvoice.courseId || (courses.length > 0 ? courses[0].id : null),
       amount: parseInt(formInvoice.amount) || 0,
       amountJpy: parseInt(formInvoice.amountJpy) || 0,
       amountCny: parseInt(formInvoice.amountCny) || 0,
@@ -99,7 +113,7 @@ function FinanceLog() {
       setFormInvoice({
         date: todayStr,
         studentName: "",
-        course: "Khóa học HSK 1",
+        courseId: courses.length > 0 ? courses[0].id : "",
         amount: "",
         amountJpy: "",
         amountCny: "",
@@ -199,13 +213,12 @@ function FinanceLog() {
                 <label className="FinanceLog-style-16">Chương trình đăng ký</label>
                 <select
                   className="form-control"
-                  value={formInvoice.course}
-                  onChange={(e) => setFormInvoice({ ...formInvoice, course: e.target.value })}
+                  value={formInvoice.courseId || (courses.length > 0 ? courses[0].id : "")}
+                  onChange={(e) => setFormInvoice({ ...formInvoice, courseId: e.target.value })}
                 >
-                  <option value="Khóa học HSK 1">Khóa học HSK 1</option>
-                  <option value="Khóa học HSK 2">Khóa học HSK 2</option>
-                  <option value="Khóa học HSK 3">Khóa học HSK 3</option>
-                  <option value="Lớp VIP 1-1">Lớp VIP 1-1</option>
+                  {courses.filter(c => !c.isDeleted).map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
                 </select>
               </div>
 
@@ -310,7 +323,7 @@ function FinanceLog() {
                       <td className="FinanceLog-style-45">
                         <strong className="FinanceLog-style-46">{inv.studentName}</strong>
                         <span className="FinanceLog-style-47">
-                          {inv.course}
+                          {getCourseName(inv)}
                         </span>
                       </td>
                       
@@ -425,12 +438,15 @@ function FinanceLog() {
               </div>
               <div>
                 <label className="FinanceLog-style-67">Khóa học / Nội dung</label>
-                <input
-                  type="text"
+                <select
                   className="form-control"
-                  value={editingInvoice.course || ""}
-                  onChange={(e) => setEditingInvoice({ ...editingInvoice, course: e.target.value })}
-                />
+                  value={editingInvoice.courseId || ""}
+                  onChange={(e) => setEditingInvoice({ ...editingInvoice, courseId: e.target.value })}
+                >
+                  {courses.filter(c => !c.isDeleted || c.id === parseInt(editingInvoice.courseId)).map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
               </div>
 
               {/* 3 Ô NHẬP TIỀN TỆ TRONG MODAL */}
@@ -524,7 +540,7 @@ function FinanceLog() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
                 <span style={{ color: '#64748b', fontWeight: '700', fontSize: '0.85rem' }}>Nội dung:</span>
-                <strong style={{ color: '#0f172a', textAlign: 'right', maxWidth: '60%' }}>{viewingInvoice.course}</strong>
+                <strong style={{ color: '#0f172a', textAlign: 'right', maxWidth: '60%' }}>{getCourseName(viewingInvoice)}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
                 <span style={{ color: '#64748b', fontWeight: '700', fontSize: '0.85rem' }}>Hình thức:</span>
