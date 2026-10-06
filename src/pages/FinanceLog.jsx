@@ -63,8 +63,8 @@ function FinanceLog() {
   useEffect(() => {
     // Lấy danh sách khóa học
     api.get("/courses")
-       .then(res => setCourses(res.data))
-       .catch(err => console.error("Không lấy được danh sách khóa học"));
+      .then(res => setCourses(res.data))
+      .catch(err => console.error("Không lấy được danh sách khóa học"));
 
     api
       .get("/invoices")
@@ -311,8 +311,8 @@ function FinanceLog() {
                     </tr>
                   )}
                   {currentInvoices.map((inv) => (
-                    <tr 
-                      key={inv.id} 
+                    <tr
+                      key={inv.id}
                       className="FinanceLog-style-42"
                       onClick={() => setViewingInvoice(inv)} /* Click để mở Menu chi tiết */
                     >
@@ -326,7 +326,7 @@ function FinanceLog() {
                           {getCourseName(inv)}
                         </span>
                       </td>
-                      
+
                       {/* ĐÃ XÓA mobile-hidden Ở ĐÂY ĐỂ HIỂN THỊ DỮ LIỆU TIỀN TRÊN ĐIỆN THOẠI */}
                       <td className="FinanceLog-style-49">
                         {(inv.amount > 0 || (!inv.amount && !inv.amountJpy && !inv.amountCny)) && (
@@ -339,7 +339,7 @@ function FinanceLog() {
                           <div className="FinanceLog-style-52">{inv.amountCny.toLocaleString("vi-VN")} ¥</div>
                         )}
                       </td>
-                      
+
                       {/* 2 Cột Trạng thái và Thao tác vẫn ẩn trên điện thoại */}
                       <td className="FinanceLog-style-53 mobile-hidden">
                         <span className="FinanceLog-style-54">{inv.status}</span>
@@ -367,41 +367,41 @@ function FinanceLog() {
                 </tbody>
               </table>
 
-            {/* ========================================================
+              {/* ========================================================
                 THANH ĐIỀU HƯỚNG PHÂN TRANG (ĐẶT DƯỚI BẢNG)
             ======================================================== */}
-            {invoices.length > rowsPerPage && (
-              <div className="FinanceLog-pagination">
-                <button onClick={goToFirstPage} disabled={currentPage === 1} title="Trang đầu">
-                  <i className="fa-solid fa-angles-left"></i>
-                </button>
-                <button onClick={goToPrevPage} disabled={currentPage === 1} title="Trang trước">
-                  <i className="fa-solid fa-angle-left"></i>
-                </button>
-                
-                <div className="FinanceLog-pagination-info">
-                  Trang 
-                  <input 
-                    type="number" 
-                    className="FinanceLog-pagination-input"
-                    value={inputPage} 
-                    onChange={handlePageInput} 
-                    onBlur={handlePageSubmit} 
-                    onKeyDown={handlePageSubmit} 
-                    min="1"
-                    max={totalPages}
-                  /> 
-                  / {totalPages}
-                </div>
+              {invoices.length > rowsPerPage && (
+                <div className="FinanceLog-pagination">
+                  <button onClick={goToFirstPage} disabled={currentPage === 1} title="Trang đầu">
+                    <i className="fa-solid fa-angles-left"></i>
+                  </button>
+                  <button onClick={goToPrevPage} disabled={currentPage === 1} title="Trang trước">
+                    <i className="fa-solid fa-angle-left"></i>
+                  </button>
 
-                <button onClick={goToNextPage} disabled={currentPage === totalPages} title="Trang sau">
-                  <i className="fa-solid fa-angle-right"></i>
-                </button>
-                <button onClick={goToLastPage} disabled={currentPage === totalPages} title="Trang cuối">
-                  <i className="fa-solid fa-angles-right"></i>
-                </button>
-              </div>
-            )}
+                  <div className="FinanceLog-pagination-info">
+                    Trang
+                    <input
+                      type="number"
+                      className="FinanceLog-pagination-input"
+                      value={inputPage}
+                      onChange={handlePageInput}
+                      onBlur={handlePageSubmit}
+                      onKeyDown={handlePageSubmit}
+                      min="1"
+                      max={totalPages}
+                    />
+                    / {totalPages}
+                  </div>
+
+                  <button onClick={goToNextPage} disabled={currentPage === totalPages} title="Trang sau">
+                    <i className="fa-solid fa-angle-right"></i>
+                  </button>
+                  <button onClick={goToLastPage} disabled={currentPage === totalPages} title="Trang cuối">
+                    <i className="fa-solid fa-angles-right"></i>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -524,7 +524,7 @@ function FinanceLog() {
               </h3>
               <button onClick={() => setViewingInvoice(null)} className="FinanceLog-style-63">✖</button>
             </div>
-            
+
             <div className="FinanceLog-style-64" style={{ gap: '14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
                 <span style={{ color: '#64748b', fontWeight: '700', fontSize: '0.85rem' }}>Mã Hóa Đơn:</span>
@@ -573,13 +573,13 @@ function FinanceLog() {
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
-              <button 
+              <button
                 style={{ flex: 1, padding: '12px', backgroundColor: '#ef4444', color: 'white', borderRadius: '8px', border: 'none', fontWeight: '700' }}
                 onClick={() => { handleDelete(viewingInvoice.id); setViewingInvoice(null); }}
               >
                 <i className="fa-solid fa-trash"></i> Xóa
               </button>
-              <button 
+              <button
                 style={{ flex: 1, padding: '12px', backgroundColor: 'var(--primary)', color: 'white', borderRadius: '8px', border: 'none', fontWeight: '700' }}
                 onClick={() => { setEditingInvoice(viewingInvoice); setViewingInvoice(null); }}
               >
