@@ -40,8 +40,6 @@ Tại đây lưu trữ các thay đổi, tính năng mới và các bản vá l�
 **✨ Tính năng mới & Cải thiện UI/UX:**
 - **Collapsible Sidebar (Thanh điều hướng thu gọn):**
   - Bổ sung nút bấm `<<` / `>>` ở góc dưới cùng bên trái để mở rộng/thu gọn thanh menu.
-  - Khi thu gọn, menu tự động ẩn chữ, giữ lại icon (được phóng to) và hiển thị tooltip tên chức năng khi lia chuột.
-  - Các mục lục như "Giảng dạy", "Quản lý trung tâm" tự động chuyển thành vạch mờ phân cách tinh tế.
 - Tối ưu hóa khoảng cách giữa nút "Đăng xuất" và nút "Thu gọn", bọc viền nút đăng xuất để làm nổi bật tác vụ quan trọng.
 - Trải nghiệm chuyển cảnh (transition) mượt mà cho bố cục chính khi Sidebar thay đổi kích thước.
 
