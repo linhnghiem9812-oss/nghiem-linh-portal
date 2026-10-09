@@ -1,4 +1,4 @@
-# 🌟 Ngoại ngữ Nghiêm Linh Portal
+# 🌟 Ngoại ngữ Nghiêm Linh
 
 Chào mừng đến với hệ thống quản lý nội bộ **Ngoại ngữ Nghiêm Linh**. Đây là nền tảng quản trị toàn diện dành cho trung tâm ngoại ngữ, giúp số hóa và tối ưu hóa các quy trình từ giảng dạy, chăm sóc học viên đến quản lý tài chính và nhân sự.
 
