@@ -6,7 +6,7 @@ Chào mừng đến với hệ thống quản lý nội bộ **Ngoại ngữ Ngh
 
 ## 📋 Giới thiệu Chức năng
 
-Hệ thống được thiết kế với phân quyền chặt chẽ (Admin, Manager, Sales, Teacher) và bao gồm các phân hệ chính
+Hệ thống được thiết kế với phân quyền chặt chẽ (Admin, Manager, Sales, Teacher) và bao gồm các phân hệ chính:
 
 ### 🎓 1. Khối Giảng dạy
 - **Quản lý Lớp học:** Tạo, theo dõi và cấu hình các lớp học đang hoạt động.
