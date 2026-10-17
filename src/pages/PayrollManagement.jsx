@@ -37,8 +37,7 @@ function PayrollManagement() {
     
     const [staffSuggestions, setStaffSuggestions] = useState([]);
     const [isLoadingStaff, setIsLoadingStaff] = useState(false);
-    const [isCalculating, setIsCalculating] = useState(false);
-    const [calculatedTotal, setCalculatedTotal] = useState(0);
+    const [isLoadingPayrolls, setIsLoadingPayrolls] = useState(true);
 
     const initialForm = {
         id: null,
@@ -60,6 +59,7 @@ function PayrollManagement() {
 
     useEffect(() => {
         const fetchPayrolls = async () => {
+            setIsLoadingPayrolls(true);
             try {
                 const savedSession = localStorage.getItem("nl_real_session");
                 const userRole = savedSession ? JSON.parse(savedSession)?.role : null;
@@ -69,14 +69,17 @@ function PayrollManagement() {
                 setPayrolls(res.data || []);
             } catch (err) {
                 console.error("Lỗi tải dữ liệu lương: ", err);
+            } finally {
+                setIsLoadingPayrolls(false);
             }
         };
         fetchPayrolls();
     }, []);
 
+    // Chỉ tải gợi ý nhân sự khi đã mở form (tránh bắn request thừa lúc vừa vào trang)
     useEffect(() => {
         const fetchSuggestions = async () => {
-            if (!formData.role) return;
+            if (!showModal || !formData.role) return;
             setIsLoadingStaff(true);
             try {
                 const res = await api.get(`/users/suggestions?role=${formData.role}`);
@@ -88,7 +91,7 @@ function PayrollManagement() {
             }
         };
         fetchSuggestions();
-    }, [formData.role]);
+    }, [formData.role, showModal]);
 
     const filteredClassSuggestions = useMemo(() => {
         if (!formData.staffName || !classes) return [];
@@ -101,27 +104,16 @@ function PayrollManagement() {
         }).map(c => c.classCode);
     }, [formData.staffName, formData.role, classes]);
 
-    useEffect(() => {
-        const calcTotal = async () => {
-            setIsCalculating(true);
-            try {
-                const payload = {
-                    baseSalary: parseInt(formData.baseSalary) || 0,
-                    adjustments: formData.adjustments.map(adj => ({
-                        type: adj.type,
-                        amount: parseInt(adj.amount) || 0
-                    }))
-                };
-                const res = await api.post('/payroll/calculate', payload);
-                setCalculatedTotal(res.data.finalAmount || 0);
-            } catch (error) {
-                console.error("Lỗi tính lương: ", error);
-                setCalculatedTotal(0);
-            } finally {
-                setIsCalculating(false);
-            }
-        };
-        calcTotal();
+    // Tính tổng thanh toán ngay trên client (phép cộng trừ đơn giản, không cần gọi API mỗi lần gõ phím).
+    // Backend vẫn tự tính lại amount khi lưu để đảm bảo chính xác.
+    const calculatedTotal = useMemo(() => {
+        const base = parseInt(formData.baseSalary) || 0;
+        return formData.adjustments.reduce((sum, adj) => {
+            const amt = parseInt(adj.amount) || 0;
+            if (adj.type === 'Phạt') return sum - amt;
+            if (adj.type !== 'Không') return sum + amt;
+            return sum;
+        }, base);
     }, [formData.baseSalary, formData.adjustments]);
 
     const handleInputChange = (e) => {
@@ -376,7 +368,11 @@ function PayrollManagement() {
                             </tr>
                         </thead>
                         <tbody>
-                            {currentPayrolls.length === 0 && (
+                            {isLoadingPayrolls ? (
+                                <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                                    <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>Đang tải dữ liệu lương...
+                                </td></tr>
+                            ) : currentPayrolls.length === 0 && (
                                 <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>Chưa có bản ghi thanh toán lương nào.</td></tr>
                             )}
                             {currentPayrolls.map((p) => (
@@ -575,7 +571,7 @@ function PayrollManagement() {
                                 <div className="payroll-form-group full-width" style={{ backgroundColor: '#f1f5f9', padding: '12px', borderRadius: '8px', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', border: '1px dashed #cbd5e1' }}>
                                     <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-muted)' }}>TỔNG THANH TOÁN:</span>
                                     <strong style={{ fontSize: '1.4rem', color: 'var(--primary)' }}>
-                                        {isCalculating ? <i className="fa-solid fa-spinner fa-spin"></i> : `${calculatedTotal.toLocaleString('vi-VN')} ${formData.currency}`}
+                                        {`${calculatedTotal.toLocaleString('vi-VN')} ${formData.currency}`}
                                     </strong>
                                 </div>
 
