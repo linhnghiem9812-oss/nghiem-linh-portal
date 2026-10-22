@@ -43,5 +43,11 @@ Tại đây lưu trữ các thay đổi, tính năng mới và các bản vá l�
 - Tối ưu hóa khoảng cách giữa nút "Đăng xuất" và nút "Thu gọn", bọc viền nút đăng xuất để làm nổi bật tác vụ quan trọng.
 - Trải nghiệm chuyển cảnh (transition) mượt mà cho bố cục chính khi Sidebar thay đổi kích thước.
 
+### 📅 17/07/2026
+**✨ Tính năng mới & Cải thiện UI/UX:**
+- **Collapsible Sidebar (Thanh điều hướng thu gọn):**
+  - Bổ sung nút bấm `<<` / `>>` ở góc dưới cùng bên trái để mở rộng/thu gọn thanh menu.
+- Tối ưu hóa khoảng cách giữa nút "Đăng xuất" và nút "Thu gọn", bọc viền nút đăng xuất để làm nổi bật tác vụ quan trọng.
+- Trải nghiệm chuyển cảnh (transition) mượt mà cho bố cục chính khi Sidebar thay đổi kích thước.
 
 *Phát triển và bảo trì bởi đội ngũ kỹ thuật Ngoại ngữ Nghiêm Linh.*
